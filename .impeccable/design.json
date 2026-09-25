@@ -1,0 +1,795 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-25T15:40:08.688Z",
+  "title": "Design System: CF-Server-Monitor",
+  "extensions": {
+    "colorMeta": {
+      "accent-light": {
+        "role": "primary",
+        "displayName": "Muted terracotta · light",
+        "tonalRamp": [
+          "oklch(15% 0.1195 38.21)",
+          "oklch(26% 0.1195 38.21)",
+          "oklch(38% 0.1195 38.21)",
+          "oklch(49% 0.1195 38.21)",
+          "oklch(61% 0.1195 38.21)",
+          "oklch(72% 0.1195 38.21)",
+          "oklch(84% 0.1195 38.21)",
+          "oklch(95% 0.1195 38.21)"
+        ]
+      },
+      "accent-surface-light": {
+        "role": "neutral",
+        "displayName": "Terracotta selection wash · light",
+        "tonalRamp": [
+          "oklch(15% 0.0178 59.47)",
+          "oklch(26% 0.0178 59.47)",
+          "oklch(38% 0.0178 59.47)",
+          "oklch(49% 0.0178 59.47)",
+          "oklch(61% 0.0178 59.47)",
+          "oklch(72% 0.0178 59.47)",
+          "oklch(84% 0.0178 59.47)",
+          "oklch(95% 0.0178 59.47)"
+        ]
+      },
+      "accent-ink-light": {
+        "role": "neutral",
+        "displayName": "Accent button ink · light",
+        "tonalRamp": [
+          "oklch(15% 0.0000 89.88)",
+          "oklch(26% 0.0000 89.88)",
+          "oklch(38% 0.0000 89.88)",
+          "oklch(49% 0.0000 89.88)",
+          "oklch(61% 0.0000 89.88)",
+          "oklch(72% 0.0000 89.88)",
+          "oklch(84% 0.0000 89.88)",
+          "oklch(95% 0.0000 89.88)"
+        ]
+      },
+      "bg-primary-light": {
+        "role": "neutral",
+        "displayName": "Page · light",
+        "tonalRamp": [
+          "oklch(15% 0.0054 95.10)",
+          "oklch(26% 0.0054 95.10)",
+          "oklch(38% 0.0054 95.10)",
+          "oklch(49% 0.0054 95.10)",
+          "oklch(61% 0.0054 95.10)",
+          "oklch(72% 0.0054 95.10)",
+          "oklch(84% 0.0054 95.10)",
+          "oklch(95% 0.0054 95.10)"
+        ]
+      },
+      "bg-secondary-light": {
+        "role": "neutral",
+        "displayName": "Inset surface · light",
+        "tonalRamp": [
+          "oklch(15% 0.0081 98.88)",
+          "oklch(26% 0.0081 98.88)",
+          "oklch(38% 0.0081 98.88)",
+          "oklch(49% 0.0081 98.88)",
+          "oklch(61% 0.0081 98.88)",
+          "oklch(72% 0.0081 98.88)",
+          "oklch(84% 0.0081 98.88)",
+          "oklch(95% 0.0081 98.88)"
+        ]
+      },
+      "bg-card-light": {
+        "role": "neutral",
+        "displayName": "Card surface · light",
+        "tonalRamp": [
+          "oklch(15% 0.0041 91.45)",
+          "oklch(26% 0.0041 91.45)",
+          "oklch(38% 0.0041 91.45)",
+          "oklch(49% 0.0041 91.45)",
+          "oklch(61% 0.0041 91.45)",
+          "oklch(72% 0.0041 91.45)",
+          "oklch(84% 0.0041 91.45)",
+          "oklch(95% 0.0041 91.45)"
+        ]
+      },
+      "bg-hover-light": {
+        "role": "neutral",
+        "displayName": "Hover surface · light",
+        "tonalRamp": [
+          "oklch(15% 0.0109 95.17)",
+          "oklch(26% 0.0109 95.17)",
+          "oklch(38% 0.0109 95.17)",
+          "oklch(49% 0.0109 95.17)",
+          "oklch(61% 0.0109 95.17)",
+          "oklch(72% 0.0109 95.17)",
+          "oklch(84% 0.0109 95.17)",
+          "oklch(95% 0.0109 95.17)"
+        ]
+      },
+      "border-color-light": {
+        "role": "neutral",
+        "displayName": "Quiet divider · light",
+        "tonalRamp": [
+          "oklch(15% 0.0123 96.44)",
+          "oklch(26% 0.0123 96.44)",
+          "oklch(38% 0.0123 96.44)",
+          "oklch(49% 0.0123 96.44)",
+          "oklch(61% 0.0123 96.44)",
+          "oklch(72% 0.0123 96.44)",
+          "oklch(84% 0.0123 96.44)",
+          "oklch(95% 0.0123 96.44)"
+        ]
+      },
+      "border-active-light": {
+        "role": "neutral",
+        "displayName": "Interactive border · light",
+        "tonalRamp": [
+          "oklch(15% 0.0182 84.59)",
+          "oklch(26% 0.0182 84.59)",
+          "oklch(38% 0.0182 84.59)",
+          "oklch(49% 0.0182 84.59)",
+          "oklch(61% 0.0182 84.59)",
+          "oklch(72% 0.0182 84.59)",
+          "oklch(84% 0.0182 84.59)",
+          "oklch(95% 0.0182 84.59)"
+        ]
+      },
+      "text-primary-light": {
+        "role": "neutral",
+        "displayName": "Primary ink · light",
+        "tonalRamp": [
+          "oklch(15% 0.0092 88.76)",
+          "oklch(26% 0.0092 88.76)",
+          "oklch(38% 0.0092 88.76)",
+          "oklch(49% 0.0092 88.76)",
+          "oklch(61% 0.0092 88.76)",
+          "oklch(72% 0.0092 88.76)",
+          "oklch(84% 0.0092 88.76)",
+          "oklch(95% 0.0092 88.76)"
+        ]
+      },
+      "text-secondary-light": {
+        "role": "neutral",
+        "displayName": "Supporting ink · light",
+        "tonalRamp": [
+          "oklch(15% 0.0150 86.88)",
+          "oklch(26% 0.0150 86.88)",
+          "oklch(38% 0.0150 86.88)",
+          "oklch(49% 0.0150 86.88)",
+          "oklch(61% 0.0150 86.88)",
+          "oklch(72% 0.0150 86.88)",
+          "oklch(84% 0.0150 86.88)",
+          "oklch(95% 0.0150 86.88)"
+        ]
+      },
+      "text-muted-light": {
+        "role": "neutral",
+        "displayName": "Muted ink · light",
+        "tonalRamp": [
+          "oklch(15% 0.0165 84.59)",
+          "oklch(26% 0.0165 84.59)",
+          "oklch(38% 0.0165 84.59)",
+          "oklch(49% 0.0165 84.59)",
+          "oklch(61% 0.0165 84.59)",
+          "oklch(72% 0.0165 84.59)",
+          "oklch(84% 0.0165 84.59)",
+          "oklch(95% 0.0165 84.59)"
+        ]
+      },
+      "input-bg-light": {
+        "role": "neutral",
+        "displayName": "Field surface · light",
+        "tonalRamp": [
+          "oklch(15% 0.0041 91.45)",
+          "oklch(26% 0.0041 91.45)",
+          "oklch(38% 0.0041 91.45)",
+          "oklch(49% 0.0041 91.45)",
+          "oklch(61% 0.0041 91.45)",
+          "oklch(72% 0.0041 91.45)",
+          "oklch(84% 0.0041 91.45)",
+          "oklch(95% 0.0041 91.45)"
+        ]
+      },
+      "input-border-light": {
+        "role": "neutral",
+        "displayName": "Field stroke · light",
+        "tonalRamp": [
+          "oklch(15% 0.0182 84.59)",
+          "oklch(26% 0.0182 84.59)",
+          "oklch(38% 0.0182 84.59)",
+          "oklch(49% 0.0182 84.59)",
+          "oklch(61% 0.0182 84.59)",
+          "oklch(72% 0.0182 84.59)",
+          "oklch(84% 0.0182 84.59)",
+          "oklch(95% 0.0182 84.59)"
+        ]
+      },
+      "accent-green-light": {
+        "role": "secondary",
+        "displayName": "Sage operational green · light",
+        "tonalRamp": [
+          "oklch(15% 0.0609 147.68)",
+          "oklch(26% 0.0609 147.68)",
+          "oklch(38% 0.0609 147.68)",
+          "oklch(49% 0.0609 147.68)",
+          "oklch(61% 0.0609 147.68)",
+          "oklch(72% 0.0609 147.68)",
+          "oklch(84% 0.0609 147.68)",
+          "oklch(95% 0.0609 147.68)"
+        ]
+      },
+      "accent-yellow-light": {
+        "role": "secondary",
+        "displayName": "Ochre caution · light",
+        "tonalRamp": [
+          "oklch(15% 0.1074 72.68)",
+          "oklch(26% 0.1074 72.68)",
+          "oklch(38% 0.1074 72.68)",
+          "oklch(49% 0.1074 72.68)",
+          "oklch(61% 0.1074 72.68)",
+          "oklch(72% 0.1074 72.68)",
+          "oklch(84% 0.1074 72.68)",
+          "oklch(95% 0.1074 72.68)"
+        ]
+      },
+      "accent-red-light": {
+        "role": "secondary",
+        "displayName": "Clay alert · light",
+        "tonalRamp": [
+          "oklch(15% 0.1416 28.02)",
+          "oklch(26% 0.1416 28.02)",
+          "oklch(38% 0.1416 28.02)",
+          "oklch(49% 0.1416 28.02)",
+          "oklch(61% 0.1416 28.02)",
+          "oklch(72% 0.1416 28.02)",
+          "oklch(84% 0.1416 28.02)",
+          "oklch(95% 0.1416 28.02)"
+        ]
+      },
+      "accent-blue-light": {
+        "role": "secondary",
+        "displayName": "Slate blue series · light",
+        "tonalRamp": [
+          "oklch(15% 0.0545 247.08)",
+          "oklch(26% 0.0545 247.08)",
+          "oklch(38% 0.0545 247.08)",
+          "oklch(49% 0.0545 247.08)",
+          "oklch(61% 0.0545 247.08)",
+          "oklch(72% 0.0545 247.08)",
+          "oklch(84% 0.0545 247.08)",
+          "oklch(95% 0.0545 247.08)"
+        ]
+      },
+      "accent-purple-light": {
+        "role": "secondary",
+        "displayName": "Muted violet series · light",
+        "tonalRamp": [
+          "oklch(15% 0.0526 312.16)",
+          "oklch(26% 0.0526 312.16)",
+          "oklch(38% 0.0526 312.16)",
+          "oklch(49% 0.0526 312.16)",
+          "oklch(61% 0.0526 312.16)",
+          "oklch(72% 0.0526 312.16)",
+          "oklch(84% 0.0526 312.16)",
+          "oklch(95% 0.0526 312.16)"
+        ]
+      },
+      "accent-pink-light": {
+        "role": "secondary",
+        "displayName": "Dusty rose series · light",
+        "tonalRamp": [
+          "oklch(15% 0.0751 359.88)",
+          "oklch(26% 0.0751 359.88)",
+          "oklch(38% 0.0751 359.88)",
+          "oklch(49% 0.0751 359.88)",
+          "oklch(61% 0.0751 359.88)",
+          "oklch(72% 0.0751 359.88)",
+          "oklch(84% 0.0751 359.88)",
+          "oklch(95% 0.0751 359.88)"
+        ]
+      },
+      "accent-cyan-light": {
+        "role": "secondary",
+        "displayName": "Eucalyptus series · light",
+        "tonalRamp": [
+          "oklch(15% 0.0481 173.13)",
+          "oklch(26% 0.0481 173.13)",
+          "oklch(38% 0.0481 173.13)",
+          "oklch(49% 0.0481 173.13)",
+          "oklch(61% 0.0481 173.13)",
+          "oklch(72% 0.0481 173.13)",
+          "oklch(84% 0.0481 173.13)",
+          "oklch(95% 0.0481 173.13)"
+        ]
+      },
+      "accent-dark": {
+        "role": "primary",
+        "displayName": "Muted terracotta · dark",
+        "tonalRamp": [
+          "oklch(15% 0.0849 43.01)",
+          "oklch(26% 0.0849 43.01)",
+          "oklch(38% 0.0849 43.01)",
+          "oklch(49% 0.0849 43.01)",
+          "oklch(61% 0.0849 43.01)",
+          "oklch(72% 0.0849 43.01)",
+          "oklch(84% 0.0849 43.01)",
+          "oklch(95% 0.0849 43.01)"
+        ]
+      },
+      "accent-surface-dark": {
+        "role": "neutral",
+        "displayName": "Terracotta selection wash · dark",
+        "tonalRamp": [
+          "oklch(15% 0.0254 41.54)",
+          "oklch(26% 0.0254 41.54)",
+          "oklch(38% 0.0254 41.54)",
+          "oklch(49% 0.0254 41.54)",
+          "oklch(61% 0.0254 41.54)",
+          "oklch(72% 0.0254 41.54)",
+          "oklch(84% 0.0254 41.54)",
+          "oklch(95% 0.0254 41.54)"
+        ]
+      },
+      "accent-ink-dark": {
+        "role": "neutral",
+        "displayName": "Accent button ink · dark",
+        "tonalRamp": [
+          "oklch(15% 0.0040 84.58)",
+          "oklch(26% 0.0040 84.58)",
+          "oklch(38% 0.0040 84.58)",
+          "oklch(49% 0.0040 84.58)",
+          "oklch(61% 0.0040 84.58)",
+          "oklch(72% 0.0040 84.58)",
+          "oklch(84% 0.0040 84.58)",
+          "oklch(95% 0.0040 84.58)"
+        ]
+      },
+      "bg-primary-dark": {
+        "role": "neutral",
+        "displayName": "Page · dark",
+        "tonalRamp": [
+          "oklch(15% 0.0040 84.58)",
+          "oklch(26% 0.0040 84.58)",
+          "oklch(38% 0.0040 84.58)",
+          "oklch(49% 0.0040 84.58)",
+          "oklch(61% 0.0040 84.58)",
+          "oklch(72% 0.0040 84.58)",
+          "oklch(84% 0.0040 84.58)",
+          "oklch(95% 0.0040 84.58)"
+        ]
+      },
+      "bg-secondary-dark": {
+        "role": "neutral",
+        "displayName": "Inset surface · dark",
+        "tonalRamp": [
+          "oklch(15% 0.0055 91.56)",
+          "oklch(26% 0.0055 91.56)",
+          "oklch(38% 0.0055 91.56)",
+          "oklch(49% 0.0055 91.56)",
+          "oklch(61% 0.0055 91.56)",
+          "oklch(72% 0.0055 91.56)",
+          "oklch(84% 0.0055 91.56)",
+          "oklch(95% 0.0055 91.56)"
+        ]
+      },
+      "bg-card-dark": {
+        "role": "neutral",
+        "displayName": "Card surface · dark",
+        "tonalRamp": [
+          "oklch(15% 0.0055 91.56)",
+          "oklch(26% 0.0055 91.56)",
+          "oklch(38% 0.0055 91.56)",
+          "oklch(49% 0.0055 91.56)",
+          "oklch(61% 0.0055 91.56)",
+          "oklch(72% 0.0055 91.56)",
+          "oklch(84% 0.0055 91.56)",
+          "oklch(95% 0.0055 91.56)"
+        ]
+      },
+      "bg-hover-dark": {
+        "role": "neutral",
+        "displayName": "Hover surface · dark",
+        "tonalRamp": [
+          "oklch(15% 0.0087 97.59)",
+          "oklch(26% 0.0087 97.59)",
+          "oklch(38% 0.0087 97.59)",
+          "oklch(49% 0.0087 97.59)",
+          "oklch(61% 0.0087 97.59)",
+          "oklch(72% 0.0087 97.59)",
+          "oklch(84% 0.0087 97.59)",
+          "oklch(95% 0.0087 97.59)"
+        ]
+      },
+      "border-color-dark": {
+        "role": "neutral",
+        "displayName": "Quiet divider · dark",
+        "tonalRamp": [
+          "oklch(15% 0.0118 93.75)",
+          "oklch(26% 0.0118 93.75)",
+          "oklch(38% 0.0118 93.75)",
+          "oklch(49% 0.0118 93.75)",
+          "oklch(61% 0.0118 93.75)",
+          "oklch(72% 0.0118 93.75)",
+          "oklch(84% 0.0118 93.75)",
+          "oklch(95% 0.0118 93.75)"
+        ]
+      },
+      "border-active-dark": {
+        "role": "neutral",
+        "displayName": "Interactive border · dark",
+        "tonalRamp": [
+          "oklch(15% 0.0146 86.87)",
+          "oklch(26% 0.0146 86.87)",
+          "oklch(38% 0.0146 86.87)",
+          "oklch(49% 0.0146 86.87)",
+          "oklch(61% 0.0146 86.87)",
+          "oklch(72% 0.0146 86.87)",
+          "oklch(84% 0.0146 86.87)",
+          "oklch(95% 0.0146 86.87)"
+        ]
+      },
+      "text-primary-dark": {
+        "role": "neutral",
+        "displayName": "Primary ink · dark",
+        "tonalRamp": [
+          "oklch(15% 0.0096 93.57)",
+          "oklch(26% 0.0096 93.57)",
+          "oklch(38% 0.0096 93.57)",
+          "oklch(49% 0.0096 93.57)",
+          "oklch(61% 0.0096 93.57)",
+          "oklch(72% 0.0096 93.57)",
+          "oklch(84% 0.0096 93.57)",
+          "oklch(95% 0.0096 93.57)"
+        ]
+      },
+      "text-secondary-dark": {
+        "role": "neutral",
+        "displayName": "Supporting ink · dark",
+        "tonalRamp": [
+          "oklch(15% 0.0150 84.59)",
+          "oklch(26% 0.0150 84.59)",
+          "oklch(38% 0.0150 84.59)",
+          "oklch(49% 0.0150 84.59)",
+          "oklch(61% 0.0150 84.59)",
+          "oklch(72% 0.0150 84.59)",
+          "oklch(84% 0.0150 84.59)",
+          "oklch(95% 0.0150 84.59)"
+        ]
+      },
+      "text-muted-dark": {
+        "role": "neutral",
+        "displayName": "Muted ink · dark",
+        "tonalRamp": [
+          "oklch(15% 0.0170 82.79)",
+          "oklch(26% 0.0170 82.79)",
+          "oklch(38% 0.0170 82.79)",
+          "oklch(49% 0.0170 82.79)",
+          "oklch(61% 0.0170 82.79)",
+          "oklch(72% 0.0170 82.79)",
+          "oklch(84% 0.0170 82.79)",
+          "oklch(95% 0.0170 82.79)"
+        ]
+      },
+      "input-bg-dark": {
+        "role": "neutral",
+        "displayName": "Field surface · dark",
+        "tonalRamp": [
+          "oklch(15% 0.0056 91.58)",
+          "oklch(26% 0.0056 91.58)",
+          "oklch(38% 0.0056 91.58)",
+          "oklch(49% 0.0056 91.58)",
+          "oklch(61% 0.0056 91.58)",
+          "oklch(72% 0.0056 91.58)",
+          "oklch(84% 0.0056 91.58)",
+          "oklch(95% 0.0056 91.58)"
+        ]
+      },
+      "input-border-dark": {
+        "role": "neutral",
+        "displayName": "Field stroke · dark",
+        "tonalRamp": [
+          "oklch(15% 0.0136 84.59)",
+          "oklch(26% 0.0136 84.59)",
+          "oklch(38% 0.0136 84.59)",
+          "oklch(49% 0.0136 84.59)",
+          "oklch(61% 0.0136 84.59)",
+          "oklch(72% 0.0136 84.59)",
+          "oklch(84% 0.0136 84.59)",
+          "oklch(95% 0.0136 84.59)"
+        ]
+      },
+      "accent-green-dark": {
+        "role": "secondary",
+        "displayName": "Sage operational green · dark",
+        "tonalRamp": [
+          "oklch(15% 0.0561 148.25)",
+          "oklch(26% 0.0561 148.25)",
+          "oklch(38% 0.0561 148.25)",
+          "oklch(49% 0.0561 148.25)",
+          "oklch(61% 0.0561 148.25)",
+          "oklch(72% 0.0561 148.25)",
+          "oklch(84% 0.0561 148.25)",
+          "oklch(95% 0.0561 148.25)"
+        ]
+      },
+      "accent-yellow-dark": {
+        "role": "secondary",
+        "displayName": "Ochre caution · dark",
+        "tonalRamp": [
+          "oklch(15% 0.0849 80.37)",
+          "oklch(26% 0.0849 80.37)",
+          "oklch(38% 0.0849 80.37)",
+          "oklch(49% 0.0849 80.37)",
+          "oklch(61% 0.0849 80.37)",
+          "oklch(72% 0.0849 80.37)",
+          "oklch(84% 0.0849 80.37)",
+          "oklch(95% 0.0849 80.37)"
+        ]
+      },
+      "accent-red-dark": {
+        "role": "secondary",
+        "displayName": "Clay alert · dark",
+        "tonalRamp": [
+          "oklch(15% 0.0808 29.61)",
+          "oklch(26% 0.0808 29.61)",
+          "oklch(38% 0.0808 29.61)",
+          "oklch(49% 0.0808 29.61)",
+          "oklch(61% 0.0808 29.61)",
+          "oklch(72% 0.0808 29.61)",
+          "oklch(84% 0.0808 29.61)",
+          "oklch(95% 0.0808 29.61)"
+        ]
+      },
+      "accent-blue-dark": {
+        "role": "secondary",
+        "displayName": "Slate blue series · dark",
+        "tonalRamp": [
+          "oklch(15% 0.0397 248.34)",
+          "oklch(26% 0.0397 248.34)",
+          "oklch(38% 0.0397 248.34)",
+          "oklch(49% 0.0397 248.34)",
+          "oklch(61% 0.0397 248.34)",
+          "oklch(72% 0.0397 248.34)",
+          "oklch(84% 0.0397 248.34)",
+          "oklch(95% 0.0397 248.34)"
+        ]
+      },
+      "accent-purple-dark": {
+        "role": "secondary",
+        "displayName": "Muted violet series · dark",
+        "tonalRamp": [
+          "oklch(15% 0.0447 306.41)",
+          "oklch(26% 0.0447 306.41)",
+          "oklch(38% 0.0447 306.41)",
+          "oklch(49% 0.0447 306.41)",
+          "oklch(61% 0.0447 306.41)",
+          "oklch(72% 0.0447 306.41)",
+          "oklch(84% 0.0447 306.41)",
+          "oklch(95% 0.0447 306.41)"
+        ]
+      },
+      "accent-pink-dark": {
+        "role": "secondary",
+        "displayName": "Dusty rose series · dark",
+        "tonalRamp": [
+          "oklch(15% 0.0576 1.58)",
+          "oklch(26% 0.0576 1.58)",
+          "oklch(38% 0.0576 1.58)",
+          "oklch(49% 0.0576 1.58)",
+          "oklch(61% 0.0576 1.58)",
+          "oklch(72% 0.0576 1.58)",
+          "oklch(84% 0.0576 1.58)",
+          "oklch(95% 0.0576 1.58)"
+        ]
+      },
+      "accent-cyan-dark": {
+        "role": "secondary",
+        "displayName": "Eucalyptus series · dark",
+        "tonalRamp": [
+          "oklch(15% 0.0275 172.66)",
+          "oklch(26% 0.0275 172.66)",
+          "oklch(38% 0.0275 172.66)",
+          "oklch(49% 0.0275 172.66)",
+          "oklch(61% 0.0275 172.66)",
+          "oklch(72% 0.0275 172.66)",
+          "oklch(84% 0.0275 172.66)",
+          "oklch(95% 0.0275 172.66)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "page-title": {
+        "displayName": "page title",
+        "purpose": "Implemented page title role."
+      },
+      "page-title-mobile": {
+        "displayName": "page title mobile",
+        "purpose": "Implemented page title mobile role."
+      },
+      "detail-title": {
+        "displayName": "detail title",
+        "purpose": "Implemented detail title role."
+      },
+      "panel-title": {
+        "displayName": "panel title",
+        "purpose": "Implemented panel title role."
+      },
+      "body": {
+        "displayName": "body",
+        "purpose": "Implemented body role."
+      },
+      "server-title": {
+        "displayName": "server title",
+        "purpose": "Implemented server title role."
+      },
+      "control": {
+        "displayName": "control",
+        "purpose": "Implemented control role."
+      },
+      "compact-control": {
+        "displayName": "compact control",
+        "purpose": "Implemented compact control role."
+      },
+      "metric": {
+        "displayName": "metric",
+        "purpose": "Implemented metric role."
+      },
+      "chart-axis": {
+        "displayName": "chart axis",
+        "purpose": "Compact axis labels in Chart.js."
+      },
+      "code": {
+        "displayName": "code",
+        "purpose": "Code and commands only."
+      }
+    },
+    "shadows": [
+      {
+        "name": "overlay",
+        "value": "0 16px 48px #14131040",
+        "purpose": "Floating menus, metadata tooltips, and dialogs."
+      },
+      {
+        "name": "selected-view",
+        "value": "0 1px 3px #302e2914",
+        "purpose": "Small tonal lift for the selected view segment."
+      }
+    ],
+    "motion": [
+      {
+        "name": "interface-state",
+        "value": "160ms ease-out",
+        "purpose": "View background/color, server borders, and button backgrounds."
+      },
+      {
+        "name": "chart-data",
+        "value": "300ms easeOutCubic",
+        "purpose": "Existing Chart.js canvas data animation; separate from the CSS reduced-motion override."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "transition: none; animation-duration: .01ms; animation-iteration-count: 1",
+        "purpose": "CSS behavior under prefers-reduced-motion: reduce."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "medium-max",
+        "value": "1120px"
+      },
+      {
+        "name": "mobile-max",
+        "value": "640px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Filled primary action in the active palette.",
+      "html": "<button class=\"ds-btn-primary\" type=\"button\">Save changes</button>",
+      "css": ".ds-btn-primary{display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:7px 12px;border:1px solid var(--accent, #a55035);border-radius:7px;background:var(--accent, #a55035);color:var(--accent-ink, #ffffff);font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:background-color 160ms ease-out}.ds-btn-primary:hover{filter:brightness(.95)}.ds-btn-primary:focus-visible{outline:2px solid var(--accent, #a55035);outline-offset:4px}.ds-btn-primary:disabled{opacity:.5;cursor:not-allowed}@media(prefers-reduced-motion:reduce){.ds-btn-primary{transition:none}}"
+    },
+    {
+      "name": "Secondary button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Neutral secondary action.",
+      "html": "<button class=\"ds-btn-secondary\" type=\"button\">Cancel</button>",
+      "css": ".ds-btn-secondary{display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:7px 12px;border:1px solid var(--border-color, #dfddd4);border-radius:7px;background:var(--bg-card, #fdfcf9);color:var(--text-primary, #302e29);font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:background-color 160ms ease-out}.ds-btn-secondary:hover{background:var(--bg-hover, #eceae2);border-color:var(--border-active, #b2aca0)}.ds-btn-secondary:focus-visible{outline:2px solid var(--accent, #a55035);outline-offset:4px}.ds-btn-secondary:disabled{opacity:.5;cursor:not-allowed}@media(prefers-reduced-motion:reduce){.ds-btn-secondary{transition:none}}"
+    },
+    {
+      "name": "Text field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Labeled administration field with a visible focus treatment.",
+      "html": "<label class=\"ds-field-label\" for=\"ds-server-name\">Server name</label><input class=\"ds-field\" id=\"ds-server-name\" placeholder=\"Server name\" />",
+      "css": ".ds-field-label{display:block;margin-bottom:8px;font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;font-size:13px;color:var(--text-primary, #302e29)}.ds-field{width:100%;min-height:38px;padding:8px 12px;border:1px solid var(--input-border, #b2aca0);border-radius:7px;background:var(--input-bg, #fdfcf9);color:var(--text-primary, #302e29);font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;font-size:14px;caret-color:var(--accent, #a55035)}.ds-field::placeholder{color:var(--text-muted, #706b61);opacity:1}.ds-field:focus{border-color:var(--accent, #a55035);outline:2px solid var(--accent-surface, #f2e6dd);box-shadow:none}.ds-field:focus-visible{outline:2px solid var(--accent, #a55035);outline-offset:4px}"
+    },
+    {
+      "name": "View selector",
+      "kind": "custom",
+      "refersTo": "view-control-active",
+      "description": "Representative selected and resting view controls.",
+      "html": "<div class=\"ds-view-group\" aria-label=\"View\"><button class=\"ds-view ds-view-active\" aria-pressed=\"true\" type=\"button\">Rings</button><button class=\"ds-view\" aria-pressed=\"false\" type=\"button\">Table</button></div>",
+      "css": ".ds-view-group{display:inline-flex;gap:3px;padding:4px;border:1px solid var(--border-color, #dfddd4);border-radius:10px;background:var(--bg-secondary, #efeee8)}.ds-view{min-height:38px;padding:8px 12px;border:0;border-radius:6px;background:transparent;color:var(--text-secondary, #625e55);font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:background-color 160ms ease-out,color 160ms ease-out}.ds-view-active{background:var(--bg-card, #fdfcf9);color:var(--accent, #a55035);box-shadow:0 1px 3px #302e2914}.ds-view:hover:not(.ds-view-active){background:var(--bg-hover, #eceae2);color:var(--text-primary, #302e29)}.ds-view:focus-visible{outline:2px solid var(--accent, #a55035);outline-offset:4px}@media(prefers-reduced-motion:reduce){.ds-view{transition:none}}"
+    },
+    {
+      "name": "Selected region filter",
+      "kind": "chip",
+      "refersTo": "filter-active",
+      "description": "Selected region control with a count; sample content is illustrative.",
+      "html": "<button class=\"ds-filter\" aria-pressed=\"true\" type=\"button\"><span>All regions</span><span class=\"ds-filter-count\">—</span></button>",
+      "css": ".ds-filter{display:inline-flex;align-items:center;gap:7px;min-height:34px;padding:6px 10px;border:1px solid var(--accent, #a55035);border-radius:7px;background:var(--accent-surface, #f2e6dd);color:var(--accent, #a55035);font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;font-size:12px;font-weight:500;cursor:pointer}.ds-filter-count{color:var(--text-muted, #706b61);font-variant-numeric:tabular-nums}.ds-filter:hover{border-color:var(--border-active, #b2aca0)}.ds-filter:focus-visible{outline:2px solid var(--accent, #a55035);outline-offset:4px}"
+    },
+    {
+      "name": "Server card",
+      "kind": "card",
+      "refersTo": "server-card",
+      "description": "Neutral navigable metric surface; specimen contains no real measurement.",
+      "html": "<a class=\"ds-server-card\" href=\"#server\"><div class=\"ds-server-heading\"><span>Server name</span><span class=\"ds-server-state\">Status</span></div><div class=\"ds-server-metrics\"><span>CPU <strong>—</strong></span><span>RAM <strong>—</strong></span><span>Disk <strong>—</strong></span></div></a>",
+      "css": ".ds-server-card{display:block;padding:20px;border:1px solid var(--border-color, #dfddd4);border-radius:12px;background:var(--bg-card, #fdfcf9);color:var(--text-primary, #302e29);text-decoration:none;font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;transition:border-color 160ms ease-out,background-color 160ms ease-out}.ds-server-card:hover{border-color:var(--border-active, #b2aca0);box-shadow:none;transform:none}.ds-server-card:focus-visible{outline:2px solid var(--accent, #a55035);outline-offset:4px}.ds-server-heading{display:flex;justify-content:space-between;gap:12px;font-size:15px;font-weight:600;overflow-wrap:anywhere}.ds-server-state{font-size:11px;font-weight:500;color:var(--text-secondary, #625e55)}.ds-server-metrics{display:flex;gap:24px;margin-top:18px;padding-top:14px;border-top:1px solid var(--border-color, #dfddd4);font-size:11px;color:var(--text-secondary, #625e55)}.ds-server-metrics strong{display:block;margin-top:8px;font-size:22px;font-weight:500;font-variant-numeric:tabular-nums;color:var(--text-primary, #302e29)}@media(prefers-reduced-motion:reduce){.ds-server-card{transition:none}}"
+    },
+    {
+      "name": "Chart container",
+      "kind": "card",
+      "refersTo": "chart-card",
+      "description": "Chart header and empty plotting region, without synthetic data.",
+      "html": "<section class=\"ds-chart\" aria-label=\"CPU chart\"><header class=\"ds-chart-header\"><span>CPU</span><span class=\"ds-chart-value\">—</span></header><div class=\"ds-chart-empty\">No sample data</div></section>",
+      "css": ".ds-chart{padding:20px;border:1px solid var(--border-color, #dfddd4);border-radius:12px;background:var(--bg-card, #fdfcf9);font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;color:var(--text-primary, #302e29)}.ds-chart-header{display:flex;justify-content:space-between;gap:12px;padding-bottom:12px;border-bottom:1px solid var(--border-color, #dfddd4);font-size:14px;font-weight:600}.ds-chart-value{font-size:17px;font-weight:500;font-variant-numeric:tabular-nums;color:var(--accent, #a55035)}.ds-chart-empty{padding:44px 0;color:var(--text-muted, #706b61);font-size:12px;text-align:center}"
+    },
+    {
+      "name": "Administration tabs",
+      "kind": "nav",
+      "refersTo": "navigation-tab-active",
+      "description": "Lightweight navigation with a terracotta selection underline.",
+      "html": "<nav class=\"ds-tabs\" aria-label=\"Administration\"><button class=\"ds-tab ds-tab-active\" type=\"button\" aria-current=\"page\">Servers</button><button class=\"ds-tab\" type=\"button\">Settings</button></nav>",
+      "css": ".ds-tabs{display:flex;gap:18px;border-bottom:1px solid var(--border-color, #dfddd4);overflow-x:auto}.ds-tab{padding:12px 0;border:0;border-bottom:2px solid transparent;background:transparent;color:var(--text-secondary, #625e55);font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;font-size:12px;font-weight:500;white-space:nowrap;cursor:pointer}.ds-tab-active{border-bottom-color:var(--accent, #a55035);color:var(--accent, #a55035)}.ds-tab:hover{color:var(--text-primary, #302e29)}.ds-tab:focus-visible{outline:2px solid var(--accent, #a55035);outline-offset:4px}"
+    }
+  ],
+  "narrative": {
+    "northStar": "A quiet, readable monitoring workspace",
+    "overview": "Claude-inspired warmth gives the existing monitoring interface a calm application character: warm paper in light mode, warm charcoal in dark mode, measured terracotta accents, and serif page headings. This is the project's own interface and identity; the reference does not imply Claude affiliation.\n\nData remains the visual center. Neutral surfaces and thin dividers organize dense readings, while tabular numerals keep live updates steady. The same palette and type vocabulary extend to server details, login, and administration. English and Chinese, including CJK heading fallbacks, share this system.",
+    "keyCharacteristics": [
+      "Warm neutral surfaces with a restrained terracotta action accent.",
+      "Serif orientation headings paired with system sans controls and measurements.",
+      "Flat bordered cards, clear operational labels, and stable numeric alignment.",
+      "Responsive layouts and equivalent light, dark, and system-following themes."
+    ],
+    "rules": [
+      {
+        "name": "The Operational Meaning Rule",
+        "body": "Keep action selection separate from monitoring state: terracotta selects and acts; green, ochre, and red retain the existing operational thresholds and labels.",
+        "section": "colors"
+      },
+      {
+        "name": "The Reading Contrast Rule",
+        "body": "Use theme tokens for small chart-header text, axes, and status labels. Keep swap percentages at full opacity in supporting ink; reserve faded treatments for decorative tracks or explicitly disabled controls.",
+        "section": "colors"
+      },
+      {
+        "name": "The Two Voices Rule",
+        "body": "Use serif type for identity and orientation headings. Keep controls, table rows, resource labels, and numeric readings in sans; reserve monospace for code and commands.",
+        "section": "typography"
+      },
+      {
+        "name": "The Flat Surface Rule",
+        "body": "Ordinary cards stay flat, including on hover. Use tonal separation and border changes for interaction; reserve the large shadow for floating menus, tooltips, and dialogs.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do use the shared theme variables for new interface surfaces and chart series.",
+      "Do preserve explicit status wording, units, and existing data thresholds alongside color.",
+      "Do allow long server names and translated labels to wrap without pushing the page sideways.",
+      "Do use tabular numerals for metrics and keep small supporting measurements fully legible.",
+      "Do retain visible keyboard focus and respect the existing reduced-motion CSS.",
+      "Do keep the configured site title, attribution, monitoring controls, and real measurements intact."
+    ],
+    "donts": [
+      "Don't introduce terminal scanlines, glowing text, or lifting card hover effects into this visual system.",
+      "Don't use terracotta as a substitute for healthy, warning, or offline state.",
+      "Don't use the serif heading face for dense tables or operational values.",
+      "Don't add Claude logos, affiliation claims, invented servers, or illustrative monitoring data.",
+      "Don't assume a larger viewport when placing chart timestamps; use the implemented width-aware tick limit."
+    ]
+  }
+}

@@ -40,3 +40,12 @@ Thumbs.db
 # Cloudflare Workers
 .wrangler/
 dist/
+
+# Nix development environment
+.direnv/
+result
+result-*
+
+# Local design previews and captures
+.impeccable/review/
+.impeccable/config.local.json

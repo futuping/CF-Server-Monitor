@@ -1,5 +1,5 @@
 <template>
-  <div class="container" :class="{ 'mikus-dashboard': isMikusTheme }">
+  <div class="container dashboard-container" :class="{ 'mikus-dashboard': isMikusTheme }">
     <TerminalHeader :title="sysConfig.site_title || DEFAULT_SITE_TITLE" />
     
     <div v-if="isLoading" class="loading-state" :class="{ 'mikus-loading-state': isMikusTheme }">
@@ -17,37 +17,40 @@
         </div>
       </template>
       <template v-else>
-        <div class="loading-spinner"></div>
-        <div class="loading-text">$ {{ trans.loading }}</div>
+        <div class="overview-skeleton" role="status" :aria-label="trans.loading"><div class="skeleton-line"></div><div class="skeleton-line"></div><div class="skeleton-grid" aria-hidden="true"><div v-for="n in 3" :key="n" class="skeleton-card"></div></div></div>
       </template>
     </div>
 
     <template v-else>
     <div class="nav-area">
       <div class="header-row">
-        <div class="site-title">$ {{ sysConfig.site_title || DEFAULT_SITE_TITLE }}</div>
+        <div class="overview-heading"><h1 class="site-title">{{ trans.overview }}</h1><p class="overview-description">{{ trans.overviewDescription }}</p></div>
         <div class="controls-group">
           <div class="view-toggle">
             <button
               class="toggle-btn"
               :class="{ active: currentView === 'bar' }"
+              :aria-pressed="currentView === 'bar'"
               @click="switchView('bar')"
-            >▤ {{ trans.barChart }}</button>
+            ><UiIcon name="bar" />{{ trans.barChart }}</button>
             <button
               class="toggle-btn"
               :class="{ active: currentView === 'ring' }"
+              :aria-pressed="currentView === 'ring'"
               @click="switchView('ring')"
-            >◌ {{ trans.ringChart }}</button>
+            ><UiIcon name="ring" />{{ trans.ringChart }}</button>
             <button
               class="toggle-btn"
               :class="{ active: currentView === 'table' }"
+              :aria-pressed="currentView === 'table'"
               @click="switchView('table')"
-            >≡ {{ trans.table }}</button>
+            ><UiIcon name="table" />{{ trans.table }}</button>
             <button
               class="toggle-btn"
               :class="{ active: currentView === 'map' }"
+              :aria-pressed="currentView === 'map'"
               @click="switchView('map')"
-            >◉ {{ trans.map }}</button>
+            ><UiIcon name="map" />{{ trans.map }}</button>
           </div>
         </div>
       </div>
@@ -157,7 +160,7 @@
       <div v-else>
         <div v-for="group in groupedServers" :key="group.name" class="group-section">
           <div class="group-header" :data-group="group.name">
-            <span class="prompt-sign">#</span> {{ group.name }} <span class="group-count">[{{ group.servers.length }}]</span>
+            {{ group.name }} <span class="group-count">{{ group.servers.length }}</span>
           </div>
           <div class="servers-grid">
             <component
@@ -364,6 +367,7 @@
 </template>
 
 <script setup>
+import UiIcon from '../components/UiIcon.vue'
 import { ref, computed, inject, nextTick, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import TerminalHeader from '../components/TerminalHeader.vue'
@@ -1224,14 +1228,15 @@ const regionCoords = {
 let markersLayer, geoJsonLayer, currentMapDataStr = ""
 
 const getThemeColors = () => {
-  const isLight = document.body.classList.contains('light')
+  const styles = getComputedStyle(document.body)
+  const token = name => styles.getPropertyValue(name).trim()
   return {
-    bgPrimary: isLight ? '#0a0e14' : '#0a0e14',
-    bgSecondary: isLight ? '#e8e8e0' : '#12171f',
-    borderColor: isLight ? '#1e2a3a' : '#1e2a3a',
-    accentGreen: isLight ? '#00d4aa' : '#00d4aa',
-    colorBlack: isLight ? '#000' : '#000',
-    colorWhite: isLight ? '#fff' : '#fff'
+    bgPrimary: token('--bg-primary'),
+    bgSecondary: token('--bg-secondary'),
+    borderColor: token('--border-active'),
+    accentGreen: token('--accent'),
+    colorBlack: token('--accent-ink'),
+    colorWhite: token('--text-primary')
   }
 }
 
@@ -1274,7 +1279,7 @@ const drawMarkers = () => {
     if (regionCoords[upperCode]) {
       const icon = window.L.divIcon({
         className: 'custom-map-marker',
-        html: `<div style="background:${colors.accentGreen}; color:${colors.colorBlack}; border-radius:50%; width:22px; height:22px; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:bold; border:2px solid ${colors.bgPrimary}; box-shadow:0 0 10px ${colors.accentGreen}80; font-family:JetBrains Mono,monospace;">${count}</div>`,
+        html: `<div style="background:${colors.accentGreen}; color:${colors.colorBlack}; border-radius:50%; width:22px; height:22px; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:bold; border:2px solid ${colors.bgPrimary}; font-family:system-ui,sans-serif;">${count}</div>`,
         iconSize: [22,22]
       })
       window.L.marker(regionCoords[upperCode], {icon: icon}).addTo(markersLayer)

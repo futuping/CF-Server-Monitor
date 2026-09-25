@@ -1,10 +1,10 @@
 <template>
-  <div class="container">
+  <div class="container detail-container">
     <TerminalHeader :title="server.name || 'Loading...'" />
     
     <div v-if="loading" class="loading-state">
       <div class="loading-spinner"></div>
-      <div class="loading-text">$ {{ trans.loading }}</div>
+      <div class="loading-text">{{ trans.loading }}</div>
     </div>
 
     <template v-else>
@@ -30,7 +30,7 @@
     <div class="host-card">
       <div class="host-card-header">
         <div class="host-name">
-          <span class="prompt">root@</span>
+
           <span v-if="server.region && server.region !== 'xx'" class="country-os-icons">
             <img :src="getPublicAssetUrl('flags/' + getFlagRegionCode(server.region) + '.svg')" :alt="server.region" class="flag-img">
             <OsIcon :os="server.os" />
@@ -40,7 +40,7 @@
             <OsIcon :os="server.os" />
           </span>
           <span>{{ server.name || 'Loading...' }}</span>
-          <span style="color: var(--text-muted);">:~#</span>
+
         </div>
         <span class="status-badge" :class="{ online: isOnline, offline: !isOnline }">
           <span class="pulse-dot" :class="{ online: isOnline, offline: !isOnline }"></span>
@@ -49,51 +49,51 @@
       </div>
       <div class="sysinfo-grid" id="info-panel">
         <div class="sysinfo-item">
-          <span class="sysinfo-label">⏱ {{ trans.uptime }}</span>
+          <span class="sysinfo-label">{{ trans.uptime }}</span>
           <span class="sysinfo-value">{{ formatUptime(server.boot_time) }}</span>
         </div>
         <div class="sysinfo-item" v-if="server.expire_date">
-          <span class="sysinfo-label">📅 {{ trans.expire }}</span>
+          <span class="sysinfo-label">{{ trans.expire }}</span>
           <span class="sysinfo-value" :class="{ 'expired': isExpired }">{{ expireDaysText }}</span>
         </div>
         <div class="sysinfo-item">
-          <span class="sysinfo-label">💻 {{ trans.os }} / {{ trans.architecture }}</span>
+          <span class="sysinfo-label">{{ trans.os }} / {{ trans.architecture }}</span>
           <span class="sysinfo-value sysinfo-small">{{ server.os || 'N/A' }} / {{ server.arch || 'N/A' }}</span>
         </div>
         <div class="sysinfo-item" v-if="server.kernel_version">
-          <span class="sysinfo-label">🧩 {{ trans.kernelVersion || 'Kernel' }}</span>
+          <span class="sysinfo-label">{{ trans.kernelVersion || 'Kernel' }}</span>
           <span class="sysinfo-value sysinfo-small">{{ server.kernel_version }}</span>
         </div>
         <div class="sysinfo-item">
-          <span class="sysinfo-label">🔧 {{ trans.cpuInfo }}</span>
+          <span class="sysinfo-label">{{ trans.cpuInfo }}</span>
           <span class="sysinfo-value sysinfo-small">{{ server.cpu_info || 'N/A' }} x {{ server.cpu_cores || 'N/A' }}</span>
         </div>
         <div class="sysinfo-item" v-if="hasGpuData">
-          <span class="sysinfo-label">🎮 {{ trans.gpuInfo || 'GPU Info' }}</span>
+          <span class="sysinfo-label">{{ trans.gpuInfo || 'GPU Info' }}</span>
           <span class="sysinfo-value sysinfo-small">{{ gpuInfoText }}</span>
         </div>
         <div class="sysinfo-item">
-          <span class="sysinfo-label">💾 {{ trans.totalDiskRam }}</span>
+          <span class="sysinfo-label">{{ trans.totalDiskRam }}</span>
           <span class="sysinfo-value">{{ formatBytes(server.disk_total*1024*1024) }} / {{ formatBytes(server.ram_total*1024*1024) }}</span>
         </div>
         <div class="sysinfo-item">
-          <span class="sysinfo-label">📊 {{ trans.loadAvg }}</span>
+          <span class="sysinfo-label">{{ trans.loadAvg }}</span>
           <span class="sysinfo-value highlight">{{ server.load_avg || '0.00 0.00 0.00' }}</span>
         </div>
         <div class="sysinfo-item">
-          <span class="sysinfo-label">🌐 {{ trans.totalTraffic }}</span>
+          <span class="sysinfo-label">{{ trans.totalTraffic }}</span>
           <span class="sysinfo-value sysinfo-small">↓ {{ formatBytes(server.net_rx) }} / ↑ {{ formatBytes(server.net_tx) }}</span>
         </div>
         <div class="sysinfo-item">
-          <span class="sysinfo-label">⚡ {{ trans.realtimeSpeed }}</span>
+          <span class="sysinfo-label">{{ trans.realtimeSpeed }}</span>
           <span class="sysinfo-value sysinfo-small">↓ {{ formatBytes(server.net_in_speed) }}/s / ↑ {{ formatBytes(server.net_out_speed) }}/s</span>
         </div>
         <div class="sysinfo-item" v-if="server.net_rx_monthly">
-          <span class="sysinfo-label">📊 {{ trans.monthlyTraffic }}</span>
+          <span class="sysinfo-label">{{ trans.monthlyTraffic }}</span>
           <span class="sysinfo-value sysinfo-small">↓ {{ formatBytes(server.net_rx_monthly) }} / ↑ {{ formatBytes(server.net_tx_monthly) }}</span>
         </div>
         <div class="sysinfo-item" v-if="server.net_rx_monthly">
-          <span class="sysinfo-label">📦 {{ trans.monthlyTrafficLimit }}</span>
+          <span class="sysinfo-label">{{ trans.monthlyTrafficLimit }}</span>
           <span class="sysinfo-value sysinfo-small">
             {{ formatBytes(trafficUsageBytes) }}
             /
@@ -101,11 +101,11 @@
           </span>
         </div>
         <div class="sysinfo-item">
-          <span class="sysinfo-label">🕐 {{ trans.bootTime }}</span>
+          <span class="sysinfo-label">{{ trans.bootTime }}</span>
           <span class="sysinfo-value sysinfo-small">{{ formatTimestamp(server.boot_time) }}</span>
         </div>
         <div class="sysinfo-item">
-          <span class="sysinfo-label">⏰ {{ trans.lastUpdate }}</span>
+          <span class="sysinfo-label">{{ trans.lastUpdate }}</span>
           <span class="sysinfo-value sysinfo-small">{{ lastUpdateText }}</span>
         </div>
       </div>
@@ -910,12 +910,26 @@ const syncChartLabels = (chart) => {
   chart.data.labels = labels
 }
 
-const ds = (label, color, opts = {}) => ({
-  label, data: [], borderColor: color,
-  backgroundColor: opts.fill ? hexToRgba(color, 0.05) : 'transparent',
-  fill: !!opts.fill, tension: opts.tension ?? 0.4, borderWidth: 1.5,
-  pointRadius: 0, hoverRadius: 5, spanGaps: false, ...opts
-})
+const chartColorTokens = {
+  '#00d4aa': '--accent-green', '#4da6ff': '--accent-blue',
+  '#b392f0': '--accent-purple', '#ffb870': '--accent-yellow',
+  '#39d2c0': '--accent-cyan', '#f778ba': '--accent-pink',
+  '#ff7b72': '--accent-red', '#79c0ff': '--accent-blue',
+  '#d2a8ff': '--accent-purple', '#7ee787': '--accent-green',
+  '#ffa657': '--accent-yellow', '#56d4dd': '--accent-cyan',
+  '#e3b341': '--accent-yellow'
+}
+
+const ds = (label, color, opts = {}) => {
+  const colorToken = chartColorTokens[color]
+  const resolvedColor = colorToken ? getCssVar(colorToken, color) : color
+  return {
+    label, data: [], colorToken, borderColor: resolvedColor,
+    backgroundColor: opts.fill ? hexToRgba(resolvedColor, 0.05) : 'transparent',
+    fill: !!opts.fill, tension: opts.tension ?? 0.4, borderWidth: 1.5,
+    pointRadius: 0, hoverRadius: 5, spanGaps: false, ...opts
+  }
+}
 
 const GPU_COLORS = ['#ff7b72', '#79c0ff', '#d2a8ff', '#7ee787', '#ffa657', '#ff7b72', '#56d4dd', '#e3b341']
 
@@ -963,7 +977,7 @@ const CHART_DEFS = [
         grid: { color: chartTheme.grid, drawBorder: false, drawOnChartArea: false, tickLength: 0 },
         ticks: {
           color: chartTheme.axis,
-          font: { size: 9, family: "'JetBrains Mono', monospace" },
+          font: { size: 9, family: "system-ui, sans-serif" },
           padding: 8,
           callback: formatDiskIoAxisTick
         }
@@ -1032,7 +1046,7 @@ const rebuildGpuChartDatasets = () => {
   }
 }
 
-const getCssVar = (name, fallback) => {
+function getCssVar(name, fallback) {
   if (typeof window === 'undefined') return fallback
   const value = window.getComputedStyle(document.body).getPropertyValue(name).trim()
   return value || fallback
@@ -1049,12 +1063,18 @@ const getChartThemeColors = () => ({
   tooltipBorder: getCssVar('--border-color', '#1e2a3a')
 })
 
+function getChartTickLimit(width, hours) {
+  const rangeLimit = hours <= 3 ? CHART.MAX_TICKS : CHART.MAX_TICKS_HOUR
+  // Reserve room for the value axis and keep full timestamps separated.
+  return Math.max(2, Math.min(rangeLimit, Math.floor((width - 48) / 72)))
+}
+
 const initCharts = () => {
   safeDestroyCharts()
 
   const chartTheme = getChartThemeColors()
 
-  Chart.defaults.font.family = "'JetBrains Mono', 'Courier New', monospace"
+  Chart.defaults.font.family = "system-ui, sans-serif"
   Chart.defaults.font.size = 10
   Chart.defaults.color = chartTheme.axis
   Chart.defaults.plugins.tooltip.backgroundColor = chartTheme.tooltipBg
@@ -1062,8 +1082,8 @@ const initCharts = () => {
   Chart.defaults.plugins.tooltip.bodyColor = chartTheme.tooltipBody
   Chart.defaults.plugins.tooltip.borderColor = chartTheme.tooltipBorder
   Chart.defaults.plugins.tooltip.borderWidth = 1
-  Chart.defaults.plugins.tooltip.titleFont = { size: 12, weight: 'bold', family: "'JetBrains Mono', monospace" }
-  Chart.defaults.plugins.tooltip.bodyFont = { size: 11, family: "'JetBrains Mono', monospace" }
+  Chart.defaults.plugins.tooltip.titleFont = { size: 12, weight: 'bold', family: "system-ui, sans-serif" }
+  Chart.defaults.plugins.tooltip.bodyFont = { size: 11, family: "system-ui, sans-serif" }
   Chart.defaults.plugins.tooltip.padding = 12
   Chart.defaults.plugins.tooltip.cornerRadius = 2
 
@@ -1084,7 +1104,7 @@ const initCharts = () => {
           labels: {
             boxWidth: 10,
             padding: 12,
-            font: { size: 10, family: "'JetBrains Mono', monospace" },
+            font: { size: 10, family: "system-ui, sans-serif" },
             usePointStyle: true,
             color: chartTheme.axis,
             filter: (legendItem, chartData) => {
@@ -1134,16 +1154,19 @@ const initCharts = () => {
       scales: {
         x: {
           type: 'category',
+          beforeBuildTicks(scale) {
+            scale.options.ticks.maxTicksLimit = getChartTickLimit(scale.chart.width, currentHours.value)
+          },
           title: {
             display: false,
             text: '',
             color: chartTheme.axis,
-            font: { size: 10, family: "'JetBrains Mono', monospace" }
+            font: { size: 10, family: "system-ui, sans-serif" }
           },
           ticks: {
             maxTicksLimit: CHART.MAX_TICKS,
             color: chartTheme.axis,
-            font: { size: 9, family: "'JetBrains Mono', monospace" },
+            font: { size: 9, family: "system-ui, sans-serif" },
             maxRotation: 0,
             padding: 8,
             callback: function(value) {
@@ -1157,7 +1180,7 @@ const initCharts = () => {
           grid: { color: chartTheme.grid, drawBorder: false, tickLength: 0 },
           ticks: {
             color: chartTheme.axis,
-            font: { size: 9, family: "'JetBrains Mono', monospace" },
+            font: { size: 9, family: "system-ui, sans-serif" },
             padding: 8,
             callback: tickFormat || function(value) { return value + unit; }
           }
@@ -1196,6 +1219,13 @@ const updateChartsTheme = () => {
 
   Object.values(charts).forEach(chart => {
     if (!chart) return
+
+    for (const dataset of chart.data.datasets) {
+      if (!dataset.colorToken) continue
+      const color = getCssVar(dataset.colorToken, dataset.borderColor)
+      dataset.borderColor = color
+      dataset.backgroundColor = dataset.fill ? hexToRgba(color, 0.05) : 'transparent'
+    }
 
     if (chart.options.plugins.legend.labels) {
       chart.options.plugins.legend.labels.color = chartTheme.axis
@@ -1479,11 +1509,9 @@ const loadAllHistory = async (hours) => {
 }
 
 const updateAllChartTimeUnits = (hours) => {
-  const maxTicks = hours <= 3 ? CHART.MAX_TICKS : CHART.MAX_TICKS_HOUR
-
   Object.values(charts).forEach(chart => {
     if (chart?.options?.scales?.x) {
-      chart.options.scales.x.ticks.maxTicksLimit = maxTicks
+      chart.options.scales.x.ticks.maxTicksLimit = getChartTickLimit(chart.width, hours)
       delete chart.options.scales.x.min
       delete chart.options.scales.x.max
     }

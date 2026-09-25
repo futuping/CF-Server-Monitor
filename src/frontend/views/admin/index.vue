@@ -33,10 +33,10 @@
       <div class="main-panel">
         <div class="panel-header">
           <div class="panel-title">
-            <span class="prompt">$</span> {{ trans.sudoStatus }}
+            {{ trans.overview }}
           </div>
           <div class="header-actions">
-            <button @click="refreshServers" class="btn" :disabled="adminSiteLoading">↻ {{ trans.refresh }}</button>
+            <button @click="refreshServers" class="btn" :disabled="adminSiteLoading"><UiIcon name="refresh" />{{ trans.refresh }}</button>
             <select
               v-if="isMultipleMode"
               v-model.number="selectedApiIndex"
@@ -53,7 +53,7 @@
               </option>
             </select>
             <HelpTooltip v-if="isMultipleMode" :text="trans.apiEndpoint" />
-            <button @click="logout" class="btn btn-red">🚪 {{ trans.logout }}</button>
+            <button @click="logout" class="btn btn-red"><UiIcon name="logout" />{{ trans.logout }}</button>
           </div>
         </div>
 
@@ -576,6 +576,7 @@
 </template>
 
 <script setup>
+import UiIcon from '../../components/UiIcon.vue'
 import { ref, computed, onMounted, watch, nextTick, inject } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import TerminalHeader from '../../components/TerminalHeader.vue'

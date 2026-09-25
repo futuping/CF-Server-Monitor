@@ -2,7 +2,7 @@
   <div id="login-overlay" class="login-overlay">
     <div class="login-container">
       <div class="login-header">
-        <div class="login-icon">🔐</div>
+        <div class="login-icon"><UiIcon name="lock" /></div>
         <h2 class="login-title">{{ trans.adminLogin }}</h2>
         <p class="login-subtitle">{{ trans.enterCredentials }}</p>
       </div>
@@ -20,23 +20,23 @@
           </select>
         </div>
         <div class="login-form-group">
-          <label class="login-label">{{ trans.username }}</label>
-          <input type="text" name="username" autocomplete="username" v-model="loginForm.username" required class="login-input" placeholder="admin">
+          <label for="login-username" class="login-label">{{ trans.username }}</label>
+          <input id="login-username" type="text" name="username" autocomplete="username" v-model="loginForm.username" required class="login-input" placeholder="admin">
         </div>
         <div class="login-form-group last">
-          <label class="login-label">{{ trans.password }}</label>
+          <label for="login-password" class="login-label">{{ trans.password }}</label>
           <div class="password-input-wrapper">
-            <input :type="passwordVisible.login ? 'text' : 'password'" name="password" autocomplete="current-password" v-model="loginForm.password" required class="login-input" placeholder="••••••••">
-            <button type="button" class="password-toggle" @click="$emit('toggle-password', 'login')">
-              {{ passwordVisible.login ? '🙈' : '👁️' }}
+            <input id="login-password" :type="passwordVisible.login ? 'text' : 'password'" name="password" autocomplete="current-password" v-model="loginForm.password" required class="login-input" placeholder="••••••••">
+            <button type="button" class="password-toggle" :aria-label="passwordVisible.login ? trans.hidePassword : trans.showPassword" @click="$emit('toggle-password', 'login')">
+              <UiIcon :name="passwordVisible.login ? 'eyeOff' : 'eye'" />
             </button>
           </div>
         </div>
         <div v-if="turnstileSiteKey && (turnstileLoginEnabled || (turnstileEnabled && !turnstileVerified))" class="login-form-group">
           <div id="admin-turnstile-container"></div>
         </div>
-        <div v-if="loginError" id="login-error" class="login-error">{{ loginError }}</div>
-        <button type="submit" class="login-btn">{{ loginLoading ? '⏳' : trans.login }}</button>
+        <div v-if="loginError" id="login-error" class="login-error" role="alert">{{ loginError }}</div>
+        <button type="submit" class="login-btn" :disabled="loginLoading" :aria-busy="loginLoading">{{ loginLoading ? trans.loading : trans.login }}</button>
       </form>
       <template v-if="githubOAuthEnabled">
         <div class="login-divider"><span>{{ trans.or }}</span></div>
@@ -50,6 +50,7 @@
 </template>
 
 <script setup>
+import UiIcon from '../../../components/UiIcon.vue'
 import Footer from '../../../components/Footer.vue'
 
 defineProps({
