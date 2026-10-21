@@ -9,6 +9,7 @@
  */
 
 import { clearAppearanceSettingsCache, clearSiteSettingsCache, debug } from './settings.js';
+import { getPublicServerIds } from './serverVisibility.js';
 
 const SERVERS_LIST_TTL = 120 * 1000;
 let serversListCache = null;
@@ -37,30 +38,32 @@ export function getCacheDuration(hours) {
   }
 }
 
-function filterServersByHidden(servers, includeHidden) {
+function filterServersByHidden(servers, includeHidden, publicIds = null) {
   if (!servers || servers.length === 0) return [];
   if (includeHidden) {
     return [...servers];
   }
-  return servers.filter(s => s.is_hidden !== 1 && s.is_hidden !== '1');
+  return servers.filter(s => publicIds?.has(String(s.id)) && s.is_hidden !== 1 && s.is_hidden !== '1');
 }
 
 export async function getAllServers(db, includeHidden = true) {
   const now = Date.now();
+  // Query outside the cache fallback: a DB failure must not expose a cached row.
+  const publicIds = includeHidden ? null : await getPublicServerIds(db);
   
   if (serversListCache && now - serversListCache.time < SERVERS_LIST_TTL) {
     debug('服务器列表缓存命中');
-    return filterServersByHidden(serversListCache.data, includeHidden);
+    return filterServersByHidden(serversListCache.data, includeHidden, publicIds);
   }
 
   try {
     const { results } = await db.prepare('SELECT * FROM servers ORDER BY sort_order ASC').all();
     serversListCache = { data: results, time: now };
     debug('服务器列表缓存更新');
-    return filterServersByHidden(results, includeHidden);
+    return filterServersByHidden(results, includeHidden, publicIds);
   } catch (e) {
     debug('获取服务器列表失败:', e);
-    return filterServersByHidden(serversListCache?.data, includeHidden);
+    return filterServersByHidden(serversListCache?.data, includeHidden, publicIds);
   }
 }
 
@@ -82,6 +85,9 @@ export function patchServerDetailCache(id, fields) {
 
 export async function getServerDetail(db, id, includeHidden = false) {
   const now = Date.now();
+  if (!includeHidden && !(await getPublicServerIds(db, [String(id)])).has(String(id))) {
+    return null;
+  }
   const cached = serverDetailCache.get(id);
   
   if (cached) {

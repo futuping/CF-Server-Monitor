@@ -214,8 +214,18 @@ export async function handleServersAPI(request, env, sys) {
     return simpleAuthResponse();
   }
   markFrontendRealtimeActive();
-  
-  const results = (await getAllServers(env.DB, isLoggedIn)).map(withoutPrivateServerFields);
+  return buildServersAPIResponse(env, sys, { includeHidden: isLoggedIn });
+}
+
+// Called only after the route has established its own authorization. The monitor
+// feed uses an independent read credential and never manufactures an admin JWT.
+export async function buildServersAPIResponse(env, sys, {
+  includeHidden = false, serverIds: requestedServerIds = null, serverRows = null
+} = {}) {
+  const allowedIds = requestedServerIds === null ? null : new Set(requestedServerIds);
+  const results = (serverRows === null ? await getAllServers(env.DB, includeHidden) : serverRows)
+    .filter(server => allowedIds === null || allowedIds.has(String(server.id)))
+    .map(withoutPrivateServerFields);
   const shouldIncludeLatencyHistory = sys.show_three_net_details === 'true';
   
   const serverIds = results.map(server => server.id).filter(Boolean);

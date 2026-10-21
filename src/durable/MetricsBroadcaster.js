@@ -16,6 +16,8 @@ import { saveMetricsHistory } from '../database/schema.js';
 import { evaluateTrafficAlert } from '../services/notification.js';
 import { ensureServerOptimization } from '../database/indexOptimization.js';
 import { getServerDetail, clearServerDetailCache } from '../utils/cache.js';
+import { getPublicServerIds } from '../utils/serverVisibility.js';
+import { checkWebSocketAuth } from '../middleware/auth.js';
 import { getWssReportScheduleState, loadSiteSettings } from '../utils/settings.js';
 import {
   AGENT_CONFIG_MD5_HEADER,
@@ -1052,10 +1054,10 @@ export class MetricsBroadcaster {
     }
     this._cacheLatestReportUpdates(normalizedUpdates, reportTs);
     if (options.batchFrontend === true) {
-      this._broadcastBatch(normalizedUpdates, reportTs, 'single');
+      await this._broadcastBatch(normalizedUpdates, reportTs, 'single');
       this._queueFrontendBroadcastBatch(normalizedUpdates, reportTs);
     } else {
-      this._broadcastBatch(normalizedUpdates, reportTs);
+      await this._broadcastBatch(normalizedUpdates, reportTs);
     }
   }
 
@@ -1094,11 +1096,13 @@ export class MetricsBroadcaster {
 
     this.frontendBroadcastTimer = setTimeout(() => {
       this.frontendBroadcastTimer = null;
-      this._flushFrontendBroadcastBatch();
+      const pending = this._flushFrontendBroadcastBatch();
+      if (typeof this.state.waitUntil === 'function') this.state.waitUntil(pending);
+      else pending.catch(() => {});
     }, AGENT_WSS_FRONTEND_BATCH_WINDOW_MS);
   }
 
-  _flushFrontendBroadcastBatch() {
+  async _flushFrontendBroadcastBatch() {
     if (this.frontendBroadcastTimer !== null) {
       clearTimeout(this.frontendBroadcastTimer);
       this.frontendBroadcastTimer = null;
@@ -1112,7 +1116,7 @@ export class MetricsBroadcaster {
     const ts = this.pendingFrontendBroadcastTs || Date.now();
     this.pendingFrontendBroadcasts = new Map();
     this.pendingFrontendBroadcastTs = 0;
-    this._broadcastBatch(updates, ts, 'all');
+    await this._broadcastBatch(updates, ts, 'all');
   }
 
   _getAgentRealtimeState(now = Date.now()) {
@@ -1509,6 +1513,15 @@ export class MetricsBroadcaster {
         return new Response('Forbidden', { status: 403 });
       }
 
+      // Derive permissions from the original credential, not a client-controlled
+      // forwarding header. Older hibernation attachments have no permission bit
+      // and remain public when this code resumes them.
+      const settings = await loadSiteSettings(this.env.DB, { forceRefresh: true });
+      const includeHidden = await checkWebSocketAuth(request, this.env, settings);
+      if (settings?.is_public !== 'true' && !includeHidden) {
+        return new Response('Unauthorized', { status: 401 });
+      }
+
       const raw = url.searchParams.get('subscribe') || 'all';
       const scope = raw.trim().toLowerCase();
       if (!this._isValidScope(scope)) {
@@ -1523,7 +1536,7 @@ export class MetricsBroadcaster {
       this.state.acceptWebSocket(server);
 
       // 将订阅 scope 和空 serverIds 附加到 WebSocket（休眠后仍保留）
-      server.serializeAttachment({ scope, serverIds: [] });
+      server.serializeAttachment({ scope, serverIds: [], includeHidden });
 
       // 立即发送 hello 让客户端确认连接成功
       try {
@@ -1586,7 +1599,7 @@ export class MetricsBroadcaster {
           samples: [{ ts: reportTs, data: payload }]
         }], reportTs);
       }
-      this._broadcast(serverId, payload);
+      await this._broadcast(serverId, payload);
       return new Response(JSON.stringify({ ok: true, subscribers }), {
         headers: { 'Content-Type': 'application/json' }
       });
@@ -1726,14 +1739,14 @@ export class MetricsBroadcaster {
   }
 
   // 向所有匹配 scope 的 WebSocket 广播推送
-  _broadcast(serverId, payload) {
+  async _broadcast(serverId, payload) {
     const ts = Date.now();
     const updates = [{
       serverId,
       samples: [{ ts, data: payload }]
     }];
     this._cacheLatestReportUpdates(updates, ts);
-    this._broadcastBatch(updates, ts);
+    await this._broadcastBatch(updates, ts);
   }
 
   _pruneLatestReportUpdates(now = Date.now()) {
@@ -2043,9 +2056,10 @@ export class MetricsBroadcaster {
     }).filter(Boolean);
   }
 
-  _broadcastBatch(updates, ts = Date.now(), targetScope = null) {
+  async _broadcastBatch(updates, ts = Date.now(), targetScope = null) {
     const websockets = this._getFrontendWebSockets();
-
+    const deliveries = [];
+    const publicCandidateIds = new Set();
     for (const ws of websockets) {
       const attachment = ws.deserializeAttachment();
       if (!attachment) continue;
@@ -2053,7 +2067,31 @@ export class MetricsBroadcaster {
       if (targetScope === 'single' && attachment.scope === 'all') continue;
 
       const scopedUpdates = updates
-        .filter(item => this._shouldDeliver(attachment.scope, item.serverId, attachment.serverIds))
+        .filter(item => this._shouldDeliver(attachment.scope, item.serverId, attachment.serverIds));
+      if (scopedUpdates.length === 0) continue;
+      const includeHidden = attachment.includeHidden === true;
+      deliveries.push({ ws, includeHidden, updates: scopedUpdates });
+      if (!includeHidden) {
+        for (const item of scopedUpdates) publicCandidateIds.add(String(item.serverId));
+      }
+    }
+
+    let publicIds = new Set();
+    if (publicCandidateIds.size > 0) {
+      try {
+        // Read at delivery time, including after an all-scope batching delay.
+        // One bounded lookup is shared by every public recipient in this batch.
+        publicIds = await getPublicServerIds(this.env.DB, [...publicCandidateIds]);
+      } catch (_) {
+        // Cached agent metadata and old socket subscriptions cannot establish
+        // public visibility when the authoritative lookup is unavailable.
+        console.warn('[ws] Public visibility lookup unavailable; delivery withheld');
+      }
+    }
+
+    for (const delivery of deliveries) {
+      const scopedUpdates = delivery.updates
+        .filter(item => delivery.includeHidden || publicIds.has(String(item.serverId)))
         .map(maskPublicIpUpdate);
       if (scopedUpdates.length === 0) continue;
 
@@ -2064,7 +2102,7 @@ export class MetricsBroadcaster {
       });
 
       try {
-        ws.send(message);
+        delivery.ws.send(message);
       } catch (_) {
         // WebSocket 已异常关闭，DO 会自动清理
       }
@@ -2101,7 +2139,9 @@ export class MetricsBroadcaster {
         }
 
         const serverIds = normalizedServerIds.ids;
-        ws.serializeAttachment({ scope, serverIds });
+        // Subscription contents can change the requested scope, never the
+        // authenticated visibility that was established by the handshake.
+        ws.serializeAttachment({ ...current, scope, serverIds });
         try {
           ws.send(JSON.stringify({
             type: 'subscribed',

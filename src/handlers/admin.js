@@ -1258,7 +1258,7 @@ export async function handleAdminAPI(request, env, sys, loadFullSettings = null,
               traffic_limit, traffic_calc_type, "interface", reset_day, collect_interval, report_interval, wss_report_interval, connection_mode, ping_mode,
               auto_update, custom_ct, custom_cu, custom_cm, custom_bd, node_1, node_2, node_3, node_4, rx_correction, tx_correction,
               offline_notify_disabled, is_hidden, sort_order, history_partition_id, timestamp, traffic_alert_percent)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
           `).bind(
             server.id,
             server.name || '',

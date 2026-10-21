@@ -5,6 +5,7 @@ import { handleAdminAPI } from './handlers/admin.js';
 import { serveFrontend } from './handlers/frontend.js';
 import { handleUpdate, handleWebSocketUpgrade, handleUpdateWebSocketUpgrade } from './handlers/update.js';
 import { handleServerAPI, handleServersAPI } from './handlers/dashboard.js';
+import { handleMonitorRead } from './handlers/monitorRead.js';
 import { handleTheme } from './handlers/theme.js';
 import { handleGithubOAuthCallback, handleGithubOAuthStartApi, isGithubOAuthReady } from './handlers/githubAuth.js';
 import { isValidThemeOptions, loadSettings, loadSiteSettings, loadAppearanceOptions, normalizeFrontendWsTimeoutMinutes, normalizeLongHistoryPoints, saveThemeOptions, setDebug, debug } from './utils/settings.js';
@@ -182,6 +183,19 @@ export default {
     const path = url.pathname;
 
     const corsAllowedOrigins = getCorsAllowedOrigins(env);
+
+    // Machine-only, fixed read routes establish their own least-privilege
+    // authorization and never participate in browser CORS or Turnstile state.
+    if (path === '/api/monitor' || path.startsWith('/api/monitor/')) {
+      try {
+        return await handleMonitorRead(request, env);
+      } catch (_) {
+        return new Response(JSON.stringify({ error: 'Monitor feed unavailable', code: 503 }), {
+          status: 503,
+          headers: { 'Content-Type': 'application/json', 'Cache-Control': 'private, no-store' }
+        });
+      }
+    }
     
     if (!env.API_SECRET || env.API_SECRET.length === 0) {
       const response = createBadRequestResponse('API_SECRET is required');
