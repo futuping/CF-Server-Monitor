@@ -111,6 +111,8 @@
       </div>
     </div>
 
+    <p v-if="probeTargetHistoryNote" class="chart-subtitle">{{ probeTargetHistoryNote }}</p>
+
     <div class="charts-container">
       <div class="chart-card" :class="{ 'full-width': isChartExpanded('cpu') }">
         <div class="chart-card-header">
@@ -414,6 +416,7 @@ import useTheme from '../composables/useTheme'
 import { isDisabledProbeMetric } from '../utils/server.js'
 import { resolvePlaybackCursor } from '../utils/playback.js'
 import { applyMikusThemeOptions } from '../utils/themeOptions.js'
+import { getProbeTargetProfile, maskPreviousProbeTargets, probeTargetLabel } from '../utils/probeTargets.js'
 
 const route = useRoute()
 const router = useRouter()
@@ -502,7 +505,12 @@ const PING_FIELD_DEFS = [
   { field: 'ping_node_3', lossField: 'loss_node_3', labelKey: 'node3', className: 'ping-node-3', datasetIndex: 6 },
   { field: 'ping_node_4', lossField: 'loss_node_4', labelKey: 'node4', className: 'ping-node-4', datasetIndex: 7 }
 ]
-const pingLabel = (key) => String(appConfig?.[key.startsWith('node_') ? `${key}_name` : `custom_${key}_name`] || trans.value[`ping${key.toUpperCase().charAt(0)}${key.slice(1)}`] || key.toUpperCase())
+const pingLabel = (key) => probeTargetLabel(server.value, key, String(appConfig?.[key.startsWith('node_') ? `${key}_name` : `custom_${key}_name`] || trans.value[`ping${key.toUpperCase().charAt(0)}${key.slice(1)}`] || key.toUpperCase()))
+const probeTargetHistoryNote = computed(() => getProbeTargetProfile(server.value)
+  ? (currentLang.value === 'zh'
+      ? '当前使用境外 TCP 目标；图表仅展示切换后的新样本，切换前的三网历史仍保留在源数据中。'
+      : 'This host now uses overseas TCP targets. Charts show new samples after the switch; previous three-carrier history remains in the source data.')
+  : '')
 
 const DISK_IO_FIELDS = ['read_bps', 'write_bps', 'read_iops', 'write_iops', 'await_ms', 'util']
 const EMPTY_DISK_IO = Object.freeze(Object.fromEntries(DISK_IO_FIELDS.map(field => [field, 0])))
@@ -1000,6 +1008,7 @@ const syncProbeChartVisibility = () => {
     for (const item of PING_FIELD_DEFS) {
       const dataset = chart.data.datasets[item.datasetIndex]
       if (!dataset) continue
+      dataset.label = pingLabel(item.field.replace('ping_', ''))
       const value = server.value[item.field]
       const disabled = isDisabledProbeMetric(value)
       // 与 WSS 保持一致：字段不存在(undefined)或为 false 时不显示；
@@ -1391,7 +1400,8 @@ const clearDiskIoChart = () => {
 
 const loadAllHistory = async (hours) => {
   try {
-    const allData = await fetchAllHistory(serverId, hours, apiIndex.value)
+    const allData = (await fetchAllHistory(serverId, hours, apiIndex.value))
+      .map(row => maskPreviousProbeTargets(server.value, row, { guardMs: hours >= 24 ? 900000 : 120000 }))
     lastReportChartUpdateTime = 0
     lossHistoryFields.value = Object.fromEntries(PING_FIELD_DEFS.map(item => [
       item.lossField,
@@ -1739,11 +1749,12 @@ const appendReportCharts = (data, dataTimestamp) => {
 
   // 与 WSS 一致：字段不存在(undefined)或为 false 时不产生图表点，
   // null 表示超时，保留为断点/超时提示。
+  const probeData = maskPreviousProbeTargets(server.value, { ...data, timestamp: dataTimestamp })
   for (const item of PING_FIELD_DEFS) {
     const appendProbe = (chart, field, isPing) => {
-      if (!hasOwn(data, field)) return
-      if (isDisabledProbeMetric(data[field])) return
-      appendDataToChart(chart, item.datasetIndex, dataTimestamp, data[field], isPing, !isPing)
+      if (!hasOwn(probeData, field)) return
+      if (isDisabledProbeMetric(probeData[field])) return
+      appendDataToChart(chart, item.datasetIndex, dataTimestamp, probeData[field], isPing, !isPing)
     }
     appendProbe(charts.ping, item.field, true)
     appendProbe(charts.loss, item.lossField, false)

@@ -4,6 +4,7 @@ import { getPublicAssetUrl } from '../utils/config'
 import { currentLang, useTranslation } from '../utils/i18n'
 import { LATENCY_WINDOW, PING } from '../utils/constants'
 import { formatBillingPrice } from '../utils/server.js'
+import { isCurrentProbeTargetSample, probeTargetLabel } from '../utils/probeTargets.js'
 
 export const DEFAULT_SERVER_CARD_CONFIG = {
   show_price: true,
@@ -331,7 +332,8 @@ export function useServerCardData(props) {
         if (!point || typeof point !== 'object') return null
         const ts = normalizeLatencyTimestamp(point.ts ?? point.timestamp, 0)
         if (!ts) return null
-        return { ts, value: normalizeProbeMetricValue(point[key]) }
+        const excluded = !isCurrentProbeTargetSample(props.server, ts)
+        return { ts, value: excluded ? null : normalizeProbeMetricValue(point[key]), excluded }
       })
       // Keep failed probes as positional placeholders so later samples stay
       // aligned with their original time buckets in the latency chart.
@@ -372,7 +374,7 @@ export function useServerCardData(props) {
   const threeNetDetails = computed(() => THREE_NET_DEFS
     .map(def => {
       const customName = props.sysConfig?.[`custom_${def.key}_name`]
-      const label = String(customName || trans.value[def.labelKey] || def.fallbackLabel)
+      const label = probeTargetLabel(props.server, def.key, String(customName || trans.value[def.labelKey] || def.fallbackLabel))
       const pingSeries = getLatencySeries('ping', def.key)
       const lossSeries = getLatencySeries('loss', def.key)
       const pointCount = Math.max(pingSeries.length, lossSeries.length, getLatencyWindowPointCount())
@@ -384,7 +386,8 @@ export function useServerCardData(props) {
         const timestamp = pingPoint?.ts ?? lossPoint?.ts ?? null
         const hasPing = typeof ping === 'number' && Number.isFinite(ping) && ping >= 0
         const hasLoss = typeof loss === 'number' && Number.isFinite(loss)
-        const offline = !hasPing && !hasLoss
+        const previousTarget = pingPoint?.excluded || lossPoint?.excluded
+        const offline = !hasPing && !hasLoss && !previousTarget
         const pingSummary = formatPingBucketSummary(hasPing, ping, offline)
         const lossSummary = formatLossBucketSummary(hasLoss, loss, offline)
         return {
@@ -392,9 +395,9 @@ export function useServerCardData(props) {
           loss,
           pingHeight: hasPing ? 84 : 25,
           lossHeight: hasLoss ? 84 : 25,
-          pingColor: hasPing ? getPingColor(ping) : 'var(--accent-red)',
+          pingColor: hasPing ? getPingColor(ping) : (previousTarget ? 'var(--text-secondary)' : 'var(--accent-red)'),
           lossColor: offline ? 'var(--accent-red)' : getLossColor(loss),
-          pingOpacity: hasPing ? 0.94 : 0.52,
+          pingOpacity: hasPing ? 0.94 : (previousTarget ? 0.2 : 0.52),
           lossOpacity: hasLoss ? 0.94 : (offline ? 0.52 : 0.42),
           pingTooltip: formatBucketTooltip(timestamp, pingSummary),
           lossTooltip: formatBucketTooltip(timestamp, lossSummary)
@@ -408,8 +411,8 @@ export function useServerCardData(props) {
       return {
         ...def,
         label,
-        latestPing: getLatestSeriesValue(pingSeries, props.server[def.pingField]),
-        averageLoss: getAverageSeriesValue(lossSeries, props.server[def.lossField]),
+        latestPing: getLatestSeriesValue(pingSeries, isCurrentProbeTargetSample(props.server, props.server.last_updated) ? props.server[def.pingField] : null),
+        averageLoss: getAverageSeriesValue(lossSeries, isCurrentProbeTargetSample(props.server, props.server.last_updated) ? props.server[def.lossField] : null),
         title: hasMeasuredPoint ? '' : `${label} ${trans.value.offline}`,
         points
       }
@@ -419,9 +422,10 @@ export function useServerCardData(props) {
   const hasThreeNetDetails = computed(() => threeNetDetails.value.length > 0)
 
   const pingList = computed(() => [
-    { label: 'CT', value: props.server.ping_ct },
-    { label: 'CU', value: props.server.ping_cu },
-    { label: 'CM', value: props.server.ping_cm },
+    ...['ct', 'cu', 'cm'].map(key => ({
+      label: probeTargetLabel(props.server, key, key.toUpperCase()),
+      value: isCurrentProbeTargetSample(props.server, props.server.last_updated) ? props.server[`ping_${key}`] : null
+    })),
     { label: 'BGP', value: props.server.ping_bd },
     { label: props.server.node_1_name || 'Node 1', value: props.server.ping_node_1 },
     { label: props.server.node_2_name || 'Node 2', value: props.server.ping_node_2 },
