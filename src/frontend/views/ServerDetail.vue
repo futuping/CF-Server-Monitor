@@ -1,392 +1,479 @@
 <template>
   <div class="container detail-container">
     <TerminalHeader :title="server.name || 'Loading...'" />
-    
+
     <div v-if="loading" class="loading-state">
-      <div class="loading-spinner"></div>
+      <Spinner class="mx-auto size-5"></Spinner>
       <div class="loading-text">{{ trans.loading }}</div>
     </div>
 
     <template v-else>
-    
-    <div class="nav-bar">
-      <router-link to="/" class="back-btn">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polyline points="15 18 9 12 15 6"></polyline>
-        </svg>
-        {{ trans.back }}
-      </router-link>
-      <div class="time-selector" v-show="historyLoaded" id="time-selector">
-        <button 
-          v-for="option in timeOptions" 
-          :key="option.hours"
-          class="time-btn"
-          :class="{ active: currentHours === option.hours }"
-          @click="setTimeRange(option.hours)"
-        >{{ option.label }}</button>
-      </div>
-    </div>
-
-    <div class="host-card">
-      <div class="host-card-header">
-        <div class="host-name">
-
-          <span v-if="server.region && server.region !== 'xx'" class="country-os-icons">
-            <img :src="getPublicAssetUrl('flags/' + getFlagRegionCode(server.region) + '.svg')" :alt="server.region" class="flag-img">
-            <OsIcon :os="server.os" />
-          </span>
-          <span v-else class="country-os-icons">
-            <span class="flag-fallback">🏳️</span>
-            <OsIcon :os="server.os" />
-          </span>
-          <span>{{ server.name || 'Loading...' }}</span>
-
-        </div>
-        <span class="status-badge" :class="{ online: isOnline, offline: !isOnline }">
-          <span class="pulse-dot" :class="{ online: isOnline, offline: !isOnline }"></span>
-          <span>{{ isOnline ? trans.online : trans.offline }}</span>
-        </span>
-      </div>
-      <div class="sysinfo-grid" id="info-panel">
-        <div class="sysinfo-item">
-          <span class="sysinfo-label">{{ trans.uptime }}</span>
-          <span class="sysinfo-value">{{ formatUptime(server.boot_time) }}</span>
-        </div>
-        <div class="sysinfo-item" v-if="server.expire_date">
-          <span class="sysinfo-label">{{ trans.expire }}</span>
-          <span class="sysinfo-value" :class="{ 'expired': isExpired }">{{ expireDaysText }}</span>
-        </div>
-        <div class="sysinfo-item">
-          <span class="sysinfo-label">{{ trans.os }} / {{ trans.architecture }}</span>
-          <span class="sysinfo-value sysinfo-small">{{ server.os || 'N/A' }} / {{ server.arch || 'N/A' }}</span>
-        </div>
-        <div class="sysinfo-item" v-if="server.kernel_version">
-          <span class="sysinfo-label">{{ trans.kernelVersion || 'Kernel' }}</span>
-          <span class="sysinfo-value sysinfo-small">{{ server.kernel_version }}</span>
-        </div>
-        <div class="sysinfo-item">
-          <span class="sysinfo-label">{{ trans.cpuInfo }}</span>
-          <span class="sysinfo-value sysinfo-small">{{ server.cpu_info || 'N/A' }} x {{ server.cpu_cores || 'N/A' }}</span>
-        </div>
-        <div class="sysinfo-item" v-if="hasGpuData">
-          <span class="sysinfo-label">{{ trans.gpuInfo || 'GPU Info' }}</span>
-          <span class="sysinfo-value sysinfo-small">{{ gpuInfoText }}</span>
-        </div>
-        <div class="sysinfo-item">
-          <span class="sysinfo-label">{{ trans.totalDiskRam }}</span>
-          <span class="sysinfo-value">{{ formatBytes(server.disk_total*1024*1024) }} / {{ formatBytes(server.ram_total*1024*1024) }}</span>
-        </div>
-        <div class="sysinfo-item">
-          <span class="sysinfo-label">{{ trans.loadAvg }}</span>
-          <span class="sysinfo-value highlight">{{ server.load_avg || '0.00 0.00 0.00' }}</span>
-        </div>
-        <div class="sysinfo-item">
-          <span class="sysinfo-label">{{ trans.totalTraffic }}</span>
-          <span class="sysinfo-value sysinfo-small">↓ {{ formatBytes(server.net_rx) }} / ↑ {{ formatBytes(server.net_tx) }}</span>
-        </div>
-        <div class="sysinfo-item">
-          <span class="sysinfo-label">{{ trans.realtimeSpeed }}</span>
-          <span class="sysinfo-value sysinfo-small">↓ {{ formatBytes(server.net_in_speed) }}/s / ↑ {{ formatBytes(server.net_out_speed) }}/s</span>
-        </div>
-        <div class="sysinfo-item" v-if="server.net_rx_monthly">
-          <span class="sysinfo-label">{{ trans.monthlyTraffic }}</span>
-          <span class="sysinfo-value sysinfo-small">↓ {{ formatBytes(server.net_rx_monthly) }} / ↑ {{ formatBytes(server.net_tx_monthly) }}</span>
-        </div>
-        <div class="sysinfo-item" v-if="server.net_rx_monthly">
-          <span class="sysinfo-label">{{ trans.monthlyTrafficLimit }}</span>
-          <span class="sysinfo-value sysinfo-small">
-            {{ formatBytes(trafficUsageBytes) }}
-            /
-            {{ server.traffic_limit ? formatBytes(server.traffic_limit * 1024 * 1024 * 1024) : 'Unlimited' }}
-          </span>
-        </div>
-        <div class="sysinfo-item">
-          <span class="sysinfo-label">{{ trans.bootTime }}</span>
-          <span class="sysinfo-value sysinfo-small">{{ formatTimestamp(server.boot_time) }}</span>
-        </div>
-        <div class="sysinfo-item">
-          <span class="sysinfo-label">{{ trans.lastUpdate }}</span>
-          <span class="sysinfo-value sysinfo-small">{{ lastUpdateText }}</span>
+      <div class="nav-bar">
+        <Button as-child variant="outline" size="sm"
+          ><router-link to="/">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+            {{ trans.back }}
+          </router-link></Button
+        >
+        <div class="time-selector" v-show="historyLoaded" id="time-selector">
+          <Button
+            v-for="option in timeOptions"
+            :key="option.hours"
+            :class="{ active: currentHours === option.hours }"
+            @click="setTimeRange(option.hours)"
+            type="button"
+            :variant="currentHours === option.hours ? 'secondary' : 'ghost'"
+            size="sm"
+            >{{ option.label }}</Button
+          >
         </div>
       </div>
-    </div>
 
-    <p v-if="probeTargetHistoryNote" class="chart-subtitle">{{ probeTargetHistoryNote }}</p>
-
-    <div class="charts-container">
-      <div class="chart-card" :class="{ 'full-width': isChartExpanded('cpu') }">
-        <div class="chart-card-header">
-          <span class="chart-title">
-            <span class="chart-title-icon">▸</span>
-            {{ trans.cpuUsage }}
-          </span>
-          <div class="chart-header-actions">
-            <span class="chart-current-value">{{ cpuPercent }}%</span>
-            <ChartExpandButton :expanded="isChartExpanded('cpu')" @toggle="toggleChartExpanded('cpu')" />
+      <Card class="host-card min-w-0 gap-4 p-5">
+        <div class="host-card-header">
+          <div class="host-name">
+            <span v-if="server.region && server.region !== 'xx'" class="country-os-icons">
+              <img
+                :src="getPublicAssetUrl('flags/' + getFlagRegionCode(server.region) + '.svg')"
+                :alt="server.region"
+                class="flag-img"
+              />
+              <OsIcon :os="server.os" />
+            </span>
+            <span v-else class="country-os-icons">
+              <span class="flag-fallback">🏳️</span>
+              <OsIcon :os="server.os" />
+            </span>
+            <span>{{ server.name || 'Loading...' }}</span>
+          </div>
+          <Badge class="status-badge" :class="{ online: isOnline, offline: !isOnline }" variant="outline">
+            <span class="pulse-dot" :class="{ online: isOnline, offline: !isOnline }"></span>
+            <span>{{ isOnline ? trans.online : trans.offline }}</span>
+          </Badge>
+        </div>
+        <div class="sysinfo-grid" id="info-panel">
+          <div class="sysinfo-item">
+            <span class="sysinfo-label">{{ trans.uptime }}</span>
+            <span class="sysinfo-value">{{ formatUptime(server.boot_time) }}</span>
+          </div>
+          <div class="sysinfo-item" v-if="server.expire_date">
+            <span class="sysinfo-label">{{ trans.expire }}</span>
+            <span class="sysinfo-value" :class="{ expired: isExpired }">{{ expireDaysText }}</span>
+          </div>
+          <div class="sysinfo-item">
+            <span class="sysinfo-label">{{ trans.os }} / {{ trans.architecture }}</span>
+            <span class="sysinfo-value sysinfo-small">{{ server.os || 'N/A' }} / {{ server.arch || 'N/A' }}</span>
+          </div>
+          <div class="sysinfo-item" v-if="server.kernel_version">
+            <span class="sysinfo-label">{{ trans.kernelVersion || 'Kernel' }}</span>
+            <span class="sysinfo-value sysinfo-small">{{ server.kernel_version }}</span>
+          </div>
+          <div class="sysinfo-item">
+            <span class="sysinfo-label">{{ trans.cpuInfo }}</span>
+            <span class="sysinfo-value sysinfo-small"
+              >{{ server.cpu_info || 'N/A' }} x {{ server.cpu_cores || 'N/A' }}</span
+            >
+          </div>
+          <div class="sysinfo-item" v-if="hasGpuData">
+            <span class="sysinfo-label">{{ trans.gpuInfo || 'GPU Info' }}</span>
+            <span class="sysinfo-value sysinfo-small">{{ gpuInfoText }}</span>
+          </div>
+          <div class="sysinfo-item">
+            <span class="sysinfo-label">{{ trans.totalDiskRam }}</span>
+            <span class="sysinfo-value"
+              >{{ formatBytes(server.disk_total * 1024 * 1024) }} /
+              {{ formatBytes(server.ram_total * 1024 * 1024) }}</span
+            >
+          </div>
+          <div class="sysinfo-item">
+            <span class="sysinfo-label">{{ trans.loadAvg }}</span>
+            <span class="sysinfo-value highlight">{{ server.load_avg || '0.00 0.00 0.00' }}</span>
+          </div>
+          <div class="sysinfo-item">
+            <span class="sysinfo-label">{{ trans.totalTraffic }}</span>
+            <span class="sysinfo-value sysinfo-small"
+              >↓ {{ formatBytes(server.net_rx) }} / ↑ {{ formatBytes(server.net_tx) }}</span
+            >
+          </div>
+          <div class="sysinfo-item">
+            <span class="sysinfo-label">{{ trans.realtimeSpeed }}</span>
+            <span class="sysinfo-value sysinfo-small"
+              >↓ {{ formatBytes(server.net_in_speed) }}/s / ↑ {{ formatBytes(server.net_out_speed) }}/s</span
+            >
+          </div>
+          <div class="sysinfo-item" v-if="server.net_rx_monthly">
+            <span class="sysinfo-label">{{ trans.monthlyTraffic }}</span>
+            <span class="sysinfo-value sysinfo-small"
+              >↓ {{ formatBytes(server.net_rx_monthly) }} / ↑ {{ formatBytes(server.net_tx_monthly) }}</span
+            >
+          </div>
+          <div class="sysinfo-item" v-if="server.net_rx_monthly">
+            <span class="sysinfo-label">{{ trans.monthlyTrafficLimit }}</span>
+            <span class="sysinfo-value sysinfo-small">
+              {{ formatBytes(trafficUsageBytes) }}
+              /
+              {{ server.traffic_limit ? formatBytes(server.traffic_limit * 1024 * 1024 * 1024) : 'Unlimited' }}
+            </span>
+          </div>
+          <div class="sysinfo-item">
+            <span class="sysinfo-label">{{ trans.bootTime }}</span>
+            <span class="sysinfo-value sysinfo-small">{{ formatTimestamp(server.boot_time) }}</span>
+          </div>
+          <div class="sysinfo-item">
+            <span class="sysinfo-label">{{ trans.lastUpdate }}</span>
+            <span class="sysinfo-value sysinfo-small">{{ lastUpdateText }}</span>
           </div>
         </div>
-        <div class="chart-body">
-          <canvas ref="cpuChartRef"></canvas>
-        </div>
-      </div>
+      </Card>
 
-      <div class="chart-card" :class="{ 'full-width': isChartExpanded('ram') }">
-        <div class="chart-card-header">
-          <span class="chart-title">
-            <span class="chart-title-icon">▸</span>
-            {{ trans.memoryUsage }}
-          </span>
-          <div class="chart-header-actions">
-            <div class="chart-current-value-container">
-              <span class="chart-current-value">{{ ramPercent }}%</span>
-              <div class="chart-subtitle">{{ trans.swap }}: {{ server.swap_used || '0' }} / {{ server.swap_total || '0' }} MiB</div>
+      <p v-if="probeTargetHistoryNote" class="chart-subtitle">{{ probeTargetHistoryNote }}</p>
+
+      <div class="charts-container">
+        <Card :class="{ 'full-width': isChartExpanded('cpu') }" class="chart-card min-w-0 gap-0 p-0 overflow-hidden">
+          <div class="chart-card-header">
+            <CardTitle class="chart-title">
+              <span class="chart-title-icon">▸</span>
+              {{ trans.cpuUsage }}
+            </CardTitle>
+            <div class="chart-header-actions">
+              <span class="chart-current-value">{{ cpuPercent }}%</span>
+              <ChartExpandButton :expanded="isChartExpanded('cpu')" @toggle="toggleChartExpanded('cpu')" />
             </div>
-            <ChartExpandButton :expanded="isChartExpanded('ram')" @toggle="toggleChartExpanded('ram')" />
           </div>
-        </div>
-        <div class="chart-body">
-          <canvas ref="ramChartRef"></canvas>
-        </div>
-      </div>
+          <div class="chart-body">
+            <canvas ref="cpuChartRef"></canvas>
+          </div>
+        </Card>
 
-      <div class="chart-card" :class="{ 'full-width': isChartExpanded('net') }">
-        <div class="chart-card-header">
-          <span class="chart-title">
-            <span class="chart-title-icon">▸</span>
-            {{ trans.networkTraffic }}
-          </span>
-          <div class="chart-header-actions">
-            <div class="net-indicator">
-              <span class="net-down">▼ {{ formatBytes(server.net_in_speed) }}/s</span>
-              <span class="net-up">▲ {{ formatBytes(server.net_out_speed) }}/s</span>
+        <Card :class="{ 'full-width': isChartExpanded('ram') }" class="chart-card min-w-0 gap-0 p-0 overflow-hidden">
+          <div class="chart-card-header">
+            <CardTitle class="chart-title">
+              <span class="chart-title-icon">▸</span>
+              {{ trans.memoryUsage }}
+            </CardTitle>
+            <div class="chart-header-actions">
+              <div class="chart-current-value-container">
+                <span class="chart-current-value">{{ ramPercent }}%</span>
+                <div class="chart-subtitle">
+                  {{ trans.swap }}: {{ server.swap_used || '0' }} / {{ server.swap_total || '0' }} MiB
+                </div>
+              </div>
+              <ChartExpandButton :expanded="isChartExpanded('ram')" @toggle="toggleChartExpanded('ram')" />
             </div>
-            <ChartExpandButton :expanded="isChartExpanded('net')" @toggle="toggleChartExpanded('net')" />
           </div>
-        </div>
-        <div class="chart-body">
-          <canvas ref="netChartRef"></canvas>
-        </div>
-      </div>
+          <div class="chart-body">
+            <canvas ref="ramChartRef"></canvas>
+          </div>
+        </Card>
 
-      <div class="chart-card" :class="{ 'full-width': isChartExpanded('load') }">
-        <div class="chart-card-header">
-          <span class="chart-title">
-            <span class="chart-title-icon">▸</span>
-            {{ trans.loadAvgMonitor }}
-          </span>
-          <div class="chart-header-actions">
-            <div class="load-avg-row">
-              <span class="load-1m">{{ trans.load1m }} <b>{{ (parseLoadAvg(server.load_avg)[0] || 0).toFixed(2) }}</b></span>
-              <span class="load-5m">{{ trans.load5m }} <b>{{ (parseLoadAvg(server.load_avg)[1] || 0).toFixed(2) }}</b></span>
-              <span class="load-15m">{{ trans.load15m }} <b>{{ (parseLoadAvg(server.load_avg)[2] || 0).toFixed(2) }}</b></span>
+        <Card :class="{ 'full-width': isChartExpanded('net') }" class="chart-card min-w-0 gap-0 p-0 overflow-hidden">
+          <div class="chart-card-header">
+            <CardTitle class="chart-title">
+              <span class="chart-title-icon">▸</span>
+              {{ trans.networkTraffic }}
+            </CardTitle>
+            <div class="chart-header-actions">
+              <div class="net-indicator">
+                <span class="net-down">▼ {{ formatBytes(server.net_in_speed) }}/s</span>
+                <span class="net-up">▲ {{ formatBytes(server.net_out_speed) }}/s</span>
+              </div>
+              <ChartExpandButton :expanded="isChartExpanded('net')" @toggle="toggleChartExpanded('net')" />
             </div>
-            <ChartExpandButton :expanded="isChartExpanded('load')" @toggle="toggleChartExpanded('load')" />
           </div>
-        </div>
-        <div class="chart-body">
-          <canvas ref="loadChartRef"></canvas>
-        </div>
-      </div>
+          <div class="chart-body">
+            <canvas ref="netChartRef"></canvas>
+          </div>
+        </Card>
 
-      <div class="chart-card" :class="{ 'full-width': isChartExpanded('disk') }">
-        <div class="chart-card-header">
-          <span class="chart-title">
-            <span class="chart-title-icon">▸</span>
-            {{ trans.diskUsage }}
-          </span>
-          <div class="chart-header-actions">
-            <div class="chart-current-value-container">
-              <span class="chart-current-value">{{ diskPercent }}%</span>
-              <div class="chart-subtitle">{{ trans.used }} {{ formatBytes(server.disk_used*1024*1024) }} / {{ formatBytes(server.disk_total*1024*1024) }}</div>
+        <Card :class="{ 'full-width': isChartExpanded('load') }" class="chart-card min-w-0 gap-0 p-0 overflow-hidden">
+          <div class="chart-card-header">
+            <CardTitle class="chart-title">
+              <span class="chart-title-icon">▸</span>
+              {{ trans.loadAvgMonitor }}
+            </CardTitle>
+            <div class="chart-header-actions">
+              <div class="load-avg-row">
+                <span class="load-1m"
+                  >{{ trans.load1m }} <b>{{ (parseLoadAvg(server.load_avg)[0] || 0).toFixed(2) }}</b></span
+                >
+                <span class="load-5m"
+                  >{{ trans.load5m }} <b>{{ (parseLoadAvg(server.load_avg)[1] || 0).toFixed(2) }}</b></span
+                >
+                <span class="load-15m"
+                  >{{ trans.load15m }} <b>{{ (parseLoadAvg(server.load_avg)[2] || 0).toFixed(2) }}</b></span
+                >
+              </div>
+              <ChartExpandButton :expanded="isChartExpanded('load')" @toggle="toggleChartExpanded('load')" />
             </div>
-            <ChartExpandButton :expanded="isChartExpanded('disk')" @toggle="toggleChartExpanded('disk')" />
           </div>
-        </div>
-        <div class="chart-body">
-          <canvas ref="diskChartRef"></canvas>
-        </div>
-      </div>
+          <div class="chart-body">
+            <canvas ref="loadChartRef"></canvas>
+          </div>
+        </Card>
 
-      <div class="chart-card" :class="{ 'full-width': isChartExpanded('diskIo') }" v-show="hasDiskIoData">
-        <div class="chart-card-header disk-io-header">
-          <span class="chart-title">
-            <span class="chart-title-icon">▸</span>
-            {{ trans.diskIo || 'Disk IO' }}
-          </span>
-          <div class="chart-header-actions">
-            <div class="ping-indicator">
-              <span class="net-down">R <b>{{ formatBytes(diskIo.read_bps) }}/s</b></span>
-              <span class="net-up">W <b>{{ formatBytes(diskIo.write_bps) }}/s</b></span>
-              <span class="conn-tcp">IOPS <b>{{ formatDiskIoNumber(diskIo.read_iops) }}/{{ formatDiskIoNumber(diskIo.write_iops) }}</b></span>
-              <span class="conn-udp">await <b>{{ formatDiskIoNumber(diskIo.await_ms) }}ms</b></span>
-              <span>util <b>{{ formatDiskIoNumber(diskIo.util) }}%</b></span>
+        <Card :class="{ 'full-width': isChartExpanded('disk') }" class="chart-card min-w-0 gap-0 p-0 overflow-hidden">
+          <div class="chart-card-header">
+            <CardTitle class="chart-title">
+              <span class="chart-title-icon">▸</span>
+              {{ trans.diskUsage }}
+            </CardTitle>
+            <div class="chart-header-actions">
+              <div class="chart-current-value-container">
+                <span class="chart-current-value">{{ diskPercent }}%</span>
+                <div class="chart-subtitle">
+                  {{ trans.used }} {{ formatBytes(server.disk_used * 1024 * 1024) }} /
+                  {{ formatBytes(server.disk_total * 1024 * 1024) }}
+                </div>
+              </div>
+              <ChartExpandButton :expanded="isChartExpanded('disk')" @toggle="toggleChartExpanded('disk')" />
             </div>
-            <ChartExpandButton :expanded="isChartExpanded('diskIo')" @toggle="toggleChartExpanded('diskIo')" />
           </div>
-        </div>
-        <div class="chart-body">
-          <canvas ref="diskIoChartRef"></canvas>
-        </div>
-      </div>
-
-      <div class="chart-card" :class="{ 'full-width': isChartExpanded('gpu') }" v-show="hasGpuData">
-        <div class="chart-card-header">
-          <span class="chart-title">
-            <span class="chart-title-icon">▸</span>
-            {{ trans.gpuUsage || 'GPU Usage' }}
-          </span>
-          <div class="chart-header-actions">
-            <span class="chart-current-value">{{ gpuPercentText }}</span>
-            <ChartExpandButton :expanded="isChartExpanded('gpu')" @toggle="toggleChartExpanded('gpu')" />
+          <div class="chart-body">
+            <canvas ref="diskChartRef"></canvas>
           </div>
-        </div>
-        <div class="chart-body">
-          <canvas ref="gpuChartRef"></canvas>
-        </div>
-      </div>
+        </Card>
 
-      <div class="chart-card" :class="{ 'full-width': isChartExpanded('gpuMem') }" v-show="hasGpuMemData">
-        <div class="chart-card-header">
-          <span class="chart-title">
-            <span class="chart-title-icon">▸</span>
-            {{ trans.gpuMemory || 'GPU Memory' }}
-          </span>
-          <div class="chart-header-actions">
-            <span class="chart-current-value">{{ gpuMemText }}</span>
-            <ChartExpandButton :expanded="isChartExpanded('gpuMem')" @toggle="toggleChartExpanded('gpuMem')" />
-          </div>
-        </div>
-        <div class="chart-body">
-          <canvas ref="gpuMemChartRef"></canvas>
-        </div>
-      </div>
-
-      <div class="chart-card" :class="{ 'full-width': isChartExpanded('gpuClock') }" v-show="hasGpuClockData">
-        <div class="chart-card-header">
-          <span class="chart-title">
-            <span class="chart-title-icon">▸</span>
-            {{ trans.gpuClock || 'GPU SM Clock' }}
-          </span>
-          <div class="chart-header-actions">
-            <span class="chart-current-value">{{ gpuClockText }}</span>
-            <ChartExpandButton :expanded="isChartExpanded('gpuClock')" @toggle="toggleChartExpanded('gpuClock')" />
-          </div>
-        </div>
-        <div class="chart-body">
-          <canvas ref="gpuClockChartRef"></canvas>
-        </div>
-      </div>
-
-      <div class="chart-card" :class="{ 'full-width': isChartExpanded('gpuPower') }" v-show="hasGpuPowerData">
-        <div class="chart-card-header">
-          <span class="chart-title">
-            <span class="chart-title-icon">▸</span>
-            {{ trans.gpuPower || 'GPU Power' }}
-          </span>
-          <div class="chart-header-actions">
-            <span class="chart-current-value">{{ gpuPowerText }}</span>
-            <ChartExpandButton :expanded="isChartExpanded('gpuPower')" @toggle="toggleChartExpanded('gpuPower')" />
-          </div>
-        </div>
-        <div class="chart-body">
-          <canvas ref="gpuPowerChartRef"></canvas>
-        </div>
-      </div>
-
-      <div class="chart-card" :class="{ 'full-width': isChartExpanded('proc') }">
-        <div class="chart-card-header">
-          <span class="chart-title">
-            <span class="chart-title-icon">▸</span>
-            {{ trans.processes }}
-          </span>
-          <div class="chart-header-actions">
-            <span class="chart-current-value">{{ server.processes || '0' }}</span>
-            <ChartExpandButton :expanded="isChartExpanded('proc')" @toggle="toggleChartExpanded('proc')" />
-          </div>
-        </div>
-        <div class="chart-body">
-          <canvas ref="procChartRef"></canvas>
-        </div>
-      </div>
-
-      <div class="chart-card" :class="{ 'full-width': isChartExpanded('conn') }">
-        <div class="chart-card-header">
-          <span class="chart-title">
-            <span class="chart-title-icon">▸</span>
-            {{ trans.connections }}
-          </span>
-          <div class="chart-header-actions">
-            <div class="net-indicator">
-              <span class="conn-tcp">TCP <b>{{ server.tcp_conn || '0' }}</b></span>
-              <span class="conn-udp">UDP <b>{{ server.udp_conn || '0' }}</b></span>
+        <Card
+          :class="{ 'full-width': isChartExpanded('diskIo') }"
+          v-show="hasDiskIoData"
+          class="chart-card min-w-0 gap-0 p-0 overflow-hidden"
+        >
+          <div class="chart-card-header disk-io-header">
+            <CardTitle class="chart-title">
+              <span class="chart-title-icon">▸</span>
+              {{ trans.diskIo || 'Disk IO' }}
+            </CardTitle>
+            <div class="chart-header-actions">
+              <div class="ping-indicator">
+                <span class="net-down"
+                  >R <b>{{ formatBytes(diskIo.read_bps) }}/s</b></span
+                >
+                <span class="net-up"
+                  >W <b>{{ formatBytes(diskIo.write_bps) }}/s</b></span
+                >
+                <span class="conn-tcp"
+                  >IOPS
+                  <b>{{ formatDiskIoNumber(diskIo.read_iops) }}/{{ formatDiskIoNumber(diskIo.write_iops) }}</b></span
+                >
+                <span class="conn-udp"
+                  >await <b>{{ formatDiskIoNumber(diskIo.await_ms) }}ms</b></span
+                >
+                <span
+                  >util <b>{{ formatDiskIoNumber(diskIo.util) }}%</b></span
+                >
+              </div>
+              <ChartExpandButton :expanded="isChartExpanded('diskIo')" @toggle="toggleChartExpanded('diskIo')" />
             </div>
-            <ChartExpandButton :expanded="isChartExpanded('conn')" @toggle="toggleChartExpanded('conn')" />
           </div>
-        </div>
-        <div class="chart-body">
-          <canvas ref="connChartRef"></canvas>
-        </div>
-      </div>
+          <div class="chart-body">
+            <canvas ref="diskIoChartRef"></canvas>
+          </div>
+        </Card>
 
-      <div class="chart-card" :class="{ 'full-width': isChartExpanded('ping') }" v-show="hasPingData">
-        <div class="chart-card-header">
-          <span class="chart-title">
-            <span class="chart-title-icon">▸</span>
-            {{ trans.latencyMonitor }}
-          </span>
-          <div class="chart-header-actions">
-            <div class="ping-indicator">
-              <span v-for="item in visiblePingStats" :key="item.field" :class="item.className">
-                {{ item.label }} <b>{{ item.value !== null ? item.value + 'ms' : 'Timeout' }}</b>
-              </span>
+        <Card
+          :class="{ 'full-width': isChartExpanded('gpu') }"
+          v-show="hasGpuData"
+          class="chart-card min-w-0 gap-0 p-0 overflow-hidden"
+        >
+          <div class="chart-card-header">
+            <CardTitle class="chart-title">
+              <span class="chart-title-icon">▸</span>
+              {{ trans.gpuUsage || 'GPU Usage' }}
+            </CardTitle>
+            <div class="chart-header-actions">
+              <span class="chart-current-value">{{ gpuPercentText }}</span>
+              <ChartExpandButton :expanded="isChartExpanded('gpu')" @toggle="toggleChartExpanded('gpu')" />
             </div>
-            <ChartExpandButton :expanded="isChartExpanded('ping')" @toggle="toggleChartExpanded('ping')" />
           </div>
-        </div>
-        <div class="chart-body">
-          <canvas ref="pingChartRef"></canvas>
-        </div>
-      </div>
+          <div class="chart-body">
+            <canvas ref="gpuChartRef"></canvas>
+          </div>
+        </Card>
 
-      <div class="chart-card" :class="{ 'full-width': isChartExpanded('loss') }" v-show="hasLossData">
-        <div class="chart-card-header">
-          <span class="chart-title">
-            <span class="chart-title-icon">▸</span>
-            {{ trans.packetLoss || 'Packet Loss' }}
-          </span>
-          <div class="chart-header-actions">
-            <div class="ping-indicator">
-              <span v-for="item in visibleLossStats" :key="item.field" :class="item.className">
-                {{ item.label }} <b>{{ item.value }}%</b>
-              </span>
+        <Card
+          :class="{ 'full-width': isChartExpanded('gpuMem') }"
+          v-show="hasGpuMemData"
+          class="chart-card min-w-0 gap-0 p-0 overflow-hidden"
+        >
+          <div class="chart-card-header">
+            <CardTitle class="chart-title">
+              <span class="chart-title-icon">▸</span>
+              {{ trans.gpuMemory || 'GPU Memory' }}
+            </CardTitle>
+            <div class="chart-header-actions">
+              <span class="chart-current-value">{{ gpuMemText }}</span>
+              <ChartExpandButton :expanded="isChartExpanded('gpuMem')" @toggle="toggleChartExpanded('gpuMem')" />
             </div>
-            <ChartExpandButton :expanded="isChartExpanded('loss')" @toggle="toggleChartExpanded('loss')" />
           </div>
-        </div>
-        <div class="chart-body">
-          <canvas ref="lossChartRef"></canvas>
-        </div>
+          <div class="chart-body">
+            <canvas ref="gpuMemChartRef"></canvas>
+          </div>
+        </Card>
+
+        <Card
+          :class="{ 'full-width': isChartExpanded('gpuClock') }"
+          v-show="hasGpuClockData"
+          class="chart-card min-w-0 gap-0 p-0 overflow-hidden"
+        >
+          <div class="chart-card-header">
+            <CardTitle class="chart-title">
+              <span class="chart-title-icon">▸</span>
+              {{ trans.gpuClock || 'GPU SM Clock' }}
+            </CardTitle>
+            <div class="chart-header-actions">
+              <span class="chart-current-value">{{ gpuClockText }}</span>
+              <ChartExpandButton :expanded="isChartExpanded('gpuClock')" @toggle="toggleChartExpanded('gpuClock')" />
+            </div>
+          </div>
+          <div class="chart-body">
+            <canvas ref="gpuClockChartRef"></canvas>
+          </div>
+        </Card>
+
+        <Card
+          :class="{ 'full-width': isChartExpanded('gpuPower') }"
+          v-show="hasGpuPowerData"
+          class="chart-card min-w-0 gap-0 p-0 overflow-hidden"
+        >
+          <div class="chart-card-header">
+            <CardTitle class="chart-title">
+              <span class="chart-title-icon">▸</span>
+              {{ trans.gpuPower || 'GPU Power' }}
+            </CardTitle>
+            <div class="chart-header-actions">
+              <span class="chart-current-value">{{ gpuPowerText }}</span>
+              <ChartExpandButton :expanded="isChartExpanded('gpuPower')" @toggle="toggleChartExpanded('gpuPower')" />
+            </div>
+          </div>
+          <div class="chart-body">
+            <canvas ref="gpuPowerChartRef"></canvas>
+          </div>
+        </Card>
+
+        <Card :class="{ 'full-width': isChartExpanded('proc') }" class="chart-card min-w-0 gap-0 p-0 overflow-hidden">
+          <div class="chart-card-header">
+            <CardTitle class="chart-title">
+              <span class="chart-title-icon">▸</span>
+              {{ trans.processes }}
+            </CardTitle>
+            <div class="chart-header-actions">
+              <span class="chart-current-value">{{ server.processes || '0' }}</span>
+              <ChartExpandButton :expanded="isChartExpanded('proc')" @toggle="toggleChartExpanded('proc')" />
+            </div>
+          </div>
+          <div class="chart-body">
+            <canvas ref="procChartRef"></canvas>
+          </div>
+        </Card>
+
+        <Card :class="{ 'full-width': isChartExpanded('conn') }" class="chart-card min-w-0 gap-0 p-0 overflow-hidden">
+          <div class="chart-card-header">
+            <CardTitle class="chart-title">
+              <span class="chart-title-icon">▸</span>
+              {{ trans.connections }}
+            </CardTitle>
+            <div class="chart-header-actions">
+              <div class="net-indicator">
+                <span class="conn-tcp"
+                  >TCP <b>{{ server.tcp_conn || '0' }}</b></span
+                >
+                <span class="conn-udp"
+                  >UDP <b>{{ server.udp_conn || '0' }}</b></span
+                >
+              </div>
+              <ChartExpandButton :expanded="isChartExpanded('conn')" @toggle="toggleChartExpanded('conn')" />
+            </div>
+          </div>
+          <div class="chart-body">
+            <canvas ref="connChartRef"></canvas>
+          </div>
+        </Card>
+
+        <Card
+          :class="{ 'full-width': isChartExpanded('ping') }"
+          v-show="hasPingData"
+          class="chart-card min-w-0 gap-0 p-0 overflow-hidden"
+        >
+          <div class="chart-card-header">
+            <CardTitle class="chart-title">
+              <span class="chart-title-icon">▸</span>
+              {{ trans.latencyMonitor }}
+            </CardTitle>
+            <div class="chart-header-actions">
+              <div class="ping-indicator">
+                <span v-for="item in visiblePingStats" :key="item.field" :class="item.className">
+                  {{ item.label }} <b>{{ item.value !== null ? item.value + 'ms' : 'Timeout' }}</b>
+                </span>
+              </div>
+              <ChartExpandButton :expanded="isChartExpanded('ping')" @toggle="toggleChartExpanded('ping')" />
+            </div>
+          </div>
+          <div class="chart-body">
+            <canvas ref="pingChartRef"></canvas>
+          </div>
+        </Card>
+
+        <Card
+          :class="{ 'full-width': isChartExpanded('loss') }"
+          v-show="hasLossData"
+          class="chart-card min-w-0 gap-0 p-0 overflow-hidden"
+        >
+          <div class="chart-card-header">
+            <CardTitle class="chart-title">
+              <span class="chart-title-icon">▸</span>
+              {{ trans.packetLoss || 'Packet Loss' }}
+            </CardTitle>
+            <div class="chart-header-actions">
+              <div class="ping-indicator">
+                <span v-for="item in visibleLossStats" :key="item.field" :class="item.className">
+                  {{ item.label }} <b>{{ item.value }}%</b>
+                </span>
+              </div>
+              <ChartExpandButton :expanded="isChartExpanded('loss')" @toggle="toggleChartExpanded('loss')" />
+            </div>
+          </div>
+          <div class="chart-body">
+            <canvas ref="lossChartRef"></canvas>
+          </div>
+        </Card>
       </div>
-    </div>
     </template>
 
     <Footer />
 
-    <div id="loginRequiredModal" class="modal-overlay" :class="{ active: showLoginModal }">
-      <div class="modal-dialog">
-        <div class="modal-header">
-          <div class="modal-title">$ sudo login</div>
-          <button class="modal-close" @click="showLoginModal = false">✕</button>
-        </div>
+    <Dialog
+      v-if="showLoginModal"
+      :open="Boolean(showLoginModal)"
+      @update:open="
+        (open) => {
+          if (!open) showLoginModal = false
+        }
+      "
+    >
+      <DialogContent class="max-h-[85dvh] overflow-y-auto" :show-close-button="false" :aria-describedby="undefined">
+        <DialogHeader class="pr-8">
+          <DialogTitle>{{ trans.adminLogin }}</DialogTitle>
+          <Button
+            @click="showLoginModal = false"
+            class="absolute right-3 top-3"
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            :aria-label="trans.close"
+            >✕</Button
+          >
+        </DialogHeader>
         <div class="modal-body-content">
           <p class="modal-body-text">{{ trans.loginRequired }}</p>
         </div>
-        <div class="modal-footer flex-justify-between">
-          <button @click="goToLogin" class="btn btn-primary">{{ trans.login }}</button>
-          <button @click="showLoginModal = false" class="btn">{{ trans.cancel }}</button>
-        </div>
-      </div>
-    </div>
+        <DialogFooter class="flex-wrap">
+          <Button @click="goToLogin" type="button" variant="default" size="sm">{{ trans.login }}</Button>
+          <Button @click="showLoginModal = false" type="button" variant="outline" size="sm">{{ trans.cancel }}</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
 
     <LiveConnectionTimeoutModal
       :show="showLiveTimeoutModal"
@@ -398,6 +485,12 @@
 </template>
 
 <script setup>
+import { Maximize2, Minimize2 } from '@lucide/vue'
+import { Spinner } from '@/components/ui/spinner'
+import { Button } from '@/components/ui/button'
+import { Card, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { ref, computed, inject, onMounted, onUnmounted, watch, nextTick, h } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import TerminalHeader from '../components/TerminalHeader.vue'
@@ -462,36 +555,13 @@ const ChartExpandButton = {
       ? (currentLang.value === 'en' ? 'Collapse chart' : '收起图表')
       : (currentLang.value === 'en' ? 'Expand chart' : '放大图表')
 
-    return () => h('button', {
-      type: 'button',
-      class: ['chart-expand-btn', { active: props.expanded }],
+    return () => h(Button, {
+      type: 'button', size: 'icon-sm', variant: props.expanded ? 'secondary' : 'ghost',
       title: getLabel(),
       'aria-label': getLabel(),
       'aria-pressed': props.expanded ? 'true' : 'false',
       onClick: () => emit('toggle')
-    }, [
-      h('svg', {
-        viewBox: '0 0 24 24',
-        width: '16',
-        height: '16',
-        fill: 'none',
-        stroke: 'currentColor',
-        'stroke-width': '2',
-        'stroke-linecap': 'round',
-        'stroke-linejoin': 'round',
-        'aria-hidden': 'true'
-      }, props.expanded
-        ? [
-            h('polyline', { points: '4 14 10 14 10 20' }),
-            h('polyline', { points: '20 10 14 10 14 4' })
-          ]
-        : [
-            h('polyline', { points: '15 3 21 3 21 9' }),
-            h('polyline', { points: '9 21 3 21 3 15' }),
-            h('line', { x1: '21', y1: '3', x2: '14', y2: '10' }),
-            h('line', { x1: '3', y1: '21', x2: '10', y2: '14' })
-          ])
-    ])
+    }, () => h(props.expanded ? Minimize2 : Maximize2))
   }
 }
 
@@ -827,7 +897,7 @@ const formatPing = (value) => (value === null || value === undefined || value ==
 
 const parseBootTimeToMs = (bootTime) => {
   if (!bootTime) return null
-  
+
   if (typeof bootTime === 'string' && !/^\d+$/.test(bootTime)) {
     const date = new Date(bootTime)
     if (isNaN(date.getTime())) return null
@@ -845,19 +915,19 @@ const parseBootTimeToMs = (bootTime) => {
 const formatUptime = (bootTime) => {
   const bootTimeMs = parseBootTimeToMs(bootTime)
   if (!bootTimeMs) return 'N/A'
-  
+
   const diffMs = Date.now() - bootTimeMs
-  
+
   if (diffMs < 0) return 'N/A'
-  
+
   const seconds = Math.floor(diffMs / 1000)
   const days = Math.floor(seconds / 86400)
   const hours = Math.floor((seconds % 86400) / 3600)
   const minutes = Math.floor((seconds % 3600) / 60)
-  
+
   const hoursStr = String(hours).padStart(2, '0')
   const minutesStr = String(minutes).padStart(2, '0')
-  
+
   if (days > 0) {
     return `${days}${days === 1 ? trans.value.day : trans.value.days}, ${hoursStr}:${minutesStr}`
   } else {
@@ -1282,7 +1352,7 @@ const shouldBreakGap = (prevPoint, nextPoint) => {
 
 const applyGapBreak = (data) => {
   if (!data || data.length < 2) return data
-  
+
   const result = []
   for (let i = 0; i < data.length; i++) {
     result.push(data[i])
@@ -1366,8 +1436,8 @@ const updateLoadChart = (chart, dataPoints) => {
     processedData = dataPoints.map(d => {
       const loadVal = d.load_avg || '0 0 0'
       const loads = parseLoadAvg(loadVal)
-      return { 
-        x: new Date(d.timestamp).getTime(), 
+      return {
+        x: new Date(d.timestamp).getTime(),
         load1: loads[0],
         load5: loads[1],
         load15: loads[2]
@@ -1380,7 +1450,7 @@ const updateLoadChart = (chart, dataPoints) => {
   const load1Data = processedData.map(d => createChartPoint(d.x, d.load1))
   const load5Data = processedData.map(d => createChartPoint(d.x, d.load5))
   const load15Data = processedData.map(d => createChartPoint(d.x, d.load15))
-  
+
   chart.data.datasets[0].data = applyGapBreak(load1Data)
   chart.data.datasets[1].data = applyGapBreak(load5Data)
   chart.data.datasets[2].data = applyGapBreak(load15Data)
@@ -1534,10 +1604,10 @@ const updateAllChartTimeUnits = (hours) => {
 
 const appendDataToChart = (chart, datasetIndex, timestamp, value, isPing = false, emptyAsNull = false) => {
   if (!chart) return
-  
+
   const dataset = chart.data.datasets[datasetIndex]
   if (!dataset) return
-  
+
   const time = new Date(timestamp).getTime()
   const lastTime = getLastDatasetTimestamp(dataset.data)
   if (lastTime && time <= lastTime) return
@@ -1553,16 +1623,16 @@ const appendDataToChart = (chart, datasetIndex, timestamp, value, isPing = false
   } else {
     yVal = parseFloat(value) || 0
   }
-  
+
   dataset.data = appendPointWithGapBreak(dataset.data, createChartPoint(time, yVal))
-  
+
   while (dataset.data.length > CHART.MAX_DATA_POINTS) {
     dataset.data.shift()
   }
-  
+
   dataset.data = dataset.data.filter(d => getChartTimestamp(d) >= startTime)
   syncChartLabels(chart)
-  
+
   chart.update('none')
 }
 
@@ -1855,10 +1925,10 @@ const initChartsOnMount = async () => {
   isInitializingCharts = true
 
   await nextTick()
-  
+
   const allRefsReady = cpuChartRef.value && gpuChartRef.value && gpuMemChartRef.value && gpuClockChartRef.value && gpuPowerChartRef.value && ramChartRef.value && diskChartRef.value && diskIoChartRef.value &&
     netChartRef.value && procChartRef.value && connChartRef.value && pingChartRef.value && lossChartRef.value && loadChartRef.value
-  
+
   if (allRefsReady) {
     try {
       initCharts()

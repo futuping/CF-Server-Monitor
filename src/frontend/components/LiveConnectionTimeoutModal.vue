@@ -1,40 +1,35 @@
 <template>
-  <div
+  <Dialog
     v-if="show"
-    class="modal-overlay active"
-    role="dialog"
-    aria-modal="true"
-    :aria-labelledby="titleId"
-    :aria-describedby="messageId"
+    :open="Boolean(show)"
+    @update:open="
+      (open) => {
+        if (!open) $emit('close')
+      }
+    "
   >
-    <div class="modal-dialog live-timeout-dialog">
-      <div class="modal-header">
-        <div :id="titleId" class="modal-title">$ websocket --timeout</div>
-      </div>
+    <DialogContent class="max-h-[85dvh] overflow-y-auto" :show-close-button="false">
+      <DialogHeader class="pr-8">
+        <DialogTitle>{{ trans.liveConnectionTimeoutTitle }}</DialogTitle>
+      </DialogHeader>
 
-      <div class="warning-box live-timeout-message">
-        <span class="live-timeout-icon" aria-hidden="true">[!]</span>
-        <div>
-          <strong>{{ trans.liveConnectionTimeoutTitle }}</strong>
-          <p :id="messageId">{{ trans.liveConnectionTimeoutMessage }}</p>
-        </div>
-      </div>
+      <DialogDescription>{{ trans.liveConnectionTimeoutMessage }}</DialogDescription>
 
-      <div class="modal-footer flex-justify-between">
-        <button type="button" class="btn" @click="$emit('close')">
+      <DialogFooter class="flex-wrap">
+        <Button type="button" @click="$emit('close')" variant="outline" size="sm">
           {{ trans.close }}
-        </button>
-        <button type="button" class="btn btn-primary" autofocus @click="$emit('continue')">
+        </Button>
+        <Button type="button" autofocus @click="$emit('continue')" variant="default" size="sm">
           {{ trans.continueConnection }}
-        </button>
-      </div>
-    </div>
-  </div>
+        </Button>
+      </DialogFooter>
+    </DialogContent>
+  </Dialog>
 </template>
 
 <script setup>
-const titleId = 'live-connection-timeout-title'
-const messageId = 'live-connection-timeout-message'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
 
 defineProps({
   show: { type: Boolean, default: false },

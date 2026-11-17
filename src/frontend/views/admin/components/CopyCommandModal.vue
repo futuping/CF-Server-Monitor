@@ -1,66 +1,95 @@
 <template>
-  <div id="copyModal" class="modal-overlay" :class="{ active: show }">
-    <div class="modal-dialog">
-      <div class="modal-header">
-        <div class="modal-title">{{ currentServerName }}</div>
-        <button class="modal-close" @click="$emit('close')">✕</button>
-      </div>
+  <Dialog
+    v-if="show"
+    :open="Boolean(show)"
+    @update:open="
+      (open) => {
+        if (!open) $emit('close')
+      }
+    "
+  >
+    <DialogContent class="max-h-[85dvh] overflow-y-auto" :show-close-button="false" :aria-describedby="undefined">
+      <DialogHeader class="pr-8">
+        <DialogTitle>{{ currentServerName }}</DialogTitle>
+        <Button
+          @click="$emit('close')"
+          class="absolute right-3 top-3"
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          :aria-label="trans.close"
+          >✕</Button
+        >
+      </DialogHeader>
 
       <div class="form-row">
         <div class="form-group flex-1">
-          <label class="form-label">{{ trans.targetOs }}</label>
-          <select :value="targetOs" class="form-select" @change="$emit('update:target-os', $event.target.value)">
-            <option value="linux">Linux (systemd)</option>
-            <option value="unix">OpenWrt/Alpine/Synology DSM/FreeBSD</option>
-            <option value="mac">macOS</option>
-            <option value="windows">Windows</option>
-          </select>
+          <Label class="form-label">{{ trans.targetOs }}</Label>
+          <NativeSelect
+            :aria-label="trans.targetOs"
+            :model-value="targetOs"
+            class="form-select"
+            @change="$emit('update:target-os', $event.target.value)"
+          >
+            <NativeSelectOption value="linux">Linux (systemd)</NativeSelectOption>
+            <NativeSelectOption value="unix">OpenWrt/Alpine/Synology DSM/FreeBSD</NativeSelectOption>
+            <NativeSelectOption value="mac">macOS</NativeSelectOption>
+            <NativeSelectOption value="windows">Windows</NativeSelectOption>
+          </NativeSelect>
         </div>
 
         <div v-if="targetOs === 'linux'" class="form-group flex-1">
-          <label class="form-label">
+          <Label class="form-label">
             {{ trans.installMode }}
             <HelpTooltip :text="trans.nonRootInstallTip" />
-          </label>
-          <select :value="installMode" class="form-select" @change="$emit('update:install-mode', $event.target.value)">
-            <option value="current-user">{{ trans.installModeCurrentUser }}</option>
-            <option value="cfsm-user">{{ trans.installModeCfsmUser }}</option>
-          </select>
+          </Label>
+          <NativeSelect
+            :aria-label="trans.installMode"
+            :model-value="installMode"
+            class="form-select"
+            @change="$emit('update:install-mode', $event.target.value)"
+          >
+            <NativeSelectOption value="current-user">{{ trans.installModeCurrentUser }}</NativeSelectOption>
+            <NativeSelectOption value="cfsm-user">{{ trans.installModeCfsmUser }}</NativeSelectOption>
+          </NativeSelect>
         </div>
       </div>
 
       <div class="form-row">
         <div class="form-group flex-1">
-          <label class="form-label">
+          <Label class="form-label">
             {{ trans.ghProxy }}
             <HelpTooltip :text="trans.ghProxyTip" />
-          </label>
-          <select v-model="selectedGhProxy" class="form-select">
-            <option v-for="option in ghProxyOptions" :key="option.value" :value="option.value">{{ option.label }}</option>
-            <option :value="CUSTOM_GH_PROXY_VALUE">{{ trans.custom || 'Custom' }}</option>
-          </select>
-          <input
+          </Label>
+          <NativeSelect :aria-label="trans.ghProxy" v-model="selectedGhProxy" class="form-select">
+            <NativeSelectOption v-for="option in ghProxyOptions" :key="option.value" :value="option.value">{{
+              option.label
+            }}</NativeSelectOption>
+            <NativeSelectOption :value="CUSTOM_GH_PROXY_VALUE">{{ trans.custom || 'Custom' }}</NativeSelectOption>
+          </NativeSelect>
+          <Input
             v-if="showCustomGhProxy"
             type="text"
-            :value="installGhProxy"
+            :model-value="installGhProxy"
             class="form-input mt-2"
             :placeholder="trans.ghProxyPlaceholder"
             @input="$emit('update:install-gh-proxy', $event.target.value)"
-          >
+          />
         </div>
 
         <div class="form-group flex-1">
-          <label class="form-label">
+          <Label class="form-label">
             Agent {{ trans.version }}
             <HelpTooltip :text="trans.installVersionTip" />
-          </label>
-          <input
+          </Label>
+          <Input
+            :aria-label="trans.version"
             type="text"
-            :value="installVersion"
+            :model-value="installVersion"
             class="form-input"
             :placeholder="trans.installVersionPlaceholder"
             @input="$emit('update:install-version', $event.target.value)"
-          >
+          />
         </div>
       </div>
 
@@ -79,7 +108,9 @@
         </div>
         <div class="config-row">
           <span class="config-label">{{ trans.connectionMode }}</span>
-          <span class="config-value">{{ connectionMode === 'http' ? trans.connectionModeHttp : trans.connectionModeAuto }}</span>
+          <span class="config-value">{{
+            connectionMode === 'http' ? trans.connectionModeHttp : trans.connectionModeAuto
+          }}</span>
         </div>
         <div class="config-row">
           <span class="config-label">{{ trans.pingMode }}</span>
@@ -126,29 +157,40 @@
           <span class="config-value">{{ isBlank(customBd) ? '-' : customBd }}</span>
         </div>
         <div v-for="(node, index) in [node1, node2, node3, node4]" :key="index" class="config-row">
-          <span class="config-label">{{ settings[`node_${index + 1}_name`] || `Node ${index + 1}` }}</span><span class="config-value">{{ isBlank(node) ? '-' : node }}</span>
+          <span class="config-label">{{ settings[`node_${index + 1}_name`] || `Node ${index + 1}` }}</span
+          ><span class="config-value">{{ isBlank(node) ? '-' : node }}</span>
         </div>
       </div>
 
       <div class="form-group">
-        <label class="form-label">{{ trans.installCommand }}</label>
+        <Label class="form-label">{{ trans.installCommand }}</Label>
         <div class="cmd-output-wrapper" :class="{ copied: copiedCmd }">
           <span class="cmd-prompt">{{ targetOs === 'windows' ? 'PS' : '$' }}</span>
           <pre class="cmd-output">{{ installCommand }}</pre>
         </div>
       </div>
 
-      <div class="modal-footer flex-justify-between">
+      <DialogFooter class="flex-wrap">
         <div class="flex items-center gap-2">
-          <button @click="$emit('copy-cmd')" class="btn btn-primary">{{ copiedCmd ? '✅ ' + trans.copied : '📋 ' + trans.copy }}</button> <button @click="$emit('open-edit-from-copy')" class="btn btn-blue">✏️ {{ trans.edit }}</button>
+          <Button @click="$emit('copy-cmd')" type="button" variant="default" size="sm">{{
+            copiedCmd ? '✅ ' + trans.copied : '📋 ' + trans.copy
+          }}</Button>
+          <Button @click="$emit('open-edit-from-copy')" type="button" variant="outline" size="sm"
+            >✏️ {{ trans.edit }}</Button
+          >
         </div>
-        <button @click="$emit('close')" class="btn">{{ trans.cancel }}</button>
-      </div>
-    </div>
-  </div>
+        <Button @click="$emit('close')" type="button" variant="outline" size="sm">{{ trans.cancel }}</Button>
+      </DialogFooter>
+    </DialogContent>
+  </Dialog>
 </template>
 
 <script setup>
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
+import { Label } from '@/components/ui/label'
+import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select'
+import { Input } from '@/components/ui/input'
 import { computed, ref, watch } from 'vue'
 import HelpTooltip from '../../../components/HelpTooltip.vue'
 

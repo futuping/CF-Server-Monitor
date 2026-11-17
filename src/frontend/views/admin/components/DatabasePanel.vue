@@ -1,72 +1,103 @@
 <template>
-  <div id="tab-database" class="tab-content" :class="{ active: activeTab === 'database' }">
-    <div class="settings-section">
-      <div class="section-title"><span>▸</span> {{ trans.dbManagement }}</div>
+  <TabsContent value="database" force-mount v-show="activeTab === 'database'">
+    <Card class="settings-section min-w-0 gap-4 p-5">
+      <CardTitle class="section-title">{{ trans.dbManagement }}</CardTitle>
 
       <div class="settings-grid">
         <div class="form-group">
-          <label class="form-label">{{ trans.upgradeDatabase }}</label>
-          <p class="text-muted mb-2">{{ trans.upgradeDesc }}</p>
-          <button @click="$emit('open-db-modal', 'upgrade')" class="btn btn-primary btn-lg" :disabled="dbLoading">⬆️ {{ trans.upgradeDatabase }}</button>
+          <Label class="form-label">{{ trans.upgradeDatabase }}</Label>
+          <p class="text-muted-foreground mb-2">{{ trans.upgradeDesc }}</p>
+          <Button
+            @click="$emit('open-db-modal', 'upgrade')"
+            :disabled="dbLoading"
+            type="button"
+            variant="default"
+            size="default"
+            >⬆️ {{ trans.upgradeDatabase }}</Button
+          >
         </div>
 
         <div class="form-group">
-          <label class="form-label danger-label">⚠️ {{ trans.clearHistory }}</label>
-          <p class="text-muted mb-2">{{ trans.clearHistoryDesc }}</p>
-          <button @click="$emit('open-db-modal', 'clearHistory')" class="btn btn-red btn-lg" :disabled="dbLoading">🗑️ {{ trans.clearHistory }}</button>
+          <Label class="form-label danger-label">⚠️ {{ trans.clearHistory }}</Label>
+          <p class="text-muted-foreground mb-2">{{ trans.clearHistoryDesc }}</p>
+          <Button
+            @click="$emit('open-db-modal', 'clearHistory')"
+            :disabled="dbLoading"
+            type="button"
+            variant="destructive"
+            size="default"
+            >🗑️ {{ trans.clearHistory }}</Button
+          >
         </div>
       </div>
-    </div>
+    </Card>
 
-    <div class="settings-section">
-      <div class="section-title"><span>▸</span> {{ trans.exportServers }} / {{ trans.importServers }}</div>
+    <Card class="settings-section min-w-0 gap-4 p-5">
+      <CardTitle class="section-title">{{ trans.exportServers }} / {{ trans.importServers }}</CardTitle>
 
       <div class="settings-grid">
         <div class="form-group">
-          <label class="form-label">{{ trans.exportServers }}</label>
-          <p class="text-muted mb-2">{{ trans.exportServersDesc }}</p>
-          <button @click="handleExport" class="btn btn-primary btn-lg" :disabled="dbLoading || exporting">
+          <Label class="form-label">{{ trans.exportServers }}</Label>
+          <p class="text-muted-foreground mb-2">{{ trans.exportServersDesc }}</p>
+          <Button
+            @click="handleExport"
+            :disabled="dbLoading || exporting"
+            type="button"
+            variant="default"
+            size="default"
+          >
             {{ exporting ? trans.exporting : '📤 ' + trans.exportServers }}
-          </button>
+          </Button>
         </div>
 
         <div class="form-group">
-          <label class="form-label">{{ trans.importServers }}</label>
-          <p class="text-muted mb-2">{{ trans.importServersDesc }}</p>
-          <input
-            ref="fileInput"
-            type="file"
-            accept=".json"
-            style="display: none"
-            @change="handleFileSelect"
-          />
-          <button @click="$refs.fileInput.click()" class="btn btn-lg" :disabled="dbLoading || importing">
+          <Label class="form-label">{{ trans.importServers }}</Label>
+          <p class="text-muted-foreground mb-2">{{ trans.importServersDesc }}</p>
+          <input ref="fileInput" type="file" accept=".json" style="display: none" @change="handleFileSelect" />
+          <Button
+            @click="$refs.fileInput.click()"
+            :disabled="dbLoading || importing"
+            type="button"
+            variant="outline"
+            size="default"
+          >
             {{ importing ? trans.importing : '📥 ' + trans.importServers }}
-          </button>
+          </Button>
         </div>
       </div>
 
       <div v-if="importResult" class="mt-3">
         <div :class="importResult.success ? 'warning-box' : 'danger-box'" class="mb-2">
           <div class="flex-center-gap-sm">
-            <span :style="{ color: importResult.success ? 'var(--accent-green)' : 'var(--accent-red)', fontWeight: '600' }">
+            <span
+              :style="{ color: importResult.success ? 'var(--accent-green)' : 'var(--accent-red)', fontWeight: '600' }"
+            >
               {{ importResult.success ? '✅' : '❌' }} {{ trans.importResult }}
             </span>
           </div>
           <div class="mt-2 text-sm">
             <span style="color: var(--accent-green)">{{ trans.importedCount }}: {{ importResult.imported }}</span>
-            <span class="ml-3" style="color: var(--accent-yellow)">{{ trans.skippedCount }}: {{ importResult.skipped }}</span>
+            <span class="ml-3" style="color: var(--accent-yellow)"
+              >{{ trans.skippedCount }}: {{ importResult.skipped }}</span
+            >
           </div>
-          <div v-if="importResult.skippedIds && importResult.skippedIds.length > 0" class="mt-2 text-sm text-muted">
+          <div
+            v-if="importResult.skippedIds && importResult.skippedIds.length > 0"
+            class="mt-2 text-sm text-muted-foreground"
+          >
             {{ trans.skippedIds }}: {{ importResult.skippedIds.join(', ') }}
           </div>
         </div>
       </div>
-    </div>
-  </div>
+    </Card>
+  </TabsContent>
 </template>
 
 <script setup>
+import { TabsContent } from '@/components/ui/tabs'
+import { Card, CardTitle } from '@/components/ui/card'
+import { Label } from '@/components/ui/label'
+import { Button } from '@/components/ui/button'
 import { ref } from 'vue'
 import { adminApi } from '../../../utils/api'
 

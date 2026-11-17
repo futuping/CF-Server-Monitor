@@ -1,15 +1,15 @@
 <template>
-  <div id="tab-theme-store" class="tab-content" :class="{ active: activeTab === 'themeStore' }">
-    <div class="settings-section">
-      <div class="section-title"><span>▸</span> {{ trans.themeStore }}</div>
+  <TabsContent value="themeStore" force-mount v-show="activeTab === 'themeStore'">
+    <Card class="settings-section min-w-0 gap-4 p-5">
+      <CardTitle class="section-title">{{ trans.themeStore }}</CardTitle>
 
-      <div class="warning-box mb-4">
+      <Alert class="block">
         <div class="flex-center-gap-sm">
           <span class="warning-icon text-xl">⚠️</span>
-          <span style="color: var(--accent-yellow); font-weight: 600;">{{ trans.themeStoreWarning }}</span>
+          <span style="color: var(--accent-yellow); font-weight: 600">{{ trans.themeStoreWarning }}</span>
         </div>
-        <p class="text-secondary text-sm mt-2" style="line-height: 1.6;">{{ trans.themeStoreWarningDesc }}</p>
-      </div>
+        <p class="text-muted-foreground text-sm mt-2" style="line-height: 1.6">{{ trans.themeStoreWarningDesc }}</p>
+      </Alert>
 
       <div class="theme-store-toolbar mb-4">
         <div class="theme-current">
@@ -26,47 +26,58 @@
           </div>
         </div>
         <div class="theme-custom-form">
-          <input
+          <Input
             v-model.trim="customThemeUrl"
             type="text"
             class="form-input"
             placeholder="https://github.com/Author/theme/tree/commitid"
             @keyup.enter="applyCustomTheme"
-          >
-          <button
+          />
+          <Button
             @click="previewCustomTheme"
-            class="btn"
             :disabled="!customThemeUrl || previewingThemeId === '__custom__'"
-          >👁 {{ previewingThemeId === '__custom__' ? trans.saving : trans.preview }}</button>
-          <button
+            type="button"
+            variant="outline"
+            size="sm"
+            >👁 {{ previewingThemeId === '__custom__' ? trans.saving : trans.preview }}</Button
+          >
+          <Button
             @click="applyCustomTheme"
-            class="btn btn-primary"
             :disabled="!customThemeUrl || applyingThemeId === '__custom__'"
-          >⇄ {{ applyingThemeId === '__custom__' ? trans.saving : trans.applyCustomTheme }}</button>
-          <button
+            type="button"
+            variant="default"
+            size="sm"
+            >⇄ {{ applyingThemeId === '__custom__' ? trans.saving : trans.applyCustomTheme }}</Button
+          >
+          <Button
             v-if="currentThemeUrl"
             @click="clearTheme"
-            class="btn"
             :disabled="applyingThemeId === '__builtin__'"
-          >↩ {{ trans.useBuiltinTheme }}</button>
+            type="button"
+            variant="outline"
+            size="sm"
+            >↩ {{ trans.useBuiltinTheme }}</Button
+          >
         </div>
       </div>
 
       <div v-if="loading" class="theme-loading">
-        <div class="loading-spinner"></div>
+        <Spinner class="mx-auto size-5"></Spinner>
         <div class="loading-text">$ {{ trans.themeStoreLoading }}...</div>
       </div>
 
-      <div v-else-if="error" class="danger-box mb-4">
+      <Alert v-else-if="error" class="block" variant="destructive">
         <div class="flex-center-gap-sm">
           <span class="danger-icon text-xl">❌</span>
           <span class="danger-label">{{ error }}</span>
         </div>
-        <button @click="loadThemes" class="btn btn-lg mt-2">↻ {{ trans.refresh }}</button>
-      </div>
+        <Button @click="loadThemes" class="mt-2" type="button" variant="outline" size="default"
+          >↻ {{ trans.refresh }}</Button
+        >
+      </Alert>
 
       <div class="theme-grid">
-        <div class="theme-card" :class="{ active: isMikusThemeActive }">
+        <Card :class="{ active: isMikusThemeActive }" class="theme-card min-w-0 gap-4 p-5">
           <div class="theme-cover-wrap theme-cover-wrap-mikus">
             <img src="/mikus/loli.gif" alt="Mikus" class="theme-cover theme-cover-mikus" />
           </div>
@@ -75,63 +86,89 @@
               <h3 class="theme-title">Mikus</h3>
             </div>
             <div class="theme-tags">
-              <span v-for="tag in mikusThemeTags" :key="tag" class="theme-tag">{{ tag }}</span>
+              <Badge v-for="tag in mikusThemeTags" :key="tag" variant="secondary">{{ tag }}</Badge>
             </div>
             <p class="theme-desc">{{ mikusThemeDescription }}</p>
             <div class="theme-author">by mikus-loli</div>
             <div class="theme-space"></div>
             <div class="theme-actions">
-              <button
+              <Button
                 @click="enableMikusTheme"
-                class="btn btn-sm"
                 :class="{ 'btn-primary': applyingThemeId !== '__mikus_enable__' && !isMikusThemeActive }"
                 :disabled="applyingThemeId === '__mikus_enable__' || isMikusThemeActive"
-              >✓ {{ applyingThemeId === '__mikus_enable__' ? trans.saving : trans.enable }}</button>
-              <button
+                type="button"
+                variant="outline"
+                size="sm"
+                >✓ {{ applyingThemeId === '__mikus_enable__' ? trans.saving : trans.enable }}</Button
+              >
+              <Button
                 @click="disableMikusTheme"
-                class="btn btn-sm"
                 :class="{ 'btn-primary': applyingThemeId !== '__mikus_disable__' && isMikusThemeActive }"
                 :disabled="applyingThemeId === '__mikus_disable__' || !isMikusThemeActive"
-              >✕ {{ applyingThemeId === '__mikus_disable__' ? trans.saving : trans.close }}</button>
-              <a href="https://github.com/mikus-loli/komari-mikus" target="_blank" rel="noopener noreferrer" class="btn btn-sm">↗ {{ trans.view }}</a>
+                type="button"
+                variant="outline"
+                size="sm"
+                >✕ {{ applyingThemeId === '__mikus_disable__' ? trans.saving : trans.close }}</Button
+              >
+              <Button
+                href="https://github.com/mikus-loli/komari-mikus"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="w-fit"
+                as="a"
+                variant="outline"
+                size="sm"
+                >↗ {{ trans.view }}</Button
+              >
             </div>
           </div>
-        </div>
+        </Card>
 
-        <div v-for="theme in themes" :key="theme.id" class="theme-card" :class="{ active: isCurrentTheme(theme) }">
+        <Card
+          v-for="theme in themes"
+          :key="theme.id"
+          :class="{ active: isCurrentTheme(theme) }"
+          class="theme-card min-w-0 gap-4 p-5"
+        >
           <div class="theme-cover-wrap">
             <img :src="theme.cover" :alt="theme.title" class="theme-cover" @error="handleCoverError" />
           </div>
           <div class="theme-info">
             <div class="theme-header">
               <h3 class="theme-title">{{ theme.title }}</h3>
-              <span v-if="getSelectedVersion(theme)" class="theme-version">{{ getVersionBadge(getSelectedVersion(theme)) }}</span>
+              <Badge v-if="getSelectedVersion(theme)" variant="secondary">{{
+                getVersionBadge(getSelectedVersion(theme))
+              }}</Badge>
             </div>
             <div v-if="theme.tags && theme.tags.length" class="theme-tags">
-              <span v-for="tag in theme.tags" :key="tag" class="theme-tag">{{ tag }}</span>
+              <Badge v-for="tag in theme.tags" :key="tag" variant="secondary">{{ tag }}</Badge>
             </div>
             <p v-if="getThemeDescription(theme)" class="theme-desc">{{ getThemeDescription(theme) }}</p>
             <div v-if="theme.author" class="theme-author">by {{ theme.author }}</div>
-            
+
             <!-- 版本选择 -->
             <div v-if="theme.versions && theme.versions.length > 0" class="theme-version-selector">
-              <label class="version-label">{{ trans.version }}</label>
-              <select 
-                :value="selectedVersions[theme.id] || 0" 
+              <Label class="version-label">{{ trans.version }}</Label>
+              <NativeSelect
+                :model-value="selectedVersions[theme.id] || 0"
                 @change="selectVersion(theme.id, $event.target.value)"
                 class="version-select"
               >
-                <option v-for="(v, idx) in theme.versions" :key="v.commitId || idx" :value="idx">
+                <NativeSelectOption v-for="(v, idx) in theme.versions" :key="v.commitId || idx" :value="idx">
                   {{ getVersionTitle(v) }}
-                </option>
-              </select>
+                </NativeSelectOption>
+              </NativeSelect>
             </div>
             <div v-else-if="canLoadThemeVersions(theme)" class="theme-version-selector">
-              <button
+              <Button
                 @click="loadThemeVersions(theme)"
-                class="btn btn-sm version-load-btn"
                 :disabled="isThemeVersionsLoading(theme)"
-              >{{ isThemeVersionsLoading(theme) ? trans.themeLoadingVersions : trans.themeLoadVersions }}</button>
+                class="version-load-btn"
+                type="button"
+                variant="outline"
+                size="sm"
+                >{{ isThemeVersionsLoading(theme) ? trans.themeLoadingVersions : trans.themeLoadVersions }}</Button
+              >
             </div>
 
             <!-- 当前选中版本信息 -->
@@ -146,26 +183,51 @@
             </div>
 
             <div class="theme-actions">
-              <button
+              <Button
                 @click="previewTheme(theme)"
-                class="btn btn-sm"
                 :disabled="!getSelectedThemeUrl(theme) || previewingThemeId === theme.id"
-              >👁 {{ previewingThemeId === theme.id ? trans.saving : trans.preview }}</button>
-              <button
+                type="button"
+                variant="outline"
+                size="sm"
+                >👁 {{ previewingThemeId === theme.id ? trans.saving : trans.preview }}</Button
+              >
+              <Button
                 @click="applyTheme(theme)"
-                class="btn btn-sm btn-primary"
                 :disabled="!getSelectedThemeUrl(theme) || applyingThemeId === theme.id"
-              >⇄ {{ applyingThemeId === theme.id ? trans.saving : trans.switchTheme }}</button>
-              <a v-if="getSafeExternalUrl(theme.url)" :href="getSafeExternalUrl(theme.url)" target="_blank" rel="noopener noreferrer" class="btn btn-sm">↗ {{ trans.view }}</a>
+                type="button"
+                variant="default"
+                size="sm"
+                >⇄ {{ applyingThemeId === theme.id ? trans.saving : trans.switchTheme }}</Button
+              >
+              <Button
+                v-if="getSafeExternalUrl(theme.url)"
+                :href="getSafeExternalUrl(theme.url)"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="w-fit"
+                as="a"
+                variant="outline"
+                size="sm"
+                >↗ {{ trans.view }}</Button
+              >
             </div>
           </div>
-        </div>
+        </Card>
       </div>
-    </div>
-  </div>
+    </Card>
+  </TabsContent>
 </template>
 
 <script setup>
+import { Badge } from '@/components/ui/badge'
+import { TabsContent } from '@/components/ui/tabs'
+import { Card, CardTitle } from '@/components/ui/card'
+import { Alert } from '@/components/ui/alert'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
+import { Spinner } from '@/components/ui/spinner'
+import { Label } from '@/components/ui/label'
+import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select'
 import { computed, ref, watch, reactive } from 'vue'
 import http from '../../../utils/http'
 import { currentLang } from '../../../utils/i18n'
@@ -310,7 +372,7 @@ const loadThemes = async () => {
   try {
     const themeStore = await fetchThemeStore()
     themes.value = themeStore.themes
-    
+
     // 初始化选中版本为最新版本（索引0）
     initSelectedVersions(true)
     loaded.value = true
@@ -766,6 +828,7 @@ watch(
 </script>
 
 <style scoped>
+@layer monitor {
 .theme-loading {
   display: flex;
   flex-direction: column;
@@ -859,7 +922,7 @@ watch(
 
 .theme-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 20rem), 1fr));
   gap: 16px;
 }
 
@@ -873,13 +936,10 @@ watch(
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-.theme-card:hover {
-  border-color: var(--accent-green);
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
-}
+.theme-card:hover { border-color: var(--ring); }
 
 .theme-card.active {
-  border-color: var(--accent-green);
+  border-color: var(--primary);
 }
 
 .theme-space {
@@ -1049,5 +1109,6 @@ watch(
   text-decoration: none;
   font-size: 12px;
   padding: 6px 12px;
+}
 }
 </style>

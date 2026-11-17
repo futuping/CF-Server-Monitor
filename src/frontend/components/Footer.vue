@@ -1,27 +1,22 @@
 <template>
   <footer class="footer status-bar">
-    <span
-      class="footer-version"
-      :aria-label="updateTitle || undefined"
-      :tabindex="hasWorkersUpdate ? 0 : undefined"
+    <Tooltip v-if="hasWorkersUpdate"
+      ><TooltipTrigger as-child
+        ><Button variant="ghost" size="xs" class="gap-1.5" :aria-label="updateTitle"
+          >V{{ VERSION }}<span class="size-1.5 rounded-full bg-destructive" /></Button></TooltipTrigger
+      ><TooltipContent>{{ updateTitle }}</TooltipContent></Tooltip
     >
-      <span>V{{ VERSION }}</span>
-      <span
-        v-if="hasWorkersUpdate"
-        class="version-update-dot"
-        aria-hidden="true"
-      ></span>
-      <span
-        v-if="hasWorkersUpdate"
-        class="version-update-tooltip"
-        role="tooltip"
-      >{{ updateTitle }}</span>
-    </span>
-    <span>Powered by <a href="https://github.com/huilang-me/CF-Server-Monitor" target="_blank">CF-Server-Monitor</a></span>
+    <span v-else>V{{ VERSION }}</span>
+    <span
+      >Powered by <a href="https://github.com/huilang-me/CF-Server-Monitor" target="_blank">CF-Server-Monitor</a></span
+    >
   </footer>
 </template>
 
 <script setup>
+import { Button } from '@/components/ui/button'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+
 import { computed } from 'vue'
 import { LAST_WORKERS_VERSION, VERSION } from '../utils/api'
 import { useTranslation } from '../utils/i18n'

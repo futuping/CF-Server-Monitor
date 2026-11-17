@@ -33,6 +33,7 @@ const resolveTheme = (theme) => {
 
 const applyTheme = (theme) => {
   const resolved = resolveTheme(theme);
+  document.documentElement.classList.toggle("dark", resolved === "dark");
   document.body.classList.remove("dark", "light");
   if (resolved !== "dark") {
     document.body.classList.add(resolved);

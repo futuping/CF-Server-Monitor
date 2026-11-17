@@ -1,0 +1,426 @@
+/* Optional illustration pack, enabled by the server configuration. */
+body.mikus-theme {
+    --bg-primary: #1a1822;
+    --bg-secondary: rgba(42, 33, 49, 0.78);
+    --bg-card: rgba(51, 39, 58, 0.76);
+    --bg-hover: rgba(67, 48, 72, 0.88);
+    --border-color: rgba(255, 183, 197, 0.24);
+    --border-active: rgba(255, 138, 166, 0.48);
+    --text-primary: #f8eef5;
+    --text-secondary: #d8c5d4;
+    --text-muted: rgba(248, 238, 245, 0.72);
+    --accent-green: #6fd3b2;
+    --accent-blue: #76b8ff;
+    --accent-purple: #b9a4ff;
+    --accent-pink: #ff8aa6;
+    --accent-yellow: #ffd166;
+    --accent-red: #ff6f86;
+    --accent-cyan: #ff8aa6;
+    --input-bg: rgba(27, 24, 34, 0.9);
+    --input-border: rgba(255, 183, 197, 0.26);
+    --color-inherit: #1a1822;
+    --color-active: #ffffff;
+    --mikus-bg-card: rgba(51, 39, 58, 0.9);
+    --mikus-bg-soft: rgba(35, 46, 59, 0.72);
+    --mikus-header-bg: rgba(20, 17, 26, 0.28);
+    --mikus-text: var(--text-primary);
+    --mikus-text-muted: var(--text-muted);
+    --mikus-border: var(--border-color);
+    --mikus-accent: var(--accent-pink);
+    --mikus-accent-soft: #ffb7c5;
+    --mikus-info: var(--accent-blue);
+    --mikus-shadow: 0 10px 34px rgba(8, 6, 12, 0.36);
+    --mikus-panel-shadow: 0 10px 32px rgba(8, 6, 12, 0.28);
+    background: linear-gradient(135deg, #1a1822 0%, #261d2e 48%, #182631 100%);
+    color: var(--text-primary);
+}
+
+body.light.mikus-theme {
+    --bg-primary: #f8f6f9;
+    --bg-secondary: rgba(255, 255, 255, 0.74);
+    --bg-card: rgba(255, 255, 255, 0.82);
+    --bg-hover: rgba(250, 248, 252, 0.94);
+    --border-color: #e8e0f0;
+    --border-active: #d9c9e7;
+    --text-primary: #2d1b3d;
+    --text-secondary: #6b5a7d;
+    --text-muted: rgba(45, 27, 61, 0.72);
+    --accent-green: #4caf7d;
+    --accent-blue: #5c9ced;
+    --accent-purple: #a78bfa;
+    --accent-pink: #e8668a;
+    --accent-yellow: #f5a623;
+    --accent-red: #e74c5e;
+    --accent-cyan: #e8668a;
+    --input-bg: #ffffff;
+    --input-border: #e8e0f0;
+    --color-inherit: #ffffff;
+    --color-active: #2d1b3d;
+    --mikus-bg-card: #ffffff;
+    --mikus-bg-soft: #f0edf3;
+    --mikus-header-bg: rgba(255, 246, 249, 0.72);
+    --mikus-text: var(--text-primary);
+    --mikus-text-muted: var(--text-muted);
+    --mikus-border: var(--border-color);
+    --mikus-accent: var(--accent-pink);
+    --mikus-accent-soft: #ffb7c5;
+    --mikus-info: var(--accent-blue);
+    --mikus-shadow: 0 8px 30px rgba(45, 27, 61, 0.12);
+    --mikus-panel-shadow: 0 8px 28px rgba(45, 27, 61, 0.1);
+    background: linear-gradient(135deg, #fff9fb 0%, #f3f8fb 48%, #f8f6f9 100%);
+}
+
+body.mikus-theme::before,
+body.light.mikus-theme::before {
+    background: none;
+}
+
+body.mikus-theme #loading {
+    background: var(--bg-primary);
+    overflow: hidden;
+}
+
+.mikus-sakura-background,
+.mikus-sakura-canvas {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.mikus-sakura-canvas {
+    display: block;
+    width: 100vw;
+    height: 100vh;
+}
+
+.mikus-global-sakura {
+    position: fixed;
+    inset: 0;
+    z-index: 2147483647;
+    pointer-events: none;
+    overflow: hidden;
+    --dri: -30vw;
+    --xri: 0vw;
+    --size-ri: 25px;
+    --duration-ri: 15s;
+    --delay-ri: 0s;
+    --spin-ri: 0deg;
+    --opacity-ri: 0.9;
+}
+
+@media screen and (max-width: 768px) {
+    .mikus-global-sakura {
+        --dri: -50vw;
+        --xri: 20vw;
+        --size-ri: 25px;
+        --duration-ri: 10s;
+    }
+}
+
+.mikus-background-petal {
+    position: absolute;
+    top: -12vh;
+    left: var(--x);
+    width: var(--size);
+    height: var(--size);
+    background: url('/mikus/sakura.png') center / contain no-repeat;
+    opacity: 0;
+    animation: mikus-background-sakura-fall var(--duration) linear infinite;
+    animation-delay: var(--delay);
+    filter: saturate(1.25) contrast(1.05);
+}
+
+.mikus-background-petal:nth-child(1) { --x: calc(var(--xri) + 3vw); --size: calc(var(--size-ri) + -4px); --duration: calc(var(--duration-ri) + -2s); --delay: calc(var(--delay-ri) + -3s); --drift: calc(var(--dri) + 16vw); --spin: calc(var(--spin-ri) + 380deg); --petal-opacity: calc(var(--opacity-ri) + -0.02); }
+.mikus-background-petal:nth-child(2) { --x: calc(var(--xri) + 9vw); --size: calc(var(--size-ri) + 2px); --duration: calc(var(--duration-ri) + 4s); --delay: calc(var(--delay-ri) + -12s); --drift: calc(var(--dri) + 20vw); --spin: calc(var(--spin-ri) + -500deg); --petal-opacity: calc(var(--opacity-ri) + 0.02); }
+.mikus-background-petal:nth-child(3) { --x: calc(var(--xri) + 16vw); --size: calc(var(--size-ri) + -6px); --duration: calc(var(--duration-ri) + -1s); --delay: calc(var(--delay-ri) + -8s); --drift: calc(var(--dri) + 11vw); --spin: calc(var(--spin-ri) + 460deg); --petal-opacity: calc(var(--opacity-ri) + 0); }
+.mikus-background-petal:nth-child(4) { --x: calc(var(--xri) + 23vw); --size: calc(var(--size-ri) + 8px); --duration: calc(var(--duration-ri) + 7s); --delay: calc(var(--delay-ri) + -17s); --drift: calc(var(--dri) + -12vw); --spin: calc(var(--spin-ri) + -420deg); --petal-opacity: calc(var(--opacity-ri) + -0.04); }
+.mikus-background-petal:nth-child(5) { --x: calc(var(--xri) + 31vw); --size: calc(var(--size-ri) + -2px); --duration: calc(var(--duration-ri) + 1s); --delay: calc(var(--delay-ri) + -4s); --drift: calc(var(--dri) + 14vw); --spin: calc(var(--spin-ri) + 520deg); --petal-opacity: calc(var(--opacity-ri) + 0.06); }
+.mikus-background-petal:nth-child(6) { --x: calc(var(--xri) + 38vw); --size: calc(var(--size-ri) + -8px); --duration: calc(var(--duration-ri) + -4s); --delay: calc(var(--delay-ri) + -11s); --drift: calc(var(--dri) + 9vw); --spin: calc(var(--spin-ri) + -360deg); --petal-opacity: calc(var(--opacity-ri) + 0); }
+.mikus-background-petal:nth-child(7) { --x: calc(var(--xri) + 44vw); --size: calc(var(--size-ri) + 4px); --duration: calc(var(--duration-ri) + 5s); --delay: calc(var(--delay-ri) + -6s); --drift: calc(var(--dri) + -16vw); --spin: calc(var(--spin-ri) + 540deg); --petal-opacity: calc(var(--opacity-ri) + -0.02); }
+.mikus-background-petal:nth-child(8) { --x: calc(var(--xri) + 52vw); --size: calc(var(--size-ri) + -3px); --duration: calc(var(--duration-ri) + 0s); --delay: calc(var(--delay-ri) + -14s); --drift: calc(var(--dri) + 13vw); --spin: calc(var(--spin-ri) + -480deg); --petal-opacity: calc(var(--opacity-ri) + 0.06); }
+.mikus-background-petal:nth-child(9) { --x: calc(var(--xri) + 58vw); --size: calc(var(--size-ri) + 10px); --duration: calc(var(--duration-ri) + 10s); --delay: calc(var(--delay-ri) + -20s); --drift: calc(var(--dri) + 0vw); --spin: calc(var(--spin-ri) + 420deg); --petal-opacity: calc(var(--opacity-ri) + -0.06); }
+.mikus-background-petal:nth-child(10) { --x: calc(var(--xri) + 65vw); --size: calc(var(--size-ri) + -5px); --duration: calc(var(--duration-ri) + -3s); --delay: calc(var(--delay-ri) + -9s); --drift: calc(var(--dri) + 16vw); --spin: calc(var(--spin-ri) + -560deg); --petal-opacity: calc(var(--opacity-ri) + 0.02); }
+.mikus-background-petal:nth-child(11) { --x: calc(var(--xri) + 71vw); --size: calc(var(--size-ri) + 1px); --duration: calc(var(--duration-ri) + 3s); --delay: calc(var(--delay-ri) + -2s); --drift: calc(var(--dri) + -14vw); --spin: calc(var(--spin-ri) + 460deg); --petal-opacity: calc(var(--opacity-ri) + 0); }
+.mikus-background-petal:nth-child(12) { --x: calc(var(--xri) + 77vw); --size: calc(var(--size-ri) + -7px); --duration: calc(var(--duration-ri) + -5s); --delay: calc(var(--delay-ri) + -10s); --drift: calc(var(--dri) + 10vw); --spin: calc(var(--spin-ri) + -380deg); --petal-opacity: calc(var(--opacity-ri) + 0.04); }
+.mikus-background-petal:nth-child(13) { --x: calc(var(--xri) + 82vw); --size: calc(var(--size-ri) + 6px); --duration: calc(var(--duration-ri) + 9s); --delay: calc(var(--delay-ri) + -22s); --drift: calc(var(--dri) + -18vw); --spin: calc(var(--spin-ri) + 620deg); --petal-opacity: calc(var(--opacity-ri) + -0.06); }
+.mikus-background-petal:nth-child(14) { --x: calc(var(--xri) + 88vw); --size: calc(var(--size-ri) + -2px); --duration: calc(var(--duration-ri) + -1s); --delay: calc(var(--delay-ri) + -5s); --drift: calc(var(--dri) + 11vw); --spin: calc(var(--spin-ri) + -460deg); --petal-opacity: calc(var(--opacity-ri) + 0.06); }
+.mikus-background-petal:nth-child(15) { --x: calc(var(--xri) + 94vw); --size: calc(var(--size-ri) + 3px); --duration: calc(var(--duration-ri) + 6s); --delay: calc(var(--delay-ri) + -16s); --drift: calc(var(--dri) + -21vw); --spin: calc(var(--spin-ri) + 500deg); --petal-opacity: calc(var(--opacity-ri) + -0.02); }
+.mikus-background-petal:nth-child(16) { --x: calc(var(--xri) + 12vw); --size: calc(var(--size-ri) + -10px); --duration: calc(var(--duration-ri) + -6s); --delay: calc(var(--delay-ri) + -1s); --drift: calc(var(--dri) + 7vw); --spin: calc(var(--spin-ri) + -300deg); --petal-opacity: calc(var(--opacity-ri) + -0.04); }
+.mikus-background-petal:nth-child(17) { --x: calc(var(--xri) + 49vw); --size: calc(var(--size-ri) + -8px); --duration: calc(var(--duration-ri) + -4s); --delay: calc(var(--delay-ri) + -7s); --drift: calc(var(--dri) + -8vw); --spin: calc(var(--spin-ri) + 340deg); --petal-opacity: calc(var(--opacity-ri) + 0); }
+.mikus-background-petal:nth-child(18) { --x: calc(var(--xri) + 86vw); --size: calc(var(--size-ri) + -9px); --duration: calc(var(--duration-ri) + -5s); --delay: calc(var(--delay-ri) + -13s); --drift: calc(var(--dri) + 8vw); --spin: calc(var(--spin-ri) + -320deg); --petal-opacity: calc(var(--opacity-ri) + -0.04); }
+
+.mikus-dashboard {
+    isolation: isolate;
+}
+
+body.mikus-theme #app,
+body.mikus-theme .container {
+    position: relative;
+    z-index: 1;
+}
+
+body.mikus-theme .terminal-header,
+body.mikus-theme .nav-area,
+body.mikus-theme .nav-bar,
+body.mikus-theme .main-panel,
+body.mikus-theme .global-stats,
+body.mikus-theme .server-card,
+body.mikus-theme .host-card,
+body.mikus-theme .chart-card,
+body.mikus-theme .map-wrapper,
+body.mikus-theme .finance-modal-dialog,
+body.mikus-theme .quota-section,
+body.mikus-theme .table-container,
+body.mikus-theme .table-wrapper,
+body.mikus-theme .filter-more-menu,
+body.mikus-theme .modal-dialog,
+body.mikus-theme .login-container {
+    border-color: var(--mikus-border);
+    background: var(--bg-secondary);
+    box-shadow: var(--mikus-panel-shadow);
+    backdrop-filter: blur(10px);
+}
+
+body.mikus-theme .stat-card,
+body.mikus-theme .sysinfo-item,
+body.mikus-theme .terminal-table th,
+body.mikus-theme .chart-card-header,
+body.mikus-theme .server-card-network-panel,
+body.mikus-theme .tabs,
+body.mikus-theme .view-toggle,
+body.mikus-theme .time-selector,
+body.mikus-theme .lang-toggle,
+body.mikus-theme .theme-toggle,
+body.mikus-theme .user-menu-btn,
+body.mikus-theme .admin-link-header,
+body.mikus-theme .admin-link,
+body.mikus-theme .back-btn,
+body.mikus-theme .filter-tag,
+body.mikus-theme .btn,
+body.mikus-theme .resource-alert-server-menu {
+    border-color: var(--mikus-border);
+    background: var(--bg-card);
+}
+
+body.mikus-theme .chart-card-header,
+body.mikus-theme .host-card-header {
+    background: var(--mikus-header-bg);
+}
+
+body.mikus-theme .server-card.server-card-ring {
+    border-color: var(--mikus-border);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.01) 35%, rgba(0, 0, 0, 0.025) 100%), var(--bg-secondary);
+}
+
+body.mikus-theme .server-card-ring-divider,
+body.mikus-theme .server-card-network-row + .server-card-network-row,
+body.mikus-theme .modal-header,
+body.mikus-theme .modal-footer {
+    border-color: var(--mikus-border);
+}
+
+body.mikus-theme .server-card-network-panel {
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+body.mikus-theme .btn-primary,
+body.mikus-theme .tab-btn.active,
+body.mikus-theme .toggle-btn.active,
+body.mikus-theme .filter-tag.active,
+body.mikus-theme .time-btn.active,
+body.mikus-theme .theme-btn.active,
+body.mikus-theme .lang-btn.active,
+body.mikus-theme .login-btn {
+    background: var(--mikus-accent);
+    border-color: var(--mikus-accent);
+    color: var(--color-inherit);
+}
+
+body.mikus-theme .btn-primary:hover,
+body.mikus-theme .login-btn:hover {
+    background: var(--accent-green);
+    border-color: var(--accent-green);
+}
+
+body.mikus-theme .admin-loading-overlay,
+body.mikus-theme .modal-overlay {
+    background: rgba(20, 17, 26, 0.58);
+}
+
+body.light.mikus-theme .admin-loading-overlay,
+body.light.mikus-theme .modal-overlay {
+    background: rgba(45, 27, 61, 0.22);
+}
+
+.mikus-startup-loading,
+.mikus-loading-inner {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+    color: var(--mikus-text);
+}
+
+.mikus-startup-gif,
+.mikus-loading-gif {
+    width: 180px;
+    height: 180px;
+    object-fit: contain;
+    border-radius: 8px;
+}
+
+.mikus-startup-brand,
+.mikus-loading-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.mikus-startup-brand span,
+.mikus-loading-brand span {
+    max-width: min(70vw, 360px);
+    overflow-wrap: anywhere;
+}
+
+.mikus-startup-logo,
+.mikus-loading-logo {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    object-fit: contain;
+    animation: mikus-logo-breath 2s ease-in-out infinite;
+}
+
+.mikus-startup-progress,
+.mikus-loading-progress {
+    width: min(220px, 70vw);
+    height: 4px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: var(--mikus-border);
+}
+
+.mikus-startup-progress-fill,
+.mikus-loading-progress-fill {
+    width: 42%;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #ffb7c5, #e8668a, #5c9ced);
+    animation: mikus-progress 1.8s ease-in-out infinite;
+}
+
+.mikus-startup-status,
+.mikus-loading-status {
+    min-height: 1.2em;
+    color: var(--mikus-text-muted);
+    font-size: 12px;
+    font-family: var(--terminal-font);
+}
+
+.mikus-dashboard {
+    --mikus-bg-card: var(--bg-card);
+    --mikus-bg-soft: var(--bg-hover);
+    --mikus-text: var(--text-primary);
+    --mikus-text-muted: var(--text-muted);
+    --mikus-border: var(--border-color);
+    --mikus-accent: var(--accent-pink);
+    --mikus-accent-soft: #ffb7c5;
+    --mikus-info: var(--accent-blue);
+}
+
+.mikus-loading-state {
+    margin-top: 18px;
+    padding: 64px 24px;
+    border: 1px solid var(--mikus-border);
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--mikus-bg-card) 0%, var(--mikus-bg-soft) 52%, var(--mikus-bg-card) 100%);
+    box-shadow: var(--mikus-shadow);
+}
+
+.mikus-loading-state .mikus-loading-inner {
+    color: var(--mikus-text);
+}
+
+.mikus-loading-state .mikus-loading-status {
+    color: var(--mikus-text-muted);
+}
+
+body.mikus-theme .mikus-global-stats {
+    position: relative;
+    min-height: 96px;
+    padding-left: 116px;
+    overflow: visible;
+    isolation: isolate;
+    background: linear-gradient(135deg, var(--mikus-bg-card) 0%, var(--mikus-bg-soft) 50%, var(--mikus-bg-card) 100%);
+    background-size: 200% 200%;
+    animation: mikus-gradient-shift 8s ease infinite;
+}
+
+body.mikus-theme .mikus-global-stats .stat-item {
+    position: relative;
+    z-index: 1;
+}
+
+body.mikus-theme .mikus-stats-mascot {
+    position: absolute;
+    left: -28px;
+    top: -36px;
+    z-index: 2;
+    width: 140px;
+    height: 140px;
+    pointer-events: none;
+}
+
+body.mikus-theme .mikus-stats-mascot-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 8px 18px rgba(45, 27, 61, 0.18));
+    transform-origin: bottom center;
+    animation: mikus-bounce 2s ease-in-out infinite;
+}
+
+@keyframes mikus-logo-breath {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+}
+
+@keyframes mikus-progress {
+    0% { transform: translateX(-110%); }
+    45%, 55% { transform: translateX(60%); }
+    100% { transform: translateX(240%); }
+}
+
+@keyframes mikus-gradient-shift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+@keyframes mikus-background-sakura-fall {
+    0% {
+        opacity: 0;
+        transform: translate3d(0, -12vh, 0) rotate(0deg) scale(0.8);
+    }
+    10% { opacity: var(--petal-opacity); }
+    48% {
+        opacity: var(--petal-opacity);
+        transform: translate3d(calc(var(--drift) * 0.45), 48vh, 0) rotate(calc(var(--spin) * 0.5)) scale(1);
+    }
+    90% { opacity: calc(var(--petal-opacity) * 0.7); }
+    100% {
+        opacity: 0;
+        transform: translate3d(var(--drift), 112vh, 0) rotate(var(--spin)) scale(0.86);
+    }
+}
+
+@keyframes mikus-bounce {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-8px) rotate(2deg); }
+}

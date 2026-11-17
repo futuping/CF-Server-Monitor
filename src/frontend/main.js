@@ -1,9 +1,7 @@
 import { createApp } from 'vue'
 import App from './App.vue'
-import router from './router'
-import './styles/main.css'
-import './styles/light.css'
-import './styles/claude.css'
+import { createMonitorRouter } from './router'
+import './styles/shadcn.css'
 import { applyDefaultLanguage, currentLang, resolveLanguagePreference, translations } from './utils/i18n'
 import { http } from './utils/http'
 import { initConfig, hasMultipleApiBases } from './utils/config'
@@ -55,7 +53,7 @@ const renderMikusStartupLoading = (siteTitle) => {
       <div class="mikus-startup-progress" aria-hidden="true">
         <div class="mikus-startup-progress-fill"></div>
       </div>
-      <div class="mikus-startup-status">$ Initializing...</div>
+      <div class="mikus-startup-status">Loading…</div>
     </div>
   `
 }
@@ -244,7 +242,7 @@ const renderStartupTurnstile = async (siteKey, apiIndex) => {
     loading.innerHTML = `
       <div class="loading-content">
         <div class="loading-spinner"></div>
-        <div class="loading-text">$ Verifying...</div>
+        <div class="loading-text">Verifying…</div>
         <div id="turnstile-container" style="margin-top: 20px;"></div>
       </div>
     `
@@ -295,7 +293,7 @@ const bridgeAdminPathToHashRoute = () => {
     : hash.startsWith('#admin')
       ? hash.slice('#admin'.length)
       : ''
-  const adminHash = `#admin${legacyHashSuffix || window.location.search || ''}`
+  const adminHash = `#/admin${legacyHashSuffix || window.location.search || ''}`
   if (hash === adminHash) return
 
   window.history.replaceState(null, '', `/admin${adminHash}`)
@@ -378,10 +376,10 @@ async function initApp() {
 
   const app = createApp(App)
   app.provide('appConfig', config || {})
-  app.use(router)
+  app.use(createMonitorRouter())
   app.mount('#app').$nextTick(() => {
     if (!isAdmin && !config.is_public && !config.authorization) {
-      window.location.replace('/admin#admin')
+      window.location.replace('/admin#/admin')
     }
     const loading = document.getElementById('loading')
     if (loading) {

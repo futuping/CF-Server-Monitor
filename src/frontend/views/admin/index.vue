@@ -25,86 +25,66 @@
       <TerminalHeader :title="trans.adminPanel" />
       <div v-if="adminSiteLoading" class="admin-loading-overlay">
         <div class="loading-content">
-          <div class="loading-spinner"></div>
+          <Spinner class="mx-auto size-5"></Spinner>
           <div class="loading-text">$ {{ trans.switchingSite }}</div>
         </div>
       </div>
 
-      <div class="main-panel">
+      <Card class="main-panel min-w-0 gap-4 p-5">
         <div class="panel-header">
           <div class="panel-title">
             {{ trans.overview }}
           </div>
           <div class="header-actions">
-            <button @click="refreshServers" class="btn" :disabled="adminSiteLoading"><UiIcon name="refresh" />{{ trans.refresh }}</button>
-            <select
+            <Button @click="refreshServers" :disabled="adminSiteLoading" type="button" variant="outline" size="sm"
+              ><UiIcon name="refresh" />{{ trans.refresh }}</Button
+            >
+            <NativeSelect
               v-if="isMultipleMode"
               v-model.number="selectedApiIndex"
               class="form-select admin-site-select"
               :disabled="adminSiteLoading"
-              @change="handleAdminApiIndexChange"
+              @update:model-value="handleAdminApiIndexChange"
             >
-              <option
-                v-for="(base, index) in apiBases"
-                :key="index"
-                :value="index"
-              >
+              <NativeSelectOption v-for="(base, index) in apiBases" :key="index" :value="index">
                 [{{ index }}] {{ base }}
-              </option>
-            </select>
+              </NativeSelectOption>
+            </NativeSelect>
             <HelpTooltip v-if="isMultipleMode" :text="trans.apiEndpoint" />
-            <button @click="logout" class="btn btn-red"><UiIcon name="logout" />{{ trans.logout }}</button>
+            <Button @click="logout" type="button" variant="destructive" size="sm"
+              ><UiIcon name="logout" />{{ trans.logout }}</Button
+            >
           </div>
         </div>
 
         <div class="stats-grid" id="stats-panel">
-          <div class="stat-card">
+          <Card class="stat-card min-w-0 gap-1 p-4">
             <div class="stat-main-value" id="stat-total">{{ stats.total }}</div>
-            <div class="stat-label">{{ trans.totalServers }}</div>
-          </div>
-          <div class="stat-card">
+            <CardDescription class="stat-label">{{ trans.totalServers }}</CardDescription>
+          </Card>
+          <Card class="stat-card min-w-0 gap-1 p-4">
             <div class="stat-main-value" id="stat-online">{{ stats.online }}</div>
-            <div class="stat-label">{{ trans.online }}</div>
-          </div>
-          <div class="stat-card">
+            <CardDescription class="stat-label">{{ trans.online }}</CardDescription>
+          </Card>
+          <Card class="stat-card min-w-0 gap-1 p-4">
             <div class="stat-main-value" id="stat-offline">{{ stats.offline }}</div>
-            <div class="stat-label">{{ trans.offline }}</div>
-          </div>
-          <div class="stat-card">
+            <CardDescription class="stat-label">{{ trans.offline }}</CardDescription>
+          </Card>
+          <Card class="stat-card min-w-0 gap-1 p-4">
             <div class="stat-main-value" id="stat-avg-cpu">{{ stats.avg_cpu }}%</div>
-            <div class="stat-label">{{ trans.avgCpu }}</div>
-          </div>
+            <CardDescription class="stat-label">{{ trans.avgCpu }}</CardDescription>
+          </Card>
         </div>
-      </div>
+      </Card>
 
-      <div class="main-panel">
-        <div class="tabs">
-          <button
-            class="tab-btn"
-            :class="{ active: activeTab === 'servers' }"
-            @click="activeTab = 'servers'"
-          >{{ trans.servers }}</button>
-          <button
-            class="tab-btn"
-            :class="{ active: activeTab === 'settings' }"
-            @click="activeTab = 'settings'"
-          >{{ trans.settings }}</button>
-          <button
-            class="tab-btn"
-            :class="{ active: activeTab === 'database' }"
-            @click="activeTab = 'database'"
-          >{{ trans.dbManagement }}</button>
-          <button
-            class="tab-btn"
-            :class="{ active: activeTab === 'themeStore' }"
-            @click="activeTab = 'themeStore'"
-          >{{ trans.themeStore }}</button>
-          <button
-            class="tab-btn"
-            :class="{ active: activeTab === 'donation' }"
-            @click="activeTab = 'donation'"
-          >{{ trans.donation }}</button>
-        </div>
+      <Tabs class="mt-6 min-w-0" v-model="activeTab">
+        <TabsList class="max-w-full justify-start overflow-x-auto">
+          <TabsTrigger value="servers">{{ trans.servers }}</TabsTrigger>
+          <TabsTrigger value="settings">{{ trans.settings }}</TabsTrigger>
+          <TabsTrigger value="database">{{ trans.dbManagement }}</TabsTrigger>
+          <TabsTrigger value="themeStore">{{ trans.themeStore }}</TabsTrigger>
+          <TabsTrigger value="donation">{{ trans.donation }}</TabsTrigger>
+        </TabsList>
 
         <ServerTable
           v-model:new-server-name="newServerName"
@@ -180,11 +160,8 @@
           @alert-message="alertMessage = $event"
         />
 
-        <DonationPanel
-          :trans="trans"
-          :active-tab="activeTab"
-        />
-      </div>
+        <DonationPanel :trans="trans" :active-tab="activeTab" />
+      </Tabs>
 
       <EditServerModal
         :trans="trans"
@@ -210,29 +187,49 @@
         @close="closeBatchEditModal"
       />
 
-      <div v-if="showAutoUpdateWarning" id="autoUpdateWarningModal" class="modal-overlay auto-update-warning-modal active">
-        <div class="modal-dialog">
-          <div class="modal-header">
-            <div class="modal-title">{{ trans.autoUpdateRiskTitle }}</div>
-            <button class="modal-close" @click="cancelAutoUpdateWarning">✕</button>
-          </div>
+      <Dialog
+        v-if="showAutoUpdateWarning"
+        :open="Boolean(showAutoUpdateWarning)"
+        @update:open="
+          (open) => {
+            if (!open) cancelAutoUpdateWarning()
+          }
+        "
+      >
+        <DialogContent class="max-h-[85dvh] overflow-y-auto" :show-close-button="false" :aria-describedby="undefined">
+          <DialogHeader class="pr-8">
+            <DialogTitle>{{ trans.autoUpdateRiskTitle }}</DialogTitle>
+            <Button
+              @click="cancelAutoUpdateWarning"
+              class="absolute right-3 top-3"
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              :aria-label="trans.close"
+              >✕</Button
+            >
+          </DialogHeader>
 
-          <div class="danger-box mb-4">
+          <Alert class="block" variant="destructive">
             <div class="flex-center-gap-sm mb-2">
               <span class="danger-icon text-xl">⚠️</span>
               <span class="danger-label">{{ trans.autoUpdateRiskTitle }}</span>
             </div>
-            <p class="text-secondary text-sm line-height-1-6">
+            <p class="text-muted-foreground text-sm line-height-1-6">
               {{ trans.autoUpdateRiskDesc }}
             </p>
-          </div>
+          </Alert>
 
-          <div class="modal-footer flex-justify-between">
-            <button @click="confirmAutoUpdateWarning" class="btn btn-primary">{{ trans.autoUpdateRiskConfirm }}</button>
-            <button @click="cancelAutoUpdateWarning" class="btn">{{ trans.autoUpdateRiskCancel }}</button>
-          </div>
-        </div>
-      </div>
+          <DialogFooter class="flex-wrap">
+            <Button @click="confirmAutoUpdateWarning" type="button" variant="default" size="sm">{{
+              trans.autoUpdateRiskConfirm
+            }}</Button>
+            <Button @click="cancelAutoUpdateWarning" type="button" variant="outline" size="sm">{{
+              trans.autoUpdateRiskCancel
+            }}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <DeleteServerModal
         :trans="trans"
@@ -292,19 +289,36 @@
         @open-edit-from-copy="openEditModalFromCopy"
       />
 
-      <div id="dbModal" class="modal-overlay" :class="{ active: showDbModal }">
-        <div class="modal-dialog">
-          <div class="modal-header">
-            <div class="modal-title">$ {{ dbOperation === 'clearHistory' ? 'CLEAR HISTORY' : 'ALTER DATABASE' }}</div>
-            <button class="modal-close" @click="closeDbModal" :disabled="dbLoading">✕</button>
-          </div>
+      <Dialog
+        v-if="showDbModal"
+        :open="Boolean(showDbModal)"
+        @update:open="
+          (open) => {
+            if (!open && !dbLoading) closeDbModal()
+          }
+        "
+      >
+        <DialogContent class="max-h-[85dvh] overflow-y-auto" :show-close-button="false" :aria-describedby="undefined">
+          <DialogHeader class="pr-8">
+            <DialogTitle>{{ dbOperation === 'clearHistory' ? trans.clearHistory : trans.upgradeDatabase }}</DialogTitle>
+            <Button
+              @click="closeDbModal"
+              :disabled="dbLoading"
+              class="absolute right-3 top-3"
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              :aria-label="trans.close"
+              >✕</Button
+            >
+          </DialogHeader>
 
           <div v-if="dbOperation === 'clearHistory'" class="mb-4">
             <div class="flex-center-gap-sm mb-3">
               <span class="danger-icon text-xl">⚠️</span>
               <span class="danger-label">{{ trans.dangerOperation }}</span>
             </div>
-            <p class="text-secondary text-sm line-height-1-6">
+            <p class="text-muted-foreground text-sm line-height-1-6">
               {{ trans.clearHistoryWarning }}
             </p>
           </div>
@@ -312,86 +326,141 @@
           <div v-if="dbOperation === 'upgrade'" class="mb-4">
             <div class="flex-center-gap-sm mb-3">
               <span class="warning-icon text-xl">ℹ️</span>
-              <span style="color: var(--accent-yellow); font-weight: 600;">{{ trans.upgradeDatabase }}</span>
+              <span style="color: var(--accent-yellow); font-weight: 600">{{ trans.upgradeDatabase }}</span>
             </div>
-            <p class="text-secondary text-sm line-height-1-6">
+            <p class="text-muted-foreground text-sm line-height-1-6">
               {{ trans.upgradeDesc }}
             </p>
           </div>
 
           <div v-if="dbResult" :class="dbResult.success ? 'warning-box' : 'danger-box'" class="mb-4">
             <div class="flex-center-gap-sm">
-              <span :style="{ color: dbResult.success ? 'var(--accent-green)' : 'var(--accent-red)', fontWeight: '600' }">
-                {{ dbResult.success ? '✅' : '❌' }} {{ getMessage(dbResult.message) || (dbResult.success ? trans.operationSuccess : trans.operationFailed) }}
+              <span
+                :style="{ color: dbResult.success ? 'var(--accent-green)' : 'var(--accent-red)', fontWeight: '600' }"
+              >
+                {{ dbResult.success ? '✅' : '❌' }}
+                {{
+                  getMessage(dbResult.message) || (dbResult.success ? trans.operationSuccess : trans.operationFailed)
+                }}
               </span>
             </div>
-            <div v-if="dbResult.error" class="text-red mt-2">
+            <div v-if="dbResult.error" class="text-destructive mt-2">
               {{ getMessage(dbResult.error) }}
             </div>
           </div>
 
-          <div v-if="!(dbResult && dbResult.success)" class="modal-footer flex-justify-between">
-            <button
+          <DialogFooter v-if="!(dbResult && dbResult.success)" class="flex-wrap">
+            <Button
               v-if="!dbResult"
               @click="dbOperation === 'clearHistory' ? handleClearHistory() : handleUpgradeDatabase()"
-              class="btn btn-red"
               :disabled="dbLoading"
+              type="button"
+              variant="destructive"
+              size="sm"
             >
-              {{ dbLoading ? (dbOperation === 'clearHistory' ? trans.clearing : trans.upgrading) : (dbOperation === 'clearHistory' ? trans.confirmClear : trans.upgradeDatabase) }}
-            </button>
-            <button @click="closeDbModal" class="btn" :disabled="dbLoading">{{ trans.cancel }}</button>
-          </div>
-        </div>
-      </div>
+              {{
+                dbLoading
+                  ? dbOperation === 'clearHistory'
+                    ? trans.clearing
+                    : trans.upgrading
+                  : dbOperation === 'clearHistory'
+                    ? trans.confirmClear
+                    : trans.upgradeDatabase
+              }}
+            </Button>
+            <Button @click="closeDbModal" :disabled="dbLoading" type="button" variant="outline" size="sm">{{
+              trans.cancel
+            }}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
-      <div v-if="d1UsageResult" id="d1UsageModal" class="modal-overlay active">
-        <div class="modal-dialog">
-          <div class="modal-header">
-            <div class="modal-title">$ D1, Workers & Durable Objects quota --utc</div>
-            <button class="modal-close" @click="d1UsageResult = null">✕</button>
-          </div>
+      <Dialog
+        v-if="d1UsageResult"
+        :open="Boolean(d1UsageResult)"
+        @update:open="
+          (open) => {
+            if (!open) d1UsageResult = null
+          }
+        "
+      >
+        <DialogContent class="max-h-[85dvh] overflow-y-auto" :show-close-button="false" :aria-describedby="undefined">
+          <DialogHeader class="pr-8">
+            <DialogTitle>{{ trans.queryD1Quota }} · UTC</DialogTitle>
+            <Button
+              @click="d1UsageResult = null"
+              class="absolute right-3 top-3"
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              :aria-label="trans.close"
+              >✕</Button
+            >
+          </DialogHeader>
 
           <div v-if="d1UsageResult.success" class="mb-4">
-            <div class="warning-box mb-4">
+            <Alert class="block">
               {{ getMessage(d1UsageResult.message) || trans.d1UsageQueried }}
-            </div>
+            </Alert>
             <div class="quota-section">
               <div class="quota-section-title">{{ trans.todayUsage }}</div>
               <div class="quota-progress-list">
                 <div class="quota-progress-item">
                   <div class="flex-justify-between text-sm mb-1">
-                    <span>{{ trans.d1RowsRead }}：{{ formatNumber(d1UsageResult.usage.today.rowsRead) }} / {{ formatNumber(5000000) }}</span>
+                    <span
+                      >{{ trans.d1RowsRead }}：{{ formatNumber(d1UsageResult.usage.today.rowsRead) }} /
+                      {{ formatNumber(5000000) }}</span
+                    >
                     <span>{{ getUsagePercent(d1UsageResult.usage.today.rowsRead, 5000000) }}%</span>
                   </div>
-                  <div class="quota-progress-bar">
-                    <div class="quota-progress-fill" :style="{ width: getUsageBarPercent(d1UsageResult.usage.today.rowsRead, 5000000) + '%' }"></div>
-                  </div>
+                  <Progress
+                    :model-value="getUsageBarPercent(d1UsageResult.usage.today.rowsRead, 5000000)"
+                    class="h-1.5"
+                  />
                 </div>
                 <div class="quota-progress-item">
                   <div class="flex-justify-between text-sm mb-1">
-                    <span>{{ trans.d1RowsWritten }}：{{ formatNumber(d1UsageResult.usage.today.rowsWritten) }} / {{ formatNumber(100000) }}</span>
+                    <span
+                      >{{ trans.d1RowsWritten }}：{{ formatNumber(d1UsageResult.usage.today.rowsWritten) }} /
+                      {{ formatNumber(100000) }}</span
+                    >
                     <span>{{ getUsagePercent(d1UsageResult.usage.today.rowsWritten, 100000) }}%</span>
                   </div>
-                  <div class="quota-progress-bar">
-                    <div class="quota-progress-fill" :style="{ width: getUsageBarPercent(d1UsageResult.usage.today.rowsWritten, 100000) + '%' }"></div>
-                  </div>
+                  <Progress
+                    :model-value="getUsageBarPercent(d1UsageResult.usage.today.rowsWritten, 100000)"
+                    class="h-1.5"
+                  />
                 </div>
                 <div class="quota-progress-item">
                   <div class="flex-justify-between text-sm mb-1">
-                    <span>{{ trans.workersRequests }}：{{ formatNumber(d1UsageResult.usage.today.workersRequests) }} / {{ formatNumber(100000) }}</span>
+                    <span
+                      >{{ trans.workersRequests }}：{{ formatNumber(d1UsageResult.usage.today.workersRequests) }} /
+                      {{ formatNumber(100000) }}</span
+                    >
                     <span>{{ getUsagePercent(d1UsageResult.usage.today.workersRequests, 100000) }}%</span>
                   </div>
-                  <div v-if="d1UsageResult.usage.today.workersRequests" class="quota-progress-bar">
-                    <div class="quota-progress-fill" :style="{ width: getUsageBarPercent(d1UsageResult.usage.today.workersRequests, 100000) + '%' }"></div>
-                  </div>
+                  <Progress
+                    v-if="d1UsageResult.usage.today.workersRequests"
+                    :model-value="getUsageBarPercent(d1UsageResult.usage.today.workersRequests, 100000)"
+                    class="h-1.5"
+                  />
                 </div>
                 <div class="quota-progress-item">
                   <div class="flex-justify-between text-sm mb-1">
                     <span class="quota-label-with-help">
-                      <span>{{ trans.durableObjectsRequests }}：{{ formatNumber(d1UsageResult.usage.today.durableObjectsRequests) }} / {{ formatNumber(100000) }}</span>
+                      <span
+                        >{{ trans.durableObjectsRequests }}：{{
+                          formatNumber(d1UsageResult.usage.today.durableObjectsRequests)
+                        }}
+                        / {{ formatNumber(100000) }}</span
+                      >
                       <HelpTooltip>
                         <template #default>
-                          <span v-for="row in getDurableObjectsUsageRows(d1UsageResult.usage.today)" :key="row.key" class="quota-help-row">
+                          <span
+                            v-for="row in getDurableObjectsUsageRows(d1UsageResult.usage.today)"
+                            :key="row.key"
+                            class="quota-help-row"
+                          >
                             <span class="quota-help-label">{{ row.label }}</span>
                             <span class="quota-help-value">{{ row.value }}</span>
                           </span>
@@ -400,14 +469,20 @@
                     </span>
                     <span>{{ getUsagePercent(d1UsageResult.usage.today.durableObjectsRequests, 100000) }}%</span>
                   </div>
-                  <div class="quota-progress-bar">
-                    <div class="quota-progress-fill" :style="{ width: getUsageBarPercent(d1UsageResult.usage.today.durableObjectsRequests, 100000) + '%' }"></div>
-                  </div>
+                  <Progress
+                    :model-value="getUsageBarPercent(d1UsageResult.usage.today.durableObjectsRequests, 100000)"
+                    class="h-1.5"
+                  />
                 </div>
                 <div class="quota-progress-item">
                   <div class="flex-justify-between text-sm mb-1">
                     <span class="quota-label-with-help">
-                      <span>{{ trans.durableObjectsDuration }}：{{ formatNumber(d1UsageResult.usage.today.durableObjectsDuration, 2) }} / {{ formatNumber(13000) }}</span>
+                      <span
+                        >{{ trans.durableObjectsDuration }}：{{
+                          formatNumber(d1UsageResult.usage.today.durableObjectsDuration, 2)
+                        }}
+                        / {{ formatNumber(13000) }}</span
+                      >
                       <HelpTooltip :text="trans.durableObjectsDurationTip">
                         <template #default>
                           <span class="quota-help-row">{{ trans.durableObjectsDurationTip }}</span>
@@ -416,9 +491,10 @@
                     </span>
                     <span>{{ getUsagePercent(d1UsageResult.usage.today.durableObjectsDuration, 13000) }}%</span>
                   </div>
-                  <div class="quota-progress-bar">
-                    <div class="quota-progress-fill" :style="{ width: getUsageBarPercent(d1UsageResult.usage.today.durableObjectsDuration, 13000) + '%' }"></div>
-                  </div>
+                  <Progress
+                    :model-value="getUsageBarPercent(d1UsageResult.usage.today.durableObjectsDuration, 13000)"
+                    class="h-1.5"
+                  />
                 </div>
               </div>
             </div>
@@ -428,38 +504,59 @@
               <div class="quota-progress-list">
                 <div class="quota-progress-item">
                   <div class="flex-justify-between text-sm mb-1">
-                    <span>{{ trans.d1RowsRead }}：{{ formatNumber(d1UsageResult.usage.yesterday.rowsRead) }} / {{ formatNumber(5000000) }}</span>
+                    <span
+                      >{{ trans.d1RowsRead }}：{{ formatNumber(d1UsageResult.usage.yesterday.rowsRead) }} /
+                      {{ formatNumber(5000000) }}</span
+                    >
                     <span>{{ getUsagePercent(d1UsageResult.usage.yesterday.rowsRead, 5000000) }}%</span>
                   </div>
-                  <div class="quota-progress-bar">
-                    <div class="quota-progress-fill" :style="{ width: getUsageBarPercent(d1UsageResult.usage.yesterday.rowsRead, 5000000) + '%' }"></div>
-                  </div>
+                  <Progress
+                    :model-value="getUsageBarPercent(d1UsageResult.usage.yesterday.rowsRead, 5000000)"
+                    class="h-1.5"
+                  />
                 </div>
                 <div class="quota-progress-item">
                   <div class="flex-justify-between text-sm mb-1">
-                    <span>{{ trans.d1RowsWritten }}：{{ formatNumber(d1UsageResult.usage.yesterday.rowsWritten) }} / {{ formatNumber(100000) }}</span>
+                    <span
+                      >{{ trans.d1RowsWritten }}：{{ formatNumber(d1UsageResult.usage.yesterday.rowsWritten) }} /
+                      {{ formatNumber(100000) }}</span
+                    >
                     <span>{{ getUsagePercent(d1UsageResult.usage.yesterday.rowsWritten, 100000) }}%</span>
                   </div>
-                  <div class="quota-progress-bar">
-                    <div class="quota-progress-fill" :style="{ width: getUsageBarPercent(d1UsageResult.usage.yesterday.rowsWritten, 100000) + '%' }"></div>
-                  </div>
+                  <Progress
+                    :model-value="getUsageBarPercent(d1UsageResult.usage.yesterday.rowsWritten, 100000)"
+                    class="h-1.5"
+                  />
                 </div>
                 <div v-if="d1UsageResult.usage.yesterday.workersRequests" class="quota-progress-item">
                   <div class="flex-justify-between text-sm mb-1">
-                    <span>{{ trans.workersRequests }}：{{ formatNumber(d1UsageResult.usage.yesterday.workersRequests) }} / {{ formatNumber(100000) }}</span>
+                    <span
+                      >{{ trans.workersRequests }}：{{ formatNumber(d1UsageResult.usage.yesterday.workersRequests) }} /
+                      {{ formatNumber(100000) }}</span
+                    >
                     <span>{{ getUsagePercent(d1UsageResult.usage.yesterday.workersRequests, 100000) }}%</span>
                   </div>
-                  <div class="quota-progress-bar">
-                    <div class="quota-progress-fill" :style="{ width: getUsageBarPercent(d1UsageResult.usage.yesterday.workersRequests, 100000) + '%' }"></div>
-                  </div>
+                  <Progress
+                    :model-value="getUsageBarPercent(d1UsageResult.usage.yesterday.workersRequests, 100000)"
+                    class="h-1.5"
+                  />
                 </div>
                 <div class="quota-progress-item">
                   <div class="flex-justify-between text-sm mb-1">
                     <span class="quota-label-with-help">
-                      <span>{{ trans.durableObjectsRequests }}：{{ formatNumber(d1UsageResult.usage.yesterday.durableObjectsRequests) }} / {{ formatNumber(100000) }}</span>
+                      <span
+                        >{{ trans.durableObjectsRequests }}：{{
+                          formatNumber(d1UsageResult.usage.yesterday.durableObjectsRequests)
+                        }}
+                        / {{ formatNumber(100000) }}</span
+                      >
                       <HelpTooltip>
                         <template #default>
-                          <span v-for="row in getDurableObjectsUsageRows(d1UsageResult.usage.yesterday)" :key="row.key" class="quota-help-row">
+                          <span
+                            v-for="row in getDurableObjectsUsageRows(d1UsageResult.usage.yesterday)"
+                            :key="row.key"
+                            class="quota-help-row"
+                          >
                             <span class="quota-help-label">{{ row.label }}</span>
                             <span class="quota-help-value">{{ row.value }}</span>
                           </span>
@@ -468,14 +565,20 @@
                     </span>
                     <span>{{ getUsagePercent(d1UsageResult.usage.yesterday.durableObjectsRequests, 100000) }}%</span>
                   </div>
-                  <div class="quota-progress-bar">
-                    <div class="quota-progress-fill" :style="{ width: getUsageBarPercent(d1UsageResult.usage.yesterday.durableObjectsRequests, 100000) + '%' }"></div>
-                  </div>
+                  <Progress
+                    :model-value="getUsageBarPercent(d1UsageResult.usage.yesterday.durableObjectsRequests, 100000)"
+                    class="h-1.5"
+                  />
                 </div>
                 <div class="quota-progress-item">
                   <div class="flex-justify-between text-sm mb-1">
                     <span class="quota-label-with-help">
-                      <span>{{ trans.durableObjectsDuration }}：{{ formatNumber(d1UsageResult.usage.yesterday.durableObjectsDuration, 2) }} / {{ formatNumber(13000) }}</span>
+                      <span
+                        >{{ trans.durableObjectsDuration }}：{{
+                          formatNumber(d1UsageResult.usage.yesterday.durableObjectsDuration, 2)
+                        }}
+                        / {{ formatNumber(13000) }}</span
+                      >
                       <HelpTooltip :text="trans.durableObjectsDurationTip">
                         <template #default>
                           <span class="quota-help-row">{{ trans.durableObjectsDurationTip }}</span>
@@ -484,91 +587,140 @@
                     </span>
                     <span>{{ getUsagePercent(d1UsageResult.usage.yesterday.durableObjectsDuration, 13000) }}%</span>
                   </div>
-                  <div class="quota-progress-bar">
-                    <div class="quota-progress-fill" :style="{ width: getUsageBarPercent(d1UsageResult.usage.yesterday.durableObjectsDuration, 13000) + '%' }"></div>
-                  </div>
+                  <Progress
+                    :model-value="getUsageBarPercent(d1UsageResult.usage.yesterday.durableObjectsDuration, 13000)"
+                    class="h-1.5"
+                  />
                 </div>
               </div>
             </div>
           </div>
 
-          <div v-else class="danger-box mb-4">
+          <Alert v-else class="block" variant="destructive">
             {{ getMessage(d1UsageResult.error) }}
-          </div>
+          </Alert>
 
-          <div class="modal-footer flex-justify-between">
+          <DialogFooter class="flex-wrap">
             <div></div>
-            <button @click="d1UsageResult = null" class="btn">{{ trans.close }}</button>
-          </div>
-        </div>
-      </div>
+            <Button @click="d1UsageResult = null" type="button" variant="outline" size="sm">{{ trans.close }}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
-      <div v-if="validationError" id="validationErrorModal" class="modal-overlay active">
-        <div class="modal-dialog">
-          <div class="modal-header">
-            <div class="modal-title">$ {{ trans.validationError }}</div>
-            <button class="modal-close" @click="validationError = null">✕</button>
-          </div>
+      <Dialog
+        v-if="validationError"
+        :open="Boolean(validationError)"
+        @update:open="
+          (open) => {
+            if (!open) validationError = null
+          }
+        "
+      >
+        <DialogContent class="max-h-[85dvh] overflow-y-auto" :show-close-button="false" :aria-describedby="undefined">
+          <DialogHeader class="pr-8">
+            <DialogTitle>{{ trans.validationError }}</DialogTitle>
+            <Button
+              @click="validationError = null"
+              class="absolute right-3 top-3"
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              :aria-label="trans.close"
+              >✕</Button
+            >
+          </DialogHeader>
 
-          <div class="danger-box mb-4">
+          <Alert class="block" variant="destructive">
             <div class="flex-center-gap-sm">
               <span class="danger-icon text-xl">⚠️</span>
               <span class="danger-label">{{ validationError }}</span>
             </div>
-          </div>
+          </Alert>
 
-          <div class="modal-footer flex-justify-between">
+          <DialogFooter class="flex-wrap">
             <div></div>
-            <button @click="validationError = null" class="btn">{{ trans.close }}</button>
-          </div>
-        </div>
-      </div>
+            <Button @click="validationError = null" type="button" variant="outline" size="sm">{{ trans.close }}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
-      <div v-if="saveResult" class="modal-overlay active">
-        <div class="modal-dialog">
-          <div class="modal-header">
-            <div class="modal-title">$ save --result</div>
-            <button class="modal-close" @click="saveResult = null">✕</button>
-          </div>
+      <Dialog
+        v-if="saveResult"
+        :open="Boolean(saveResult)"
+        @update:open="
+          (open) => {
+            if (!open) saveResult = null
+          }
+        "
+      >
+        <DialogContent class="max-h-[85dvh] overflow-y-auto" :show-close-button="false" :aria-describedby="undefined">
+          <DialogHeader class="pr-8">
+            <DialogTitle>{{ saveResult.success ? trans.operationSuccess : trans.operationFailed }}</DialogTitle>
+            <Button
+              @click="saveResult = null"
+              class="absolute right-3 top-3"
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              :aria-label="trans.close"
+              >✕</Button
+            >
+          </DialogHeader>
 
           <div v-if="saveResult.success" class="success-box mb-4">
             <div class="flex-center-gap-sm">
-              <span style="color: var(--accent-green); font-weight: 600;">
+              <span style="color: var(--accent-green); font-weight: 600">
                 ✅ {{ saveResult.message || trans.saveSuccess }}
               </span>
             </div>
           </div>
 
-          <div v-else class="danger-box mb-4">
+          <Alert v-else class="block" variant="destructive">
             <div class="flex-center-gap-sm">
               <span class="danger-label">❌ {{ saveResult.error }}</span>
             </div>
-          </div>
+          </Alert>
 
-          <div class="modal-footer flex-justify-between">
+          <DialogFooter class="flex-wrap">
             <div></div>
-            <button @click="saveResult = null" class="btn">{{ trans.close }}</button>
-          </div>
-        </div>
-      </div>
+            <Button @click="saveResult = null" type="button" variant="outline" size="sm">{{ trans.close }}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
-      <div v-if="alertMessage" class="modal-overlay active">
-        <div class="modal-dialog">
-          <div class="modal-header">
-            <div class="modal-title">$ alert</div>
-            <button class="modal-close" @click="alertMessage = null">✕</button>
-          </div>
+      <Dialog
+        v-if="alertMessage"
+        :open="Boolean(alertMessage)"
+        @update:open="
+          (open) => {
+            if (!open) alertMessage = null
+          }
+        "
+      >
+        <DialogContent class="max-h-[85dvh] overflow-y-auto" :show-close-button="false" :aria-describedby="undefined">
+          <DialogHeader class="pr-8">
+            <DialogTitle>{{ trans.notice }}</DialogTitle>
+            <Button
+              @click="alertMessage = null"
+              class="absolute right-3 top-3"
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              :aria-label="trans.close"
+              >✕</Button
+            >
+          </DialogHeader>
 
           <div class="mb-4">
-            <p class="text-secondary text-sm">{{ alertMessage }}</p>
+            <p class="text-muted-foreground text-sm">{{ alertMessage }}</p>
           </div>
 
-          <div class="modal-footer flex-justify-between">
+          <DialogFooter class="flex-wrap">
             <div></div>
-            <button @click="alertMessage = null" class="btn">{{ trans.close }}</button>
-          </div>
-        </div>
-      </div>
+            <Button @click="alertMessage = null" type="button" variant="outline" size="sm">{{ trans.close }}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Footer />
     </div>
@@ -576,6 +728,14 @@
 </template>
 
 <script setup>
+import { Progress } from '@/components/ui/progress'
+import { Spinner } from '@/components/ui/spinner'
+import { Card, CardDescription } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Alert } from '@/components/ui/alert'
 import UiIcon from '../../components/UiIcon.vue'
 import { ref, computed, onMounted, watch, nextTick, inject } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -2415,8 +2575,7 @@ const saveBatchEdit = async () => {
   }
 }
 
-const handleSelectAll = (e) => {
-  const checked = e.target.checked
+const handleSelectAll = (checked) => {
   selectedServers.value = checked ? servers.value.map(s => s.id) : []
 }
 
@@ -2455,7 +2614,7 @@ const handleDrop = async (e, targetId) => {
     return
   }
 
-  const rows = Array.from(document.querySelectorAll('#tab-servers .table-wrapper .terminal-table tbody > .server-row[data-server-id]'))
+  const rows = Array.from(document.querySelectorAll('[data-monitor-tab="servers"] .table-wrapper .terminal-table tbody > .server-row[data-server-id]'))
   const draggedIndex = rows.findIndex(r => r.dataset.serverId === draggedRow)
   const targetIndex = rows.findIndex(r => r.dataset.serverId === targetId)
   if (draggedIndex < 0 || targetIndex < 0) {

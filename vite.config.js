@@ -1,4 +1,5 @@
 import { defineConfig } from 'vite'
+import tailwindcss from '@tailwindcss/vite'
 import vue from '@vitejs/plugin-vue'
 import mkcert from 'vite-plugin-mkcert'
 import fs from 'fs'
@@ -66,7 +67,7 @@ function envPlugin() {
 }
 
 export default defineConfig({
-  plugins: [vue(), mkcert(), envPlugin()],
+  plugins: [tailwindcss(), vue(), mkcert(), envPlugin()],
   base: process.env.VITE_BASE || '/',
   resolve: {
     alias: {
@@ -86,7 +87,7 @@ export default defineConfig({
     }
   },
   server: {
-    watch: { ignored: ['**/.direnv/**', '**/.impeccable/**'] },
+    watch: { ignored: ['**/.direnv/**'] },
     https: true,
     port: 5173,
     proxy: {

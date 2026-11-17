@@ -1,55 +1,109 @@
 <template>
   <div id="login-overlay" class="login-overlay">
-    <div class="login-container">
+    <Card class="login-container min-w-0 w-full max-w-sm gap-5 p-6">
       <div class="login-header">
         <div class="login-icon"><UiIcon name="lock" /></div>
-        <h2 class="login-title">{{ trans.adminLogin }}</h2>
-        <p class="login-subtitle">{{ trans.enterCredentials }}</p>
+        <CardTitle class="login-title">{{ trans.adminLogin }}</CardTitle>
+        <CardDescription class="login-subtitle">{{ trans.enterCredentials }}</CardDescription>
       </div>
       <form @submit.prevent="$emit('login')">
         <div v-if="isMultipleMode" class="login-form-group">
-          <label class="login-label">{{ trans.apiEndpoint }}</label>
-          <select :value="selectedApiIndex" class="login-input" @change="$emit('api-index-change', Number($event.target.value))">
-            <option
-              v-for="(base, index) in apiBases"
-              :key="index"
-              :value="index"
-            >
+          <Label class="login-label">{{ trans.apiEndpoint }}</Label>
+          <NativeSelect
+            :aria-label="trans.apiEndpoint"
+            :model-value="selectedApiIndex"
+            class="login-input"
+            @change="$emit('api-index-change', Number($event.target.value))"
+          >
+            <NativeSelectOption v-for="(base, index) in apiBases" :key="index" :value="index">
               [{{ index }}] {{ base }}
-            </option>
-          </select>
+            </NativeSelectOption>
+          </NativeSelect>
         </div>
         <div class="login-form-group">
-          <label for="login-username" class="login-label">{{ trans.username }}</label>
-          <input id="login-username" type="text" name="username" autocomplete="username" v-model="loginForm.username" required class="login-input" placeholder="admin">
+          <Label for="login-username" class="login-label">{{ trans.username }}</Label>
+          <Input
+            id="login-username"
+            type="text"
+            name="username"
+            autocomplete="username"
+            v-model="loginForm.username"
+            required
+            class="login-input"
+            placeholder="admin"
+          />
         </div>
         <div class="login-form-group last">
-          <label for="login-password" class="login-label">{{ trans.password }}</label>
+          <Label for="login-password" class="login-label">{{ trans.password }}</Label>
           <div class="password-input-wrapper">
-            <input id="login-password" :type="passwordVisible.login ? 'text' : 'password'" name="password" autocomplete="current-password" v-model="loginForm.password" required class="login-input" placeholder="••••••••">
-            <button type="button" class="password-toggle" :aria-label="passwordVisible.login ? trans.hidePassword : trans.showPassword" @click="$emit('toggle-password', 'login')">
+            <Input
+              id="login-password"
+              :type="passwordVisible.login ? 'text' : 'password'"
+              name="password"
+              autocomplete="current-password"
+              v-model="loginForm.password"
+              required
+              class="login-input"
+              placeholder="••••••••"
+            />
+            <Button
+              type="button"
+              :aria-label="passwordVisible.login ? trans.hidePassword : trans.showPassword"
+              @click="$emit('toggle-password', 'login')"
+              class="password-toggle"
+              variant="ghost"
+              size="icon-sm"
+            >
               <UiIcon :name="passwordVisible.login ? 'eyeOff' : 'eye'" />
-            </button>
+            </Button>
           </div>
         </div>
-        <div v-if="turnstileSiteKey && (turnstileLoginEnabled || (turnstileEnabled && !turnstileVerified))" class="login-form-group">
+        <div
+          v-if="turnstileSiteKey && (turnstileLoginEnabled || (turnstileEnabled && !turnstileVerified))"
+          class="login-form-group"
+        >
           <div id="admin-turnstile-container"></div>
         </div>
-        <div v-if="loginError" id="login-error" class="login-error" role="alert">{{ loginError }}</div>
-        <button type="submit" class="login-btn" :disabled="loginLoading" :aria-busy="loginLoading">{{ loginLoading ? trans.loading : trans.login }}</button>
+        <Alert v-if="loginError" id="login-error" role="alert" class="block" variant="destructive">{{
+          loginError
+        }}</Alert>
+        <Button
+          type="submit"
+          :disabled="loginLoading"
+          :aria-busy="loginLoading"
+          class="w-full"
+          variant="default"
+          size="default"
+          >{{ loginLoading ? trans.loading : trans.login }}</Button
+        >
       </form>
       <template v-if="githubOAuthEnabled">
-        <div class="login-divider"><span>{{ trans.or }}</span></div>
-        <button type="button" class="login-btn github-login-btn" :disabled="loginLoading" @click="$emit('github-login')">
+        <div class="login-divider">
+          <span>{{ trans.or }}</span>
+        </div>
+        <Button
+          type="button"
+          :disabled="loginLoading"
+          @click="$emit('github-login')"
+          class="w-full"
+          variant="outline"
+          size="default"
+        >
           {{ trans.loginWithGithub }}
-        </button>
+        </Button>
       </template>
-    </div>
+    </Card>
     <Footer />
   </div>
 </template>
 
 <script setup>
+import { Card, CardDescription, CardTitle } from '@/components/ui/card'
+import { Label } from '@/components/ui/label'
+import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
+import { Alert } from '@/components/ui/alert'
 import UiIcon from '../../../components/UiIcon.vue'
 import Footer from '../../../components/Footer.vue'
 

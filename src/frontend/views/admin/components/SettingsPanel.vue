@@ -1,178 +1,276 @@
 <template>
-  <div id="tab-settings" class="tab-content" :class="{ active: activeTab === 'settings' }">
+  <TabsContent value="settings" force-mount v-show="activeTab === 'settings'">
     <div class="settings-grid">
-      <div class="settings-section" v-if="currentOrigin === selectedApiBase">
-        <div class="section-title"><span>▸</span> {{ trans.appearance }} 1</div>
+      <Card v-if="currentOrigin === selectedApiBase" class="settings-section min-w-0 gap-4 p-5">
+        <CardTitle class="section-title">{{ trans.appearance }} 1</CardTitle>
 
         <div class="form-row">
           <div class="form-group flex-1">
-            <label class="form-label">{{ trans.siteTitle }}</label>
-            <input type="text" v-model="settings.site_title" class="form-input" :placeholder="'Cloudflare Server Monitor'">
+            <Label for="settingspanel-site_title" class="form-label">{{ trans.siteTitle }}</Label>
+            <Input
+              id="settingspanel-site_title"
+              type="text"
+              v-model="settings.site_title"
+              class="form-input"
+              :placeholder="'Cloudflare Server Monitor'"
+            />
           </div>
 
           <div class="form-group flex-1">
-            <label class="form-label">{{ trans.displayMode }}</label>
-            <select v-model="settings.display_mode" class="form-select">
-              <option value="bar">{{ trans.displayModeBar }}</option>
-              <option value="ring">{{ trans.displayModeRing }}</option>
-              <option value="table">{{ trans.displayModeTable }}</option>
-            </select>
+            <Label for="settingspanel-display_mode" class="form-label">{{ trans.displayMode }}</Label>
+            <NativeSelect id="settingspanel-display_mode" v-model="settings.display_mode" class="form-select">
+              <NativeSelectOption value="bar">{{ trans.displayModeBar }}</NativeSelectOption>
+              <NativeSelectOption value="ring">{{ trans.displayModeRing }}</NativeSelectOption>
+              <NativeSelectOption value="table">{{ trans.displayModeTable }}</NativeSelectOption>
+            </NativeSelect>
           </div>
         </div>
 
         <div class="form-row">
           <div class="form-group flex-1">
-            <label class="form-label">{{ trans.defaultTheme }}</label>
-            <select v-model="settings.preferred_theme" class="form-select">
-              <option value="auto">{{ trans.themeAuto }}</option>
-              <option value="dark">{{ trans.themeDark }}</option>
-              <option value="light">{{ trans.themeLight }}</option>
-            </select>
+            <Label for="settingspanel-preferred_theme" class="form-label">{{ trans.defaultTheme }}</Label>
+            <NativeSelect id="settingspanel-preferred_theme" v-model="settings.preferred_theme" class="form-select">
+              <NativeSelectOption value="auto">{{ trans.themeAuto }}</NativeSelectOption>
+              <NativeSelectOption value="dark">{{ trans.themeDark }}</NativeSelectOption>
+              <NativeSelectOption value="light">{{ trans.themeLight }}</NativeSelectOption>
+            </NativeSelect>
           </div>
 
           <div class="form-group flex-1">
-            <label class="form-label">{{ trans.defaultLanguage }}</label>
-            <select v-model="settings.default_language" class="form-select">
-              <option value="auto">{{ trans.languageAuto }}</option>
-              <option value="zh">{{ trans.languageChinese }}</option>
-              <option value="en">{{ trans.languageEnglish }}</option>
-            </select>
+            <Label for="settingspanel-default_language" class="form-label">{{ trans.defaultLanguage }}</Label>
+            <NativeSelect id="settingspanel-default_language" v-model="settings.default_language" class="form-select">
+              <NativeSelectOption value="auto">{{ trans.languageAuto }}</NativeSelectOption>
+              <NativeSelectOption value="zh">{{ trans.languageChinese }}</NativeSelectOption>
+              <NativeSelectOption value="en">{{ trans.languageEnglish }}</NativeSelectOption>
+            </NativeSelect>
           </div>
         </div>
 
         <div class="form-row">
-          <div class="form-group ">
-            <label class="form-label">
+          <div class="form-group">
+            <Label for="settingspanel-custom_bg" class="form-label">
               {{ trans.bgImage }}
               <HelpTooltip :text="trans.remoteImageTip" />
-            </label>
-            <div class="flex" style="gap:8px;">
-              <input type="text" v-model="settings.custom_bg" class="form-input flex-1" placeholder="https://...">
-              <div class="upload-btn-wrapper">
-                <button class="btn btn-margin-0">📁 {{ trans.upload }}</button>
-                <input type="file" accept="image/*" @change="$emit('upload-bg', $event)">
+            </Label>
+            <div class="flex" style="gap: 8px">
+              <Input
+                id="settingspanel-custom_bg"
+                type="text"
+                v-model="settings.custom_bg"
+                class="form-input flex-1"
+                placeholder="https://..."
+              />
+              <div>
+                <input
+                  id="upload-bg"
+                  class="peer sr-only"
+                  type="file"
+                  accept="image/*"
+                  :aria-label="trans.upload"
+                  @change="$emit('upload-bg', $event)"
+                /><Button
+                  as="label"
+                  for="upload-bg"
+                  variant="outline"
+                  size="sm"
+                  class="cursor-pointer peer-focus-visible:ring-2"
+                  >{{ trans.upload }}</Button
+                >
               </div>
             </div>
-            <img v-if="settings.custom_bg" :src="settings.custom_bg" class="bg-preview">
+            <img v-if="settings.custom_bg" :src="settings.custom_bg" class="bg-preview" />
           </div>
 
           <div class="form-group">
-            <label class="form-label">
+            <Label for="settingspanel-custom_bg_mobile" class="form-label">
               {{ trans.mobileBgImage }}
               <HelpTooltip :text="trans.remoteImageTip" />
-            </label>
-            <div class="flex" style="gap:8px;">
-              <input type="text" v-model="settings.custom_bg_mobile" class="form-input flex-1" placeholder="https://...">
-              <div class="upload-btn-wrapper">
-                <button class="btn btn-margin-0">📁 {{ trans.upload }}</button>
-                <input type="file" accept="image/*" @change="$emit('upload-bg-mobile', $event)">
+            </Label>
+            <div class="flex" style="gap: 8px">
+              <Input
+                id="settingspanel-custom_bg_mobile"
+                type="text"
+                v-model="settings.custom_bg_mobile"
+                class="form-input flex-1"
+                placeholder="https://..."
+              />
+              <div>
+                <input
+                  id="upload-bg-mobile"
+                  class="peer sr-only"
+                  type="file"
+                  accept="image/*"
+                  :aria-label="trans.upload"
+                  @change="$emit('upload-bg-mobile', $event)"
+                /><Button
+                  as="label"
+                  for="upload-bg-mobile"
+                  variant="outline"
+                  size="sm"
+                  class="cursor-pointer peer-focus-visible:ring-2"
+                  >{{ trans.upload }}</Button
+                >
               </div>
             </div>
-            <img v-if="settings.custom_bg_mobile" :src="settings.custom_bg_mobile" class="bg-preview">
+            <img v-if="settings.custom_bg_mobile" :src="settings.custom_bg_mobile" class="bg-preview" />
           </div>
 
           <div class="form-group">
-            <label class="form-label">
+            <Label for="settingspanel-favicon" class="form-label">
               {{ trans.favicon }}
               <HelpTooltip :text="trans.remoteImageTip" />
-            </label>
-            <div class="flex" style="gap:8px;">
-              <input type="text" v-model="settings.favicon" class="form-input flex-1" placeholder="https://...">
-              <div class="upload-btn-wrapper">
-                <button class="btn btn-margin-0">📁 {{ trans.upload }}</button>
-                <input type="file" accept="image/*,.ico" @change="$emit('upload-favicon', $event)">
+            </Label>
+            <div class="flex" style="gap: 8px">
+              <Input
+                id="settingspanel-favicon"
+                type="text"
+                v-model="settings.favicon"
+                class="form-input flex-1"
+                placeholder="https://..."
+              />
+              <div>
+                <input
+                  id="upload-favicon"
+                  class="peer sr-only"
+                  type="file"
+                  accept="image/*,.ico"
+                  :aria-label="trans.upload"
+                  @change="$emit('upload-favicon', $event)"
+                /><Button
+                  as="label"
+                  for="upload-favicon"
+                  variant="outline"
+                  size="sm"
+                  class="cursor-pointer peer-focus-visible:ring-2"
+                  >{{ trans.upload }}</Button
+                >
               </div>
             </div>
-            <img v-if="settings.favicon" :src="settings.favicon" class="bg-preview">
+            <img v-if="settings.favicon" :src="settings.favicon" class="bg-preview" />
           </div>
         </div>
 
         <div class="form-row">
           <div class="form-group flex-1">
-            <label class="form-label">
+            <Label for="settingspanel-csp_static" class="form-label">
               {{ trans.cspStatic }}
               <HelpTooltip :text="trans.cspStaticTip" />
-            </label>
-            <input type="text" v-model="settings.csp_static" class="form-input" placeholder="https://unpkg.com,https://cdn.jsdelivr.net" @blur="validateCspField('csp_static')">
+            </Label>
+            <Input
+              id="settingspanel-csp_static"
+              type="text"
+              v-model="settings.csp_static"
+              class="form-input"
+              placeholder="https://unpkg.com,https://cdn.jsdelivr.net"
+              @blur="validateCspField('csp_static')"
+            />
             <p v-if="cspErrors.csp_static" class="text-danger text-sm">{{ cspErrors.csp_static }}</p>
           </div>
 
           <div class="form-group flex-1">
-            <label class="form-label">
+            <Label for="settingspanel-csp_api" class="form-label">
               {{ trans.cspApi }}
               <HelpTooltip :text="trans.cspApiTip" />
-            </label>
-            <input type="text" v-model="settings.csp_api" class="form-input" placeholder="https://api.example.com" @blur="validateCspField('csp_api')">
+            </Label>
+            <Input
+              id="settingspanel-csp_api"
+              type="text"
+              v-model="settings.csp_api"
+              class="form-input"
+              placeholder="https://api.example.com"
+              @blur="validateCspField('csp_api')"
+            />
             <p v-if="cspErrors.csp_api" class="text-danger text-sm">{{ cspErrors.csp_api }}</p>
           </div>
         </div>
-      </div>
+      </Card>
 
-      <div class="settings-section" v-if="currentOrigin === selectedApiBase">
-        <div class="section-title"><span>▸</span> {{ trans.appearance }} 2</div>
+      <Card v-if="currentOrigin === selectedApiBase" class="settings-section min-w-0 gap-4 p-5">
+        <CardTitle class="section-title">{{ trans.appearance }} 2</CardTitle>
 
         <div class="form-row">
           <div class="form-group flex-1">
-            <label class="form-label">
+            <Label for="settingspanel-custom_head" class="form-label">
               {{ trans.customHead }}
               <HelpTooltip :text="trans.cspWarning" />
-            </label>
-            <textarea v-model="settings.custom_head" class="form-textarea" rows="3" placeholder="<link rel='stylesheet' href='...'">
-            </textarea>
+            </Label>
+            <Textarea
+              id="settingspanel-custom_head"
+              v-model="settings.custom_head"
+              class="form-textarea"
+              rows="3"
+              placeholder="<link rel='stylesheet' href='...'"
+            >
+            </Textarea>
           </div>
 
           <div class="form-group flex-1">
-            <label class="form-label">{{ trans.customScript }}</label>
-            <textarea v-model="settings.custom_script" class="form-textarea" rows="3" placeholder="console.log('Hello');">
-            </textarea>
+            <Label for="settingspanel-custom_script" class="form-label">{{ trans.customScript }}</Label>
+            <Textarea
+              id="settingspanel-custom_script"
+              v-model="settings.custom_script"
+              class="form-textarea"
+              rows="3"
+              placeholder="console.log('Hello');"
+            >
+            </Textarea>
           </div>
         </div>
 
         <div class="form-row">
           <div class="form-group flex-1">
-            <label class="form-label">
+            <Label for="settingspanel-theme_options" class="form-label">
               {{ trans.themeOptions }}
               <HelpTooltip :text="trans.themeOptionsTip" />
-            </label>
-            <textarea v-model="settings.theme_options" class="form-textarea" rows="5" placeholder='{"mikus":1}'></textarea>
+            </Label>
+            <Textarea
+              id="settingspanel-theme_options"
+              v-model="settings.theme_options"
+              class="form-textarea"
+              rows="5"
+              placeholder='{"mikus":1}'
+            ></Textarea>
           </div>
         </div>
+      </Card>
 
-      </div>
-
-      <div class="settings-section">
-        <div class="section-title"><span>▸</span> {{ trans.displayOptions }}</div>
+      <Card class="settings-section min-w-0 gap-4 p-5">
+        <CardTitle class="section-title">{{ trans.displayOptions }}</CardTitle>
 
         <div class="form-row">
           <div class="form-group flex-1 checkbox-item">
-            <input type="checkbox" id="cfg_is_public" v-model="settings.is_public">
-            <label><b>{{ trans.publicAccess }}</b></label>
+            <Switch id="cfg_is_public" v-model="settings.is_public" />
+            <Label for="cfg_is_public"
+              ><b>{{ trans.publicAccess }}</b></Label
+            >
           </div>
 
           <div class="form-group flex-1 checkbox-item">
-            <input type="checkbox" id="cfg_show_price" v-model="settings.show_price">
-            <label>{{ trans.showPrice }}</label>
+            <Switch id="cfg_show_price" v-model="settings.show_price" />
+            <Label for="cfg_show_price">{{ trans.showPrice }}</Label>
           </div>
 
           <div class="form-group flex-1 checkbox-item">
-            <input type="checkbox" id="cfg_show_expire" v-model="settings.show_expire">
-            <label>{{ trans.showExpire }}</label>
+            <Switch id="cfg_show_expire" v-model="settings.show_expire" />
+            <Label for="cfg_show_expire">{{ trans.showExpire }}</Label>
           </div>
         </div>
 
         <div class="form-row">
           <div class="form-group flex-1 checkbox-item">
-            <input type="checkbox" id="cfg_wss_report_enabled" v-model="settings.wss_report_enabled">
-            <label><b>{{ trans.wssReportEnabled }}</b></label>
+            <Switch id="cfg_wss_report_enabled" v-model="settings.wss_report_enabled" />
+            <Label for="cfg_wss_report_enabled"
+              ><b>{{ trans.wssReportEnabled }}</b></Label
+            >
             <HelpTooltip :text="trans.wssReportTip" />
           </div>
           <div class="form-group flex-1 checkbox-item">
-            <input type="checkbox" id="cfg_show_tf" v-model="settings.show_tf">
-            <label>{{ trans.showTf }}</label>
+            <Switch id="cfg_show_tf" v-model="settings.show_tf" />
+            <Label for="cfg_show_tf">{{ trans.showTf }}</Label>
           </div>
           <div class="form-group flex-1 checkbox-item">
-            <input type="checkbox" id="cfg_show_three_net_details" v-model="settings.show_three_net_details">
-            <label>{{ trans.showThreeNetDetails }}</label>
+            <Switch id="cfg_show_three_net_details" v-model="settings.show_three_net_details" />
+            <Label for="cfg_show_three_net_details">{{ trans.showThreeNetDetails }}</Label>
           </div>
         </div>
 
@@ -184,71 +282,86 @@
                 <HelpTooltip :text="trans.wssReportHoursTip" />
               </div>
               <div class="wss-schedule-meta">
-                {{ localTimezoneLabel }} · {{ wssReportHours.length }}/24 {{ trans.hoursSelected }} · {{ trans.agentWssMinVersion }}
+                {{ localTimezoneLabel }} · {{ wssReportHours.length }}/24 {{ trans.hoursSelected }} ·
+                {{ trans.agentWssMinVersion }}
               </div>
             </div>
             <div class="wss-schedule-actions">
-              <button type="button" class="btn btn-sm" @click="selectAllWssReportHours">{{ trans.selectAll }}</button>
-              <button type="button" class="btn btn-sm" @click="clearWssReportHours">{{ trans.clear }}</button>
+              <Button type="button" @click="selectAllWssReportHours" variant="outline" size="sm">{{
+                trans.selectAll
+              }}</Button>
+              <Button type="button" @click="clearWssReportHours" variant="outline" size="sm">{{ trans.clear }}</Button>
             </div>
           </div>
           <div class="wss-hour-grid" role="group" :aria-label="trans.wssReportHours">
-            <label v-for="hour in 24" :key="hour - 1" class="wss-hour-option" :title="formatWssHourRange(hour - 1)">
-              <input
-                type="checkbox"
-                :checked="isLocalWssReportHourSelected(hour - 1)"
-                @change="toggleLocalWssReportHour(hour - 1, $event.target.checked)"
-              >
+            <Label v-for="hour in 24" :key="hour - 1" class="wss-hour-option" :title="formatWssHourRange(hour - 1)">
+              <Checkbox
+                :model-value="isLocalWssReportHourSelected(hour - 1)"
+                @update:model-value="toggleLocalWssReportHour(hour - 1, $event)"
+              />
               <span>{{ String(hour - 1).padStart(2, '0') }}</span>
-            </label>
+            </Label>
           </div>
         </div>
 
         <div class="form-row">
           <div class="form-group flex-1">
-            <label class="form-label">
+            <Label for="settingspanel-frontend_ws_timeout_minutes" class="form-label">
               {{ trans.frontendWsTimeoutMinutes }}
               <HelpTooltip :text="trans.frontendWsTimeoutMinutesTip" />
-            </label>
-            <input
+            </Label>
+            <Input
+              id="settingspanel-frontend_ws_timeout_minutes"
               v-model.number="settings.frontend_ws_timeout_minutes"
               type="number"
               min="0"
               :max="FRONTEND_WS_TIMEOUT_MINUTES_MAX"
               step="1"
               class="form-input"
-            >
+            />
           </div>
 
           <div class="form-group flex-1">
-            <label class="form-label">
+            <Label for="settingspanel-long_history_points" class="form-label">
               {{ trans.longHistoryPoints }}
               <HelpTooltip :text="trans.longHistoryPointsTip" />
-            </label>
-            <select v-model="settings.long_history_points" class="form-select">
-              <option v-for="option in longHistoryPointOptions" :key="option.value" :value="option.value">{{ option.label }}</option>
-            </select>
+            </Label>
+            <NativeSelect
+              id="settingspanel-long_history_points"
+              v-model="settings.long_history_points"
+              class="form-select"
+            >
+              <NativeSelectOption v-for="option in longHistoryPointOptions" :key="option.value" :value="option.value">{{
+                option.label
+              }}</NativeSelectOption>
+            </NativeSelect>
           </div>
         </div>
-      </div>
+      </Card>
 
-      <div class="settings-section">
-        <div class="section-title"><span>▸</span> {{ trans.notifications }}</div>
+      <Card class="settings-section min-w-0 gap-4 p-5">
+        <CardTitle class="section-title">{{ trans.notifications }}</CardTitle>
         <div class="form-row">
           <div class="form-group flex-1">
-            <label class="form-label">{{ trans.offlineAlert }}</label>
-            <select v-model="settings.tg_notify" class="form-select">
-              <option v-for="option in offlineNotifyOptions" :key="option.value" :value="option.value">{{ option.label }}</option>
-            </select>
+            <Label for="settingspanel-tg_notify" class="form-label">{{ trans.offlineAlert }}</Label>
+            <NativeSelect id="settingspanel-tg_notify" v-model="settings.tg_notify" class="form-select">
+              <NativeSelectOption v-for="option in offlineNotifyOptions" :key="option.value" :value="option.value">{{
+                option.label
+              }}</NativeSelectOption>
+            </NativeSelect>
           </div>
 
           <div class="form-group flex-1">
-            <label class="form-label">{{ trans.expireReminder }}</label>
-            <select v-model="selectedExpireReminder" class="form-select">
-              <option v-for="option in expireReminderOptions" :key="option.value" :value="option.value">{{ option.label }}</option>
-              <option :value="CUSTOM_EXPIRE_REMINDER_VALUE">{{ trans.custom || 'Custom' }}</option>
-            </select>
-            <input
+            <Label class="form-label">{{ trans.expireReminder }}</Label>
+            <NativeSelect :aria-label="trans.expireReminder" v-model="selectedExpireReminder" class="form-select">
+              <NativeSelectOption v-for="option in expireReminderOptions" :key="option.value" :value="option.value">{{
+                option.label
+              }}</NativeSelectOption>
+              <NativeSelectOption :value="CUSTOM_EXPIRE_REMINDER_VALUE">{{
+                trans.custom || 'Custom'
+              }}</NativeSelectOption>
+            </NativeSelect>
+            <Input
               v-if="showCustomExpireReminder"
               type="number"
               v-model.number="settings.expire_reminder"
@@ -258,37 +371,77 @@
               :max="EXPIRE_REMINDER_DAYS_MAX"
               step="1"
               :placeholder="trans.expireReminderCustomPlaceholder || 'Days before expiration'"
-            >
+            />
           </div>
 
           <div class="form-group flex-1">
-            <label class="form-label">{{ trans.notificationChannel || 'Notification Channel' }}</label>
-            <select v-model="notificationChannel" class="form-select">
-              <option value="builtin">{{ trans.builtinNotification || 'Built-in' }}</option>
-              <option value="smtp">{{ trans.smtpNotification || 'SMTP Email' }}</option>
-              <option value="webhook">{{ trans.customWebhook || 'Custom Webhook' }}</option>
-            </select>
+            <Label class="form-label">{{ trans.notificationChannel || 'Notification Channel' }}</Label>
+            <NativeSelect
+              :aria-label="trans.notificationChannel || 'Notification Channel'"
+              v-model="notificationChannel"
+              class="form-select"
+            >
+              <NativeSelectOption value="builtin">{{ trans.builtinNotification || 'Built-in' }}</NativeSelectOption>
+              <NativeSelectOption value="smtp">{{ trans.smtpNotification || 'SMTP Email' }}</NativeSelectOption>
+              <NativeSelectOption value="webhook">{{ trans.customWebhook || 'Custom Webhook' }}</NativeSelectOption>
+            </NativeSelect>
           </div>
         </div>
 
         <div v-if="notificationChannel === 'builtin'" class="form-row">
           <div class="form-group flex-1">
-            <label class="form-label">{{ trans.telegramToken }}</label>
+            <Label for="settingspanel-tg_bot_token" class="form-label">{{ trans.telegramToken }}</Label>
             <div class="password-input-wrapper">
-              <input type="text" name="tg_bot_token" autocomplete="off" data-lpignore="true" data-1p-ignore="true" data-bwignore="true" data-form-type="other" v-model="settings.tg_bot_token" :class="['form-input', { 'secret-input-masked': !passwordVisible.tgBotToken }]" placeholder="Bot Token or Webhook URL">
-              <button type="button" class="password-toggle" @click="$emit('toggle-password', 'tgBotToken')">
-                {{ passwordVisible.tgBotToken ? '🙈' : '👁️' }}
-              </button>
+              <Input
+                id="settingspanel-tg_bot_token"
+                type="text"
+                name="tg_bot_token"
+                autocomplete="off"
+                data-lpignore="true"
+                data-1p-ignore="true"
+                data-bwignore="true"
+                data-form-type="other"
+                v-model="settings.tg_bot_token"
+                :class="['form-input', { 'secret-input-masked': !passwordVisible.tgBotToken }]"
+                placeholder="Bot Token or Webhook URL"
+              />
+              <Button
+                type="button"
+                @click="$emit('toggle-password', 'tgBotToken')"
+                class="password-toggle"
+                :aria-label="passwordVisible.tgBotToken ? trans.hidePassword : trans.showPassword"
+                variant="ghost"
+                size="icon-sm"
+                ><component :is="passwordVisible.tgBotToken ? EyeOff : Eye" />
+              </Button>
             </div>
           </div>
 
           <div class="form-group flex-1">
-            <label class="form-label">{{ trans.chatId }}</label>
+            <Label for="settingspanel-tg_chat_id" class="form-label">{{ trans.chatId }}</Label>
             <div class="password-input-wrapper">
-              <input type="text" name="tg_chat_id" autocomplete="off" data-lpignore="true" data-1p-ignore="true" data-bwignore="true" data-form-type="other" v-model="settings.tg_chat_id" :class="['form-input', { 'secret-input-masked': !passwordVisible.tgChatId }]" placeholder="Optional Chat ID">
-              <button type="button" class="password-toggle" @click="$emit('toggle-password', 'tgChatId')">
-                {{ passwordVisible.tgChatId ? '🙈' : '👁️' }}
-              </button>
+              <Input
+                id="settingspanel-tg_chat_id"
+                type="text"
+                name="tg_chat_id"
+                autocomplete="off"
+                data-lpignore="true"
+                data-1p-ignore="true"
+                data-bwignore="true"
+                data-form-type="other"
+                v-model="settings.tg_chat_id"
+                :class="['form-input', { 'secret-input-masked': !passwordVisible.tgChatId }]"
+                placeholder="Optional Chat ID"
+              />
+              <Button
+                type="button"
+                @click="$emit('toggle-password', 'tgChatId')"
+                class="password-toggle"
+                :aria-label="passwordVisible.tgChatId ? trans.hidePassword : trans.showPassword"
+                variant="ghost"
+                size="icon-sm"
+                ><component :is="passwordVisible.tgChatId ? EyeOff : Eye" />
+              </Button>
             </div>
           </div>
         </div>
@@ -296,52 +449,127 @@
         <div v-else-if="notificationChannel === 'smtp'" class="resource-alert-rule">
           <div class="resource-alert-rule-title">
             <span>{{ trans.smtpNotification || 'SMTP Email' }}</span>
-            <HelpTooltip :text="trans.smtpTip || 'Sends plain-text email via cloudflare:sockets (25 port is blocked by Cloudflare Workers). QQ / 163 require an SMTP authorization code, not the login password.'" />
+            <HelpTooltip
+              :text="
+                trans.smtpTip ||
+                'Sends plain-text email via cloudflare:sockets (25 port is blocked by Cloudflare Workers). QQ / 163 require an SMTP authorization code, not the login password.'
+              "
+            />
           </div>
 
           <div class="form-row">
             <div class="form-group flex-1">
-              <label class="form-label">{{ trans.smtpHost || 'SMTP Host' }}</label>
-              <input type="text" name="smtp_host" autocomplete="off" data-lpignore="true" data-1p-ignore="true" data-bwignore="true" data-form-type="other" v-model.trim="smtpConfig.host" @blur="validateSmtpField('host')" class="form-input" placeholder="smtp.example.com">
+              <Label for="settingspanel-host" class="form-label">{{ trans.smtpHost || 'SMTP Host' }}</Label>
+              <Input
+                id="settingspanel-host"
+                type="text"
+                name="smtp_host"
+                autocomplete="off"
+                data-lpignore="true"
+                data-1p-ignore="true"
+                data-bwignore="true"
+                data-form-type="other"
+                v-model.trim="smtpConfig.host"
+                @blur="validateSmtpField('host')"
+                class="form-input"
+                placeholder="smtp.example.com"
+              />
               <p v-if="smtpErrors.host" class="text-danger text-sm">{{ smtpErrors.host }}</p>
             </div>
 
             <div class="form-group flex-1">
-              <label class="form-label">
+              <Label for="settingspanel-port" class="form-label">
                 {{ trans.smtpPort || 'Port' }}
-                <HelpTooltip :text="trans.smtpPortTip || 'Cloudflare Workers blocks port 25. Use 465 (implicit TLS) or 587 (STARTTLS).'" />
-              </label>
-              <input type="number" name="smtp_port" autocomplete="off" data-lpignore="true" data-1p-ignore="true" data-bwignore="true" data-form-type="other" v-model.trim="smtpConfig.port" @blur="validateSmtpField('port')" class="form-input" list="smtp-port-presets" placeholder="465">
+                <HelpTooltip
+                  :text="
+                    trans.smtpPortTip || 'Cloudflare Workers blocks port 25. Use 465 (implicit TLS) or 587 (STARTTLS).'
+                  "
+                />
+              </Label>
+              <Input
+                id="settingspanel-port"
+                type="number"
+                name="smtp_port"
+                autocomplete="off"
+                data-lpignore="true"
+                data-1p-ignore="true"
+                data-bwignore="true"
+                data-form-type="other"
+                v-model.trim="smtpConfig.port"
+                @blur="validateSmtpField('port')"
+                class="form-input"
+                list="smtp-port-presets"
+                placeholder="465"
+              />
               <datalist id="smtp-port-presets">
-                <option v-for="port in smtpPortPresets" :key="port" :value="port"></option>
+                <NativeSelectOption v-for="port in smtpPortPresets" :key="port" :value="port"></NativeSelectOption>
               </datalist>
               <p v-if="smtpErrors.port" class="text-danger text-sm">{{ smtpErrors.port }}</p>
             </div>
 
             <div class="form-group flex-1">
-              <label class="form-label">{{ trans.smtpSecure || 'Encryption' }}</label>
-              <select v-model="smtpConfig.secure" @change="validateSmtpField('port')" class="form-select">
-                <option value="auto">{{ trans.smtpSecureAuto || 'Auto (by port)' }}</option>
-                <option value="tls">{{ trans.smtpSecureTls || 'Implicit TLS (465)' }}</option>
-                <option value="starttls">{{ trans.smtpSecureStarttls || 'STARTTLS (587)' }}</option>
-              </select>
+              <Label for="settingspanel-secure" class="form-label">{{ trans.smtpSecure || 'Encryption' }}</Label>
+              <NativeSelect
+                id="settingspanel-secure"
+                v-model="smtpConfig.secure"
+                @update:model-value="validateSmtpField('port')"
+                class="form-select"
+              >
+                <NativeSelectOption value="auto">{{ trans.smtpSecureAuto || 'Auto (by port)' }}</NativeSelectOption>
+                <NativeSelectOption value="tls">{{ trans.smtpSecureTls || 'Implicit TLS (465)' }}</NativeSelectOption>
+                <NativeSelectOption value="starttls">{{
+                  trans.smtpSecureStarttls || 'STARTTLS (587)'
+                }}</NativeSelectOption>
+              </NativeSelect>
             </div>
           </div>
 
           <div class="form-row">
             <div class="form-group flex-1">
-              <label class="form-label">{{ trans.smtpUser || 'Username' }}</label>
-              <input type="text" name="smtp_user" autocomplete="off" data-lpignore="true" data-1p-ignore="true" data-bwignore="true" data-form-type="other" v-model.trim="smtpConfig.username" @blur="validateSmtpField('username')" class="form-input" placeholder="you@example.com">
+              <Label for="settingspanel-smtp-username" class="form-label">{{ trans.smtpUser || 'Username' }}</Label>
+              <Input
+                id="settingspanel-smtp-username"
+                type="text"
+                name="smtp_user"
+                autocomplete="off"
+                data-lpignore="true"
+                data-1p-ignore="true"
+                data-bwignore="true"
+                data-form-type="other"
+                v-model.trim="smtpConfig.username"
+                @blur="validateSmtpField('username')"
+                class="form-input"
+                placeholder="you@example.com"
+              />
               <p v-if="smtpErrors.username" class="text-danger text-sm">{{ smtpErrors.username }}</p>
             </div>
 
             <div class="form-group flex-1">
-              <label class="form-label">{{ trans.smtpPassword || 'Password' }}</label>
+              <Label for="settingspanel-smtp-password" class="form-label">{{ trans.smtpPassword || 'Password' }}</Label>
               <div class="password-input-wrapper">
-                <input type="text" name="smtp_password" autocomplete="new-password" data-lpignore="true" data-1p-ignore="true" data-bwignore="true" data-form-type="other" v-model="smtpConfig.password" @blur="validateSmtpField('password')" :class="['form-input', { 'secret-input-masked': !passwordVisible.smtpPassword }]" placeholder="SMTP password / app password">
-                <button type="button" class="password-toggle" @click="$emit('toggle-password', 'smtpPassword')">
-                  {{ passwordVisible.smtpPassword ? '🙈' : '👁️' }}
-                </button>
+                <Input
+                  id="settingspanel-smtp-password"
+                  type="text"
+                  name="smtp_password"
+                  autocomplete="new-password"
+                  data-lpignore="true"
+                  data-1p-ignore="true"
+                  data-bwignore="true"
+                  data-form-type="other"
+                  v-model="smtpConfig.password"
+                  @blur="validateSmtpField('password')"
+                  :class="['form-input', { 'secret-input-masked': !passwordVisible.smtpPassword }]"
+                  placeholder="SMTP password / app password"
+                />
+                <Button
+                  type="button"
+                  @click="$emit('toggle-password', 'smtpPassword')"
+                  class="password-toggle"
+                  :aria-label="passwordVisible.smtpPassword ? trans.hidePassword : trans.showPassword"
+                  variant="ghost"
+                  size="icon-sm"
+                  ><component :is="passwordVisible.smtpPassword ? EyeOff : Eye" />
+                </Button>
               </div>
               <p v-if="smtpErrors.password" class="text-danger text-sm">{{ smtpErrors.password }}</p>
             </div>
@@ -349,14 +577,40 @@
 
           <div class="form-row">
             <div class="form-group flex-1">
-              <label class="form-label">{{ trans.smtpFrom || 'From' }}</label>
-              <input type="text" name="smtp_from" autocomplete="off" data-lpignore="true" data-1p-ignore="true" data-bwignore="true" data-form-type="other" v-model.trim="smtpConfig.from" @blur="validateSmtpField('from')" class="form-input" placeholder="optional, defaults to username">
+              <Label for="settingspanel-from" class="form-label">{{ trans.smtpFrom || 'From' }}</Label>
+              <Input
+                id="settingspanel-from"
+                type="text"
+                name="smtp_from"
+                autocomplete="off"
+                data-lpignore="true"
+                data-1p-ignore="true"
+                data-bwignore="true"
+                data-form-type="other"
+                v-model.trim="smtpConfig.from"
+                @blur="validateSmtpField('from')"
+                class="form-input"
+                placeholder="optional, defaults to username"
+              />
               <p v-if="smtpErrors.from" class="text-danger text-sm">{{ smtpErrors.from }}</p>
             </div>
 
             <div class="form-group flex-1">
-              <label class="form-label">{{ trans.smtpTo || 'Recipients' }}</label>
-              <input type="text" name="smtp_to" autocomplete="off" data-lpignore="true" data-1p-ignore="true" data-bwignore="true" data-form-type="other" v-model.trim="smtpConfig.to" @blur="validateSmtpField('to')" class="form-input" placeholder="a@example.com,b@example.com">
+              <Label for="settingspanel-to" class="form-label">{{ trans.smtpTo || 'Recipients' }}</Label>
+              <Input
+                id="settingspanel-to"
+                type="text"
+                name="smtp_to"
+                autocomplete="off"
+                data-lpignore="true"
+                data-1p-ignore="true"
+                data-bwignore="true"
+                data-form-type="other"
+                v-model.trim="smtpConfig.to"
+                @blur="validateSmtpField('to')"
+                class="form-input"
+                placeholder="a@example.com,b@example.com"
+              />
               <p v-if="smtpErrors.to" class="text-danger text-sm">{{ smtpErrors.to }}</p>
             </div>
           </div>
@@ -369,9 +623,12 @@
 
           <div class="form-row">
             <div class="form-group flex-1">
-              <label class="form-label">{{ trans.webhookUrl || 'Webhook URL' }}</label>
+              <Label for="settingspanel-notification_webhook_url" class="form-label">{{
+                trans.webhookUrl || 'Webhook URL'
+              }}</Label>
               <div class="password-input-wrapper">
-                <input
+                <Input
+                  id="settingspanel-notification_webhook_url"
                   type="text"
                   name="notification_webhook_url"
                   autocomplete="off"
@@ -382,218 +639,334 @@
                   v-model="settings.notification_webhook_url"
                   :class="['form-input', { 'secret-input-masked': !passwordVisible.notificationWebhookUrl }]"
                   placeholder="https://example.com/webhook"
-                >
-                <button type="button" class="password-toggle" @click="$emit('toggle-password', 'notificationWebhookUrl')">
-                  {{ passwordVisible.notificationWebhookUrl ? '🙈' : '👁️' }}
-                </button>
+                />
+                <Button
+                  type="button"
+                  @click="$emit('toggle-password', 'notificationWebhookUrl')"
+                  class="password-toggle"
+                  :aria-label="passwordVisible.notificationWebhookUrl ? trans.hidePassword : trans.showPassword"
+                  variant="ghost"
+                  size="icon-sm"
+                  ><component :is="passwordVisible.notificationWebhookUrl ? EyeOff : Eye" />
+                </Button>
               </div>
             </div>
 
             <div class="form-group flex-1">
-              <label class="form-label">{{ trans.webhookMethod || 'Method' }}</label>
-              <select v-model="settings.notification_webhook_method" class="form-select">
-                <option value="POST">POST</option>
-                <option value="GET">GET</option>
-              </select>
+              <Label for="settingspanel-notification_webhook_method" class="form-label">{{
+                trans.webhookMethod || 'Method'
+              }}</Label>
+              <NativeSelect
+                id="settingspanel-notification_webhook_method"
+                v-model="settings.notification_webhook_method"
+                class="form-select"
+              >
+                <NativeSelectOption value="POST">POST</NativeSelectOption>
+                <NativeSelectOption value="GET">GET</NativeSelectOption>
+              </NativeSelect>
             </div>
 
             <div v-if="settings.notification_webhook_method !== 'GET'" class="form-group flex-1">
-              <label class="form-label">{{ trans.webhookFormat || 'Body Format' }}</label>
-              <select v-model="settings.notification_webhook_format" class="form-select">
-                <option value="json">JSON</option>
-                <option value="form">x-www-form-urlencoded</option>
-                <option value="text">Text</option>
-              </select>
+              <Label for="settingspanel-notification_webhook_format" class="form-label">{{
+                trans.webhookFormat || 'Body Format'
+              }}</Label>
+              <NativeSelect
+                id="settingspanel-notification_webhook_format"
+                v-model="settings.notification_webhook_format"
+                class="form-select"
+              >
+                <NativeSelectOption value="json">JSON</NativeSelectOption>
+                <NativeSelectOption value="form">x-www-form-urlencoded</NativeSelectOption>
+                <NativeSelectOption value="text">Text</NativeSelectOption>
+              </NativeSelect>
             </div>
           </div>
 
           <div class="form-row">
             <div class="form-group flex-1">
-              <label class="form-label">{{ trans.webhookHeaders || 'Headers' }}</label>
-              <textarea
+              <Label for="settingspanel-notification_webhook_headers" class="form-label">{{
+                trans.webhookHeaders || 'Headers'
+              }}</Label>
+              <Textarea
+                id="settingspanel-notification_webhook_headers"
                 v-model="settings.notification_webhook_headers"
                 class="form-textarea"
                 rows="4"
                 placeholder='{"Authorization":"Bearer your-token"}'
-              ></textarea>
+              ></Textarea>
             </div>
 
             <div class="form-group flex-1">
-              <label class="form-label">
-                {{ settings.notification_webhook_method === 'GET' ? (trans.webhookParams || 'Query Params') : (trans.webhookBody || 'Body') }}
-              </label>
-              <textarea
+              <Label for="settingspanel-notification_webhook_body" class="form-label">
+                {{
+                  settings.notification_webhook_method === 'GET'
+                    ? trans.webhookParams || 'Query Params'
+                    : trans.webhookBody || 'Body'
+                }}
+              </Label>
+              <Textarea
+                id="settingspanel-notification_webhook_body"
                 v-model="settings.notification_webhook_body"
                 class="form-textarea"
                 rows="6"
                 placeholder='{"title":"{{emoji}} {{event}}","content":"{{notification}}"}'
-              ></textarea>
+              ></Textarea>
             </div>
           </div>
         </div>
 
         <div class="form-row">
           <div class="form-group flex-1">
-            <label class="form-label">
+            <Label class="form-label">
               {{ trans.notificationTimezone || 'Notification Timezone' }}
-              <HelpTooltip :text="trans.notificationTimezoneTip || 'Used only for notification output times and expiration reminder schedule.'" />
-            </label>
-            <select v-model="selectedNotificationTimezone" class="form-select">
-              <option v-for="timezone in commonNotificationTimezones" :key="timezone" :value="timezone">{{ timezone }}</option>
-              <option :value="CUSTOM_NOTIFICATION_TIMEZONE_VALUE">{{ trans.custom || 'Custom' }}</option>
-            </select>
-            <input
+              <HelpTooltip
+                :text="
+                  trans.notificationTimezoneTip ||
+                  'Used only for notification output times and expiration reminder schedule.'
+                "
+              />
+            </Label>
+            <NativeSelect
+              :aria-label="trans.notificationTimezone || 'Notification Timezone'"
+              v-model="selectedNotificationTimezone"
+              class="form-select"
+            >
+              <NativeSelectOption v-for="timezone in commonNotificationTimezones" :key="timezone" :value="timezone">{{
+                timezone
+              }}</NativeSelectOption>
+              <NativeSelectOption :value="CUSTOM_NOTIFICATION_TIMEZONE_VALUE">{{
+                trans.custom || 'Custom'
+              }}</NativeSelectOption>
+            </NativeSelect>
+            <Input
               v-if="showCustomNotificationTimezone"
               type="text"
               v-model.trim="settings.notification_timezone"
               class="form-input mt-2"
               placeholder="Asia/Shanghai"
-            >
+            />
           </div>
 
           <div class="form-group flex-1">
-            <label class="form-label">
+            <Label for="settingspanel-expire_notification_time" class="form-label">
               {{ trans.expireNotificationTime || 'Expiration Notification Time' }}
-              <HelpTooltip :text="trans.expireNotificationTimeTip || 'Check expiration and send reminders daily at this hour in the notification timezone. Use 0-23.'" />
-            </label>
-            <select v-model="settings.expire_notification_time" class="form-select">
-              <option v-for="hour in expireNotificationHourOptions" :key="hour" :value="hour">{{ hour }}</option>
-            </select>
+              <HelpTooltip
+                :text="
+                  trans.expireNotificationTimeTip ||
+                  'Check expiration and send reminders daily at this hour in the notification timezone. Use 0-23.'
+                "
+              />
+            </Label>
+            <NativeSelect
+              id="settingspanel-expire_notification_time"
+              v-model="settings.expire_notification_time"
+              class="form-select"
+            >
+              <NativeSelectOption v-for="hour in expireNotificationHourOptions" :key="hour" :value="hour">{{
+                hour
+              }}</NativeSelectOption>
+            </NativeSelect>
           </div>
 
           <div class="form-group flex-1">
-            <label class="form-label">
+            <Label for="settingspanel-traffic_alert_threshold" class="form-label">
               {{ trans.trafficAlertThreshold }} (%)
               <HelpTooltip :text="trans.trafficAlertThresholdTip" />
-            </label>
-            <input type="number" v-model.number="settings.traffic_alert_threshold" class="form-input" min="0" max="100" step="1" placeholder="0">
+            </Label>
+            <Input
+              id="settingspanel-traffic_alert_threshold"
+              type="number"
+              v-model.number="settings.traffic_alert_threshold"
+              class="form-input"
+              min="0"
+              max="100"
+              step="1"
+              placeholder="0"
+            />
           </div>
         </div>
 
         <div class="form-row">
           <div class="form-group flex-1">
-            <label class="form-label">{{ trans.notificationTemplate || 'Notification Template' }}</label>
-            <textarea
+            <Label for="settingspanel-notification_template" class="form-label">{{
+              trans.notificationTemplate || 'Notification Template'
+            }}</Label>
+            <Textarea
+              id="settingspanel-notification_template"
               v-model="settings.notification_template"
               class="form-textarea"
               rows="5"
               placeholder="{{emoji}}【CF Server Monitor】{{event}}\n\n{{message}}\n\n{{time}}"
-            ></textarea>
+            ></Textarea>
           </div>
         </div>
 
         <div class="form-row">
           <div class="form-group flex-1">
-            <button type="button" @click="$emit('send-test-notification')" class="btn btn-primary" :disabled="testNotificationLoading">{{ testNotificationLoading ? '⏳' : '📨' }} {{ trans.sendTestNotification }}</button>
+            <Button
+              type="button"
+              @click="$emit('send-test-notification')"
+              :disabled="testNotificationLoading"
+              variant="default"
+              size="sm"
+              >{{ testNotificationLoading ? '⏳' : '📨' }} {{ trans.sendTestNotification }}</Button
+            >
           </div>
         </div>
 
         <div class="resource-alert-header">
-          <button
+          <Button
             type="button"
-            class="resource-alert-toggle"
             :aria-expanded="resourceAlertExpanded"
             @click="toggleResourceAlertExpanded"
+            class="resource-alert-toggle"
+            variant="outline"
+            size="sm"
           >
             <span class="resource-alert-caret" :class="{ expanded: resourceAlertExpanded }">▸</span>
             <span class="section-subtitle">{{ trans.resourceAlert }}</span>
             <span class="resource-alert-count">[{{ resourceAlertRules.length }}]</span>
             <span class="resource-alert-toggle-text">{{ resourceAlertToggleText }}</span>
-          </button>
+          </Button>
           <HelpTooltip :text="trans.resourceAlertTip" />
-          <button type="button" class="btn btn-primary btn-sm" @click="addResourceAlertRule">+ {{ trans.resourceAlertAddRule }}</button>
+          <Button type="button" @click="addResourceAlertRule" variant="default" size="sm"
+            >+ {{ trans.resourceAlertAddRule }}</Button
+          >
         </div>
 
         <div v-if="resourceAlertExpanded" class="resource-alert-body">
-          <div v-if="resourceAlertRules.length === 0" class="resource-alert-empty text-muted text-sm">
+          <div v-if="resourceAlertRules.length === 0" class="resource-alert-empty text-muted-foreground text-sm">
             {{ trans.resourceAlertEmpty }}
           </div>
 
           <div v-for="(rule, index) in resourceAlertRules" :key="rule.id || index" class="resource-alert-rule">
             <div class="resource-alert-rule-title">
               <span>{{ trans.resourceAlertRule }} #{{ index + 1 }}</span>
-              <button type="button" class="btn btn-red btn-sm" @click="removeResourceAlertRule(index)">{{ trans.delete }}</button>
+              <Button type="button" @click="removeResourceAlertRule(index)" variant="destructive" size="sm">{{
+                trans.delete
+              }}</Button>
             </div>
 
             <div class="form-row">
               <div class="form-group flex-1">
-                <label class="form-label">{{ trans.resourceAlertRuleName }}</label>
-                <input
-                  :ref="el => setResourceAlertRuleNameInput(rule.id, el)"
+                <Label class="form-label">{{ trans.resourceAlertRuleName }}</Label>
+                <Input
+                  :aria-label="trans.resourceAlertRuleName"
+                  :ref="(el) => setResourceAlertRuleNameInput(rule.id, el)"
                   type="text"
                   v-model="rule.name"
                   class="form-input"
                   :placeholder="trans.resourceAlertRuleNamePlaceholder"
+                />
+              </div>
+
+              <div class="form-group flex-1">
+                <Label class="form-label">{{ trans.resourceAlertMetric }}</Label>
+                <NativeSelect
+                  :aria-label="trans.resourceAlertMetric"
+                  v-model="rule.metric"
+                  class="form-select"
+                  @update:model-value="normalizeRuleThreshold(rule)"
                 >
+                  <NativeSelectOption
+                    v-for="option in resourceAlertMetricOptions"
+                    :key="option.value"
+                    :value="option.value"
+                    >{{ option.label }}</NativeSelectOption
+                  >
+                </NativeSelect>
               </div>
 
               <div class="form-group flex-1">
-                <label class="form-label">{{ trans.resourceAlertMetric }}</label>
-                <select v-model="rule.metric" class="form-select" @change="normalizeRuleThreshold(rule)">
-                  <option v-for="option in resourceAlertMetricOptions" :key="option.value" :value="option.value">{{ option.label }}</option>
-                </select>
-              </div>
-
-              <div class="form-group flex-1">
-                <label class="form-label">{{ trans.resourceAlertThreshold }}</label>
-                <input type="number" min="0" :max="resourceAlertThresholdMax(rule.metric)" step="1" v-model="rule.threshold" class="form-input" :placeholder="resourceAlertThresholdPlaceholder(rule.metric)">
+                <Label class="form-label">{{ trans.resourceAlertThreshold }}</Label>
+                <Input
+                  :aria-label="trans.resourceAlertThreshold"
+                  type="number"
+                  min="0"
+                  :max="resourceAlertThresholdMax(rule.metric)"
+                  step="1"
+                  v-model="rule.threshold"
+                  class="form-input"
+                  :placeholder="resourceAlertThresholdPlaceholder(rule.metric)"
+                />
               </div>
             </div>
 
             <div class="form-row">
               <div class="form-group flex-1">
-                <label class="form-label">{{ trans.resourceAlertServers }}</label>
-                <details class="resource-alert-server-dropdown">
-                  <summary class="form-select resource-alert-server-summary">
-                    {{ resourceAlertServerSelectLabel(rule) }}
-                  </summary>
-                  <div class="resource-alert-server-menu">
-                    <label v-for="server in resourceAlertServerOptions" :key="server.id" class="resource-alert-server-option">
-                      <input
-                        type="checkbox"
-                        :checked="resourceAlertRuleHasServer(rule, server.id)"
+                <Label class="form-label">{{ trans.resourceAlertServers }}</Label>
+                <Popover>
+                  <PopoverTrigger as-child
+                    ><Button
+                      variant="outline"
+                      class="w-full justify-start truncate"
+                      :aria-label="trans.resourceAlertServers"
+                    >
+                      {{ resourceAlertServerSelectLabel(rule) }}
+                    </Button></PopoverTrigger
+                  >
+                  <PopoverContent class="grid max-h-64 gap-2 overflow-y-auto p-3">
+                    <Label
+                      v-for="server in resourceAlertServerOptions"
+                      :key="server.id"
+                      class="resource-alert-server-option"
+                    >
+                      <Checkbox
+                        :aria-label="trans.resourceAlertServers"
+                        :model-value="resourceAlertRuleHasServer(rule, server.id)"
                         :disabled="isLastResourceAlertRuleServer(rule, server.id)"
-                        @change="toggleResourceAlertRuleServer(rule, server.id, $event.target.checked)"
-                      >
+                        @update:model-value="toggleResourceAlertRuleServer(rule, server.id, $event)"
+                      />
                       <span>{{ server.name }}</span>
-                    </label>
-                  </div>
-                </details>
+                    </Label>
+                  </PopoverContent>
+                </Popover>
               </div>
 
               <div class="form-group flex-1">
-                <label class="form-label">{{ trans.resourceAlertInterval }}</label>
-                <select v-model="rule.intervalMinutes" class="form-select">
-                  <option v-for="option in resourceAlertIntervalOptions" :key="option.value" :value="option.value">{{ option.label }}</option>
-                </select>
+                <Label class="form-label">{{ trans.resourceAlertInterval }}</Label>
+                <NativeSelect
+                  :aria-label="trans.resourceAlertInterval"
+                  v-model="rule.intervalMinutes"
+                  class="form-select"
+                >
+                  <NativeSelectOption
+                    v-for="option in resourceAlertIntervalOptions"
+                    :key="option.value"
+                    :value="option.value"
+                    >{{ option.label }}</NativeSelectOption
+                  >
+                </NativeSelect>
               </div>
 
               <div class="form-group flex-1">
-                <label class="form-label">{{ trans.resourceAlertMode }}</label>
-                <select v-model="rule.mode" class="form-select">
-                  <option value="average">{{ trans.resourceAlertModeAverage }}</option>
-                  <option value="continuous">{{ trans.resourceAlertModeContinuous }}</option>
-                </select>
+                <Label class="form-label">{{ trans.resourceAlertMode }}</Label>
+                <NativeSelect :aria-label="trans.resourceAlertMode" v-model="rule.mode" class="form-select">
+                  <NativeSelectOption value="average">{{ trans.resourceAlertModeAverage }}</NativeSelectOption>
+                  <NativeSelectOption value="continuous">{{ trans.resourceAlertModeContinuous }}</NativeSelectOption>
+                </NativeSelect>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      </Card>
 
-      <div class="settings-section">
-        <div class="section-title"><span>▸</span> {{ trans.securitySettings }}</div>
+      <Card class="settings-section min-w-0 gap-4 p-5">
+        <CardTitle class="section-title">{{ trans.securitySettings }}</CardTitle>
 
         <div class="form-row">
           <div class="form-group flex-1">
             <div class="checkbox-item">
-              <input type="checkbox" id="cfg_turnstile_enabled" v-model="settings.turnstile_enabled">
-              <label><b>{{ trans.enableTurnstile }}</b></label>
+              <Switch id="cfg_turnstile_enabled" v-model="settings.turnstile_enabled" />
+              <Label for="cfg_turnstile_enabled"
+                ><b>{{ trans.enableTurnstile }}</b></Label
+              >
             </div>
-            </div>
+          </div>
           <div class="form-group flex-1">
             <div class="checkbox-item">
-              <input type="checkbox" id="cfg_turnstile_login_enabled" v-model="settings.turnstile_login_enabled">
-              <label>{{ trans.enableTurnstileLogin }}</label>
+              <Switch id="cfg_turnstile_login_enabled" v-model="settings.turnstile_login_enabled" />
+              <Label for="cfg_turnstile_login_enabled">{{ trans.enableTurnstileLogin }}</Label>
               <HelpTooltip :text="trans.turnstileLoginTip" />
             </div>
           </div>
@@ -601,76 +974,151 @@
 
         <div class="form-row">
           <div class="form-group flex-1">
-            <label class="form-label">
+            <Label for="settingspanel-turnstile_site_key" class="form-label">
               {{ trans.turnstileSiteKey }}
               <HelpTooltip :text="trans.turnstileTip" />
-            </label>
-            <input type="text" name="turnstile_site_key" autocomplete="off" v-model="settings.turnstile_site_key" class="form-input" :placeholder="trans.turnstileSiteKeyPlaceholder">
+            </Label>
+            <Input
+              id="settingspanel-turnstile_site_key"
+              type="text"
+              name="turnstile_site_key"
+              autocomplete="off"
+              v-model="settings.turnstile_site_key"
+              class="form-input"
+              :placeholder="trans.turnstileSiteKeyPlaceholder"
+            />
           </div>
 
           <div class="form-group flex-1">
-            <label class="form-label">{{ trans.turnstileSecretKey }}</label>
+            <Label for="settingspanel-turnstile_secret_key" class="form-label">{{ trans.turnstileSecretKey }}</Label>
             <div class="password-input-wrapper">
-              <input type="text" name="turnstile_secret_key" autocomplete="off" data-lpignore="true" data-1p-ignore="true" data-bwignore="true" data-form-type="other" v-model="settings.turnstile_secret_key" :class="['form-input', { 'secret-input-masked': !passwordVisible.turnstileSecret }]" :placeholder="trans.turnstileSecretKeyPlaceholder">
-              <button type="button" class="password-toggle" @click="$emit('toggle-password', 'turnstileSecret')">
-                {{ passwordVisible.turnstileSecret ? '🙈' : '👁️' }}
-              </button>
+              <Input
+                id="settingspanel-turnstile_secret_key"
+                type="text"
+                name="turnstile_secret_key"
+                autocomplete="off"
+                data-lpignore="true"
+                data-1p-ignore="true"
+                data-bwignore="true"
+                data-form-type="other"
+                v-model="settings.turnstile_secret_key"
+                :class="['form-input', { 'secret-input-masked': !passwordVisible.turnstileSecret }]"
+                :placeholder="trans.turnstileSecretKeyPlaceholder"
+              />
+              <Button
+                type="button"
+                @click="$emit('toggle-password', 'turnstileSecret')"
+                class="password-toggle"
+                :aria-label="passwordVisible.turnstileSecret ? trans.hidePassword : trans.showPassword"
+                variant="ghost"
+                size="icon-sm"
+                ><component :is="passwordVisible.turnstileSecret ? EyeOff : Eye" />
+              </Button>
             </div>
           </div>
         </div>
 
         <div class="form-group mt-4">
-          <label class="form-label">
+          <Label for="settingspanel-jwt_secret" class="form-label">
             {{ trans.jwtSecret }}
             <HelpTooltip :text="trans.jwtSecretTip" />
-          </label>
+          </Label>
           <div class="password-input-wrapper">
-            <input type="text" name="jwt_secret" autocomplete="off" data-lpignore="true" data-1p-ignore="true" data-bwignore="true" data-form-type="other" v-model="settings.jwt_secret" :class="['form-input', { 'secret-input-masked': !passwordVisible.jwtSecret }]" placeholder="••••••••••••••••••••••••••••••••">
-            <button type="button" class="password-toggle" @click="$emit('toggle-password', 'jwtSecret')">
-              {{ passwordVisible.jwtSecret ? '🙈' : '👁️' }}
-            </button>
+            <Input
+              id="settingspanel-jwt_secret"
+              type="text"
+              name="jwt_secret"
+              autocomplete="off"
+              data-lpignore="true"
+              data-1p-ignore="true"
+              data-bwignore="true"
+              data-form-type="other"
+              v-model="settings.jwt_secret"
+              :class="['form-input', { 'secret-input-masked': !passwordVisible.jwtSecret }]"
+              placeholder="••••••••••••••••••••••••••••••••"
+            />
+            <Button
+              type="button"
+              @click="$emit('toggle-password', 'jwtSecret')"
+              class="password-toggle"
+              :aria-label="passwordVisible.jwtSecret ? trans.hidePassword : trans.showPassword"
+              variant="ghost"
+              size="icon-sm"
+              ><component :is="passwordVisible.jwtSecret ? EyeOff : Eye" />
+            </Button>
           </div>
         </div>
+      </Card>
 
-      </div>
-
-      <div class="settings-section">
-        <div class="section-title"><span>▸</span> {{ trans.cloudflareSettings }}</div>
+      <Card class="settings-section min-w-0 gap-4 p-5">
+        <CardTitle class="section-title">{{ trans.cloudflareSettings }}</CardTitle>
 
         <div class="form-row">
           <div class="form-group flex-1">
-            <label class="form-label">{{ trans.cloudflareAccountId }}</label>
-            <input type="text" name="cloudflare_account_id" autocomplete="off" v-model="settings.cloudflare_account_id" class="form-input" :placeholder="trans.cloudflareAccountIdPlaceholder">
+            <Label for="settingspanel-cloudflare_account_id" class="form-label">{{ trans.cloudflareAccountId }}</Label>
+            <Input
+              id="settingspanel-cloudflare_account_id"
+              type="text"
+              name="cloudflare_account_id"
+              autocomplete="off"
+              v-model="settings.cloudflare_account_id"
+              class="form-input"
+              :placeholder="trans.cloudflareAccountIdPlaceholder"
+            />
           </div>
 
           <div class="form-group flex-1">
-            <label class="form-label">
+            <Label class="form-label">
               Cloudflare API Token
               <HelpTooltip :text="trans.cloudflareTokenTip" />
-            </label>
+            </Label>
             <div class="password-input-wrapper">
-              <input type="text" name="cloudflare_token" autocomplete="off" data-lpignore="true" data-1p-ignore="true" data-bwignore="true" data-form-type="other" v-model="settings.cloudflare_token" :class="['form-input', { 'secret-input-masked': !passwordVisible.cloudflareToken }]" :placeholder="trans.cloudflareTokenPlaceholder">
-              <button type="button" class="password-toggle" @click="$emit('toggle-password', 'cloudflareToken')">
-                {{ passwordVisible.cloudflareToken ? '🙈' : '👁️' }}
-              </button>
+              <Input
+                type="text"
+                name="cloudflare_token"
+                autocomplete="off"
+                data-lpignore="true"
+                data-1p-ignore="true"
+                data-bwignore="true"
+                data-form-type="other"
+                v-model="settings.cloudflare_token"
+                :class="['form-input', { 'secret-input-masked': !passwordVisible.cloudflareToken }]"
+                :placeholder="trans.cloudflareTokenPlaceholder"
+              />
+              <Button
+                type="button"
+                @click="$emit('toggle-password', 'cloudflareToken')"
+                class="password-toggle"
+                :aria-label="passwordVisible.cloudflareToken ? trans.hidePassword : trans.showPassword"
+                variant="ghost"
+                size="icon-sm"
+                ><component :is="passwordVisible.cloudflareToken ? EyeOff : Eye" />
+              </Button>
             </div>
           </div>
         </div>
 
         <div class="form-row">
-          <div class="form-group  flex-1">
-            <button type="button" @click="$emit('query-d1-usage')" class="btn btn-primary btn-lg" :disabled="d1UsageLoading">{{ d1UsageLoading ? '⏳' : '🔍' }} {{ trans.queryD1Quota }}</button>
+          <div class="form-group flex-1">
+            <Button
+              type="button"
+              @click="$emit('query-d1-usage')"
+              :disabled="d1UsageLoading"
+              variant="default"
+              size="default"
+              >{{ d1UsageLoading ? '⏳' : '🔍' }} {{ trans.queryD1Quota }}</Button
+            >
           </div>
         </div>
+      </Card>
 
-      </div>
-
-      <div class="settings-section">
-        <div class="section-title"><span>▸</span> {{ trans.adminLoginSettings }}</div>
+      <Card class="settings-section min-w-0 gap-4 p-5">
+        <CardTitle class="section-title">{{ trans.adminLoginSettings }}</CardTitle>
 
         <div class="form-group">
-          <label class="form-label">{{ trans.username }}</label>
-          <input
+          <Label for="settingspanel-username" class="form-label">{{ trans.username }}</Label>
+          <Input
+            id="settingspanel-username"
             type="text"
             name="settings_admin_user"
             autocomplete="off"
@@ -681,21 +1129,22 @@
             v-model="settings.username"
             class="form-input"
             :placeholder="trans.usernamePlaceholder"
-          >
+          />
         </div>
 
         <div class="inline-help-action mb-3">
-          <button type="button" class="btn btn-sm" @click="$emit('toggle-admin-password-change')">
+          <Button type="button" @click="$emit('toggle-admin-password-change')" variant="outline" size="sm">
             {{ changeAdminPassword ? trans.cancelPasswordChange : trans.changePassword }}
-          </button>
+          </Button>
           <HelpTooltip :text="trans.apiSecretTip" />
         </div>
 
         <div v-if="changeAdminPassword" class="form-row">
           <div class="form-group flex-1">
-            <label class="form-label">{{ trans.password }}</label>
+            <Label for="settingspanel-password" class="form-label">{{ trans.password }}</Label>
             <div class="password-input-wrapper">
-              <input
+              <Input
+                id="settingspanel-password"
                 :type="passwordVisible.password ? 'text' : 'password'"
                 name="settings_admin_passphrase"
                 autocomplete="off"
@@ -706,17 +1155,24 @@
                 v-model="settings.password"
                 class="form-input"
                 :placeholder="settings.password_configured ? '••••••••' : ''"
-              >
-              <button type="button" class="password-toggle" @click="$emit('toggle-password', 'password')">
-                {{ passwordVisible.password ? '🙈' : '👁️' }}
-              </button>
+              />
+              <Button
+                type="button"
+                @click="$emit('toggle-password', 'password')"
+                class="password-toggle"
+                :aria-label="passwordVisible.password ? trans.hidePassword : trans.showPassword"
+                variant="ghost"
+                size="icon-sm"
+                ><component :is="passwordVisible.password ? EyeOff : Eye" />
+              </Button>
             </div>
           </div>
 
           <div class="form-group flex-1">
-            <label class="form-label">{{ trans.confirmPassword }}</label>
+            <Label for="settingspanel-confirm_password" class="form-label">{{ trans.confirmPassword }}</Label>
             <div class="password-input-wrapper">
-              <input
+              <Input
+                id="settingspanel-confirm_password"
                 :type="passwordVisible.confirmPassword ? 'text' : 'password'"
                 name="settings_admin_passphrase_confirm"
                 autocomplete="off"
@@ -727,130 +1183,257 @@
                 v-model="settings.confirm_password"
                 class="form-input"
                 :placeholder="settings.password_configured ? '••••••••' : ''"
-              >
-              <button type="button" class="password-toggle" @click="$emit('toggle-password', 'confirmPassword')">
-                {{ passwordVisible.confirmPassword ? '🙈' : '👁️' }}
-              </button>
+              />
+              <Button
+                type="button"
+                @click="$emit('toggle-password', 'confirmPassword')"
+                class="password-toggle"
+                :aria-label="passwordVisible.confirmPassword ? trans.hidePassword : trans.showPassword"
+                variant="ghost"
+                size="icon-sm"
+                ><component :is="passwordVisible.confirmPassword ? EyeOff : Eye" />
+              </Button>
             </div>
           </div>
         </div>
 
         <div class="form-group">
           <div class="checkbox-item">
-            <input type="checkbox" id="cfg_github_oauth_enabled" v-model="settings.github_oauth_enabled">
-            <label><b>{{ trans.enableGithubOAuth }}</b></label>
+            <Switch id="cfg_github_oauth_enabled" v-model="settings.github_oauth_enabled" />
+            <Label for="cfg_github_oauth_enabled"
+              ><b>{{ trans.enableGithubOAuth }}</b></Label
+            >
             <HelpTooltip :text="trans.githubOAuthTip" />
           </div>
         </div>
 
         <template v-if="settings.github_oauth_enabled">
-
           <div class="form-row">
             <div class="form-group flex-1">
-              <label class="form-label">{{ trans.githubClientId }}</label>
-              <input type="text" name="github_client_id" autocomplete="off" v-model.trim="settings.github_client_id" class="form-input" :placeholder="trans.githubClientIdPlaceholder">
+              <Label for="settingspanel-github_client_id" class="form-label">{{ trans.githubClientId }}</Label>
+              <Input
+                id="settingspanel-github_client_id"
+                type="text"
+                name="github_client_id"
+                autocomplete="off"
+                v-model.trim="settings.github_client_id"
+                class="form-input"
+                :placeholder="trans.githubClientIdPlaceholder"
+              />
             </div>
 
             <div class="form-group flex-1">
-              <label class="form-label">{{ trans.githubClientSecret }}</label>
+              <Label for="settingspanel-github_client_secret" class="form-label">{{ trans.githubClientSecret }}</Label>
               <div class="password-input-wrapper">
-                <input type="text" name="github_client_secret" autocomplete="off" data-lpignore="true" data-1p-ignore="true" data-bwignore="true" data-form-type="other" v-model="settings.github_client_secret" :class="['form-input', { 'secret-input-masked': !passwordVisible.githubClientSecret }]" :placeholder="settings.github_client_secret_configured ? '••••••••' : ''">
-                <button type="button" class="password-toggle" @click="$emit('toggle-password', 'githubClientSecret')">
-                  {{ passwordVisible.githubClientSecret ? '🙈' : '👁️' }}
-                </button>
+                <Input
+                  id="settingspanel-github_client_secret"
+                  type="text"
+                  name="github_client_secret"
+                  autocomplete="off"
+                  data-lpignore="true"
+                  data-1p-ignore="true"
+                  data-bwignore="true"
+                  data-form-type="other"
+                  v-model="settings.github_client_secret"
+                  :class="['form-input', { 'secret-input-masked': !passwordVisible.githubClientSecret }]"
+                  :placeholder="settings.github_client_secret_configured ? '••••••••' : ''"
+                />
+                <Button
+                  type="button"
+                  @click="$emit('toggle-password', 'githubClientSecret')"
+                  class="password-toggle"
+                  :aria-label="passwordVisible.githubClientSecret ? trans.hidePassword : trans.showPassword"
+                  variant="ghost"
+                  size="icon-sm"
+                  ><component :is="passwordVisible.githubClientSecret ? EyeOff : Eye" />
+                </Button>
               </div>
             </div>
           </div>
 
           <div class="form-group">
-            <label class="form-label">{{ trans.githubBoundAccount }}</label>
+            <Label class="form-label">{{ trans.githubBoundAccount }}</Label>
             <div class="inline-help-action">
               <span class="text-sm">
-                {{ settings.github_user_id
-                  ? `ID: ${settings.github_user_id}`
-                  : trans.githubNotBound }}
+                {{ settings.github_user_id ? `ID: ${settings.github_user_id}` : trans.githubNotBound }}
               </span>
-              <button type="button" class="btn btn-sm" :disabled="!canBindGithub || githubBindingLoading" @click="$emit('bind-github-account')">
-                {{ githubBindingLoading ? '⏳' : (settings.github_user_id ? trans.rebindGithubAccount : trans.bindGithubAccount) }}
-              </button>
+              <Button
+                type="button"
+                :disabled="!canBindGithub || githubBindingLoading"
+                @click="$emit('bind-github-account')"
+                variant="outline"
+                size="sm"
+              >
+                {{
+                  githubBindingLoading
+                    ? '⏳'
+                    : settings.github_user_id
+                      ? trans.rebindGithubAccount
+                      : trans.bindGithubAccount
+                }}
+              </Button>
               <HelpTooltip :text="canBindGithub ? trans.githubBindingTip : trans.githubSaveBeforeBinding" />
             </div>
           </div>
 
           <div class="form-group">
-            <label class="form-label">
+            <Label class="form-label">
               {{ trans.githubCallbackUrl }}
               <HelpTooltip :text="trans.githubCallbackUrlTip" />
-            </label>
+            </Label>
             <div class="flex-center-gap-sm">
-              <input type="text" class="form-input flex-1 github-callback-input" :value="githubCallbackUrl" readonly>
-              <button
+              <Input
+                :aria-label="trans.githubCallbackUrl"
+                type="text"
+                class="form-input flex-1 github-callback-input"
+                :model-value="githubCallbackUrl"
+                readonly
+              />
+              <Button
                 type="button"
-                class="btn btn-sm"
                 :aria-label="githubCallbackCopied ? trans.copied : trans.copy"
                 :title="githubCallbackCopied ? trans.copied : trans.copy"
                 @click="copyGithubCallbackUrl"
+                variant="outline"
+                size="sm"
               >
                 {{ githubCallbackCopied ? `✅ ${trans.copied}` : `📋 ${trans.copy}` }}
-              </button>
+              </Button>
             </div>
           </div>
         </template>
+      </Card>
 
-      </div>
-
-      <div class="settings-section">
-        <div class="section-title"><span>▸</span> {{ trans.pingNodes }}</div>
+      <Card class="settings-section min-w-0 gap-4 p-5">
+        <CardTitle class="section-title">{{ trans.pingNodes }}</CardTitle>
 
         <div class="ping-node-grid">
           <div class="ping-node-item">
-            <div class="ping-node-fields"><input type="text" v-model.trim="settings.custom_ct_name" class="form-input ping-node-name"><span class="ping-node-arrow">→</span>
-            <input type="text" v-model.trim="settings.custom_ct" :class="['form-input', { 'input-invalid': pingNodeErrors.custom_ct }]" placeholder="gd-ct-dualstack.ip.zstaticcdn.com">
-            </div><p v-if="pingNodeErrors.custom_ct" class="text-red text-sm mt-1">{{ pingNodeErrors.custom_ct }}</p>
+            <div class="ping-node-fields">
+              <Input type="text" v-model.trim="settings.custom_ct_name" class="form-input ping-node-name" /><span
+                class="ping-node-arrow"
+                >→</span
+              >
+              <Input
+                type="text"
+                v-model.trim="settings.custom_ct"
+                :class="['form-input', { 'input-invalid': pingNodeErrors.custom_ct }]"
+                placeholder="gd-ct-dualstack.ip.zstaticcdn.com"
+              />
+            </div>
+            <p v-if="pingNodeErrors.custom_ct" class="text-destructive text-sm mt-1">{{ pingNodeErrors.custom_ct }}</p>
           </div>
 
           <div class="ping-node-item">
-            <div class="ping-node-fields"><input type="text" v-model.trim="settings.custom_cu_name" class="form-input ping-node-name"><span class="ping-node-arrow">→</span>
-            <input type="text" v-model.trim="settings.custom_cu" :class="['form-input', { 'input-invalid': pingNodeErrors.custom_cu }]" placeholder="gd-cu-dualstack.ip.zstaticcdn.com">
-            </div><p v-if="pingNodeErrors.custom_cu" class="text-red text-sm mt-1">{{ pingNodeErrors.custom_cu }}</p>
+            <div class="ping-node-fields">
+              <Input type="text" v-model.trim="settings.custom_cu_name" class="form-input ping-node-name" /><span
+                class="ping-node-arrow"
+                >→</span
+              >
+              <Input
+                type="text"
+                v-model.trim="settings.custom_cu"
+                :class="['form-input', { 'input-invalid': pingNodeErrors.custom_cu }]"
+                placeholder="gd-cu-dualstack.ip.zstaticcdn.com"
+              />
+            </div>
+            <p v-if="pingNodeErrors.custom_cu" class="text-destructive text-sm mt-1">{{ pingNodeErrors.custom_cu }}</p>
           </div>
         </div>
         <div class="ping-node-grid">
           <div class="ping-node-item">
-            <div class="ping-node-fields"><input type="text" v-model.trim="settings.custom_cm_name" class="form-input ping-node-name"><span class="ping-node-arrow">→</span>
-            <input type="text" v-model.trim="settings.custom_cm" :class="['form-input', { 'input-invalid': pingNodeErrors.custom_cm }]" placeholder="gd-cm-dualstack.ip.zstaticcdn.com">
-            </div><p v-if="pingNodeErrors.custom_cm" class="text-red text-sm mt-1">{{ pingNodeErrors.custom_cm }}</p>
+            <div class="ping-node-fields">
+              <Input type="text" v-model.trim="settings.custom_cm_name" class="form-input ping-node-name" /><span
+                class="ping-node-arrow"
+                >→</span
+              >
+              <Input
+                type="text"
+                v-model.trim="settings.custom_cm"
+                :class="['form-input', { 'input-invalid': pingNodeErrors.custom_cm }]"
+                placeholder="gd-cm-dualstack.ip.zstaticcdn.com"
+              />
+            </div>
+            <p v-if="pingNodeErrors.custom_cm" class="text-destructive text-sm mt-1">{{ pingNodeErrors.custom_cm }}</p>
           </div>
 
           <div class="ping-node-item">
-            <div class="ping-node-fields"><input type="text" v-model.trim="settings.custom_bd_name" class="form-input ping-node-name"><span class="ping-node-arrow">→</span>
-            <input type="text" v-model.trim="settings.custom_bd" :class="['form-input', { 'input-invalid': pingNodeErrors.custom_bd }]" placeholder="ip.zstaticcdn.com">
-            </div><p v-if="pingNodeErrors.custom_bd" class="text-red text-sm mt-1">{{ pingNodeErrors.custom_bd }}</p>
+            <div class="ping-node-fields">
+              <Input type="text" v-model.trim="settings.custom_bd_name" class="form-input ping-node-name" /><span
+                class="ping-node-arrow"
+                >→</span
+              >
+              <Input
+                type="text"
+                v-model.trim="settings.custom_bd"
+                :class="['form-input', { 'input-invalid': pingNodeErrors.custom_bd }]"
+                placeholder="ip.zstaticcdn.com"
+              />
+            </div>
+            <p v-if="pingNodeErrors.custom_bd" class="text-destructive text-sm mt-1">{{ pingNodeErrors.custom_bd }}</p>
           </div>
         </div>
         <div class="ping-node-grid">
           <div v-for="field in ['node_1', 'node_2']" :key="field" class="ping-node-item">
-            <div class="ping-node-fields"><input type="text" v-model.trim="settings[`${field}_name`]" class="form-input ping-node-name"><span class="ping-node-arrow">→</span><input type="text" v-model.trim="settings[field]" :class="['form-input', { 'input-invalid': pingNodeErrors[field] }]" placeholder="host[:port] / [IPv6]:port"></div>
-            <p v-if="pingNodeErrors[field]" class="text-red text-sm mt-1">{{ pingNodeErrors[field] }}</p>
+            <div class="ping-node-fields">
+              <Input type="text" v-model.trim="settings[`${field}_name`]" class="form-input ping-node-name" /><span
+                class="ping-node-arrow"
+                >→</span
+              ><Input
+                type="text"
+                v-model.trim="settings[field]"
+                :class="['form-input', { 'input-invalid': pingNodeErrors[field] }]"
+                placeholder="host[:port] / [IPv6]:port"
+              />
+            </div>
+            <p v-if="pingNodeErrors[field]" class="text-destructive text-sm mt-1">{{ pingNodeErrors[field] }}</p>
           </div>
         </div>
         <div class="ping-node-grid">
           <div v-for="field in ['node_3', 'node_4']" :key="field" class="ping-node-item">
-            <div class="ping-node-fields"><input type="text" v-model.trim="settings[`${field}_name`]" class="form-input ping-node-name"><span class="ping-node-arrow">→</span><input type="text" v-model.trim="settings[field]" :class="['form-input', { 'input-invalid': pingNodeErrors[field] }]" placeholder="host[:port] / [IPv6]:port"></div>
-            <p v-if="pingNodeErrors[field]" class="text-red text-sm mt-1">{{ pingNodeErrors[field] }}</p>
+            <div class="ping-node-fields">
+              <Input type="text" v-model.trim="settings[`${field}_name`]" class="form-input ping-node-name" /><span
+                class="ping-node-arrow"
+                >→</span
+              ><Input
+                type="text"
+                v-model.trim="settings[field]"
+                :class="['form-input', { 'input-invalid': pingNodeErrors[field] }]"
+                placeholder="host[:port] / [IPv6]:port"
+              />
+            </div>
+            <p v-if="pingNodeErrors[field]" class="text-destructive text-sm mt-1">{{ pingNodeErrors[field] }}</p>
           </div>
         </div>
-      </div>
+      </Card>
     </div>
 
     <div class="text-right mt-5">
-      <button @click="$emit('save-settings')" class="btn btn-primary btn-lg" :disabled="saving || hasPingNodeErrors">{{ saving ? '⏳' : '💾' }} {{ saving ? trans.saving : trans.saveConfig }}</button>
+      <Button
+        @click="$emit('save-settings')"
+        :disabled="saving || hasPingNodeErrors"
+        type="button"
+        variant="default"
+        size="default"
+        >{{ saving ? '⏳' : '💾' }} {{ saving ? trans.saving : trans.saveConfig }}</Button
+      >
     </div>
-  </div>
+  </TabsContent>
 </template>
 
 <script setup>
-import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
+import { Eye, EyeOff } from '@lucide/vue'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { TabsContent } from '@/components/ui/tabs'
+import { Card, CardTitle } from '@/components/ui/card'
+import { Label } from '@/components/ui/label'
+import { Input } from '@/components/ui/input'
+import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select'
+import { Button } from '@/components/ui/button'
+import { Textarea } from '@/components/ui/textarea'
+import { Switch } from '@/components/ui/switch'
+import { Checkbox } from '@/components/ui/checkbox'
+import { computed, nextTick, onBeforeUnmount, reactive, ref, watch } from 'vue'
 import HelpTooltip from '../../../components/HelpTooltip.vue'
 import { FRONTEND_WS_TIMEOUT_MINUTES_MAX, HISTORY } from '../../../utils/constants.js'
 import { copyTextToClipboard } from '../../../utils/clipboard.js'
@@ -1380,16 +1963,6 @@ const toggleResourceAlertRuleServer = (rule, serverId, checked) => {
   rule.servers = Array.from(selectedSet)
 }
 
-const closeResourceAlertServerDropdowns = (event) => {
-  const target = event?.target
-  if (!(target instanceof Element)) return
-  const currentDropdown = target.closest('.resource-alert-server-dropdown')
-
-  document.querySelectorAll('.resource-alert-server-dropdown[open]').forEach(dropdown => {
-    if (dropdown === currentDropdown) return
-    dropdown.removeAttribute('open')
-  })
-}
 
 const resourceAlertServerSelectLabel = (rule) => {
   const options = resourceAlertServerOptions.value
@@ -1431,7 +2004,7 @@ const addResourceAlertRule = () => {
   }
   rules.push(rule)
   nextTick(() => {
-    const input = resourceAlertRuleNameInputs.get(rule.id)
+    const input = resourceAlertRuleNameInputs.get(rule.id)?.$el
     input?.focus()
     input?.select()
   })
@@ -1487,12 +2060,8 @@ const validateCspField = (field) => {
   return true
 }
 
-onMounted(() => {
-  document.addEventListener('click', closeResourceAlertServerDropdowns)
-})
-
 onBeforeUnmount(() => {
-  document.removeEventListener('click', closeResourceAlertServerDropdowns)
+
   clearTimeout(githubCallbackCopiedTimer)
 })
 

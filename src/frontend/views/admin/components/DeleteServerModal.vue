@@ -1,97 +1,146 @@
 <template>
-  <div id="deleteModal" class="modal-overlay" :class="{ active: show }">
-    <div class="modal-dialog">
-      <div class="modal-header">
-        <div class="modal-title">{{ currentServerName }}</div>
-        <button class="modal-close" @click="$emit('close')">✕</button>
-      </div>
-      <input type="hidden" :value="deleteServerId">
+  <Dialog
+    v-if="show"
+    :open="Boolean(show)"
+    @update:open="
+      (open) => {
+        if (!open) $emit('close')
+      }
+    "
+  >
+    <DialogContent class="max-h-[85dvh] overflow-y-auto" :show-close-button="false" :aria-describedby="undefined">
+      <DialogHeader class="pr-8">
+        <DialogTitle>{{ currentServerName }}</DialogTitle>
+        <Button
+          @click="$emit('close')"
+          class="absolute right-3 top-3"
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          :aria-label="trans.close"
+          >✕</Button
+        >
+      </DialogHeader>
+      <Input type="hidden" :model-value="deleteServerId" />
 
       <div class="mb-4">
         <div class="flex-center-gap-sm mb-3">
           <span class="danger-icon text-xl">⚠️</span>
           <span class="danger-label">{{ trans.dangerWarning }}</span>
         </div>
-        <p class="text-secondary text-sm line-height-1-6">
+        <p class="text-muted-foreground text-sm line-height-1-6">
           {{ trans.deleteConfirm }}
-          <br><br>
+          <br /><br />
           <strong class="text-primary">{{ trans.recommendUninstall }}：</strong>
         </p>
       </div>
-  
+
       <div class="form-row">
         <div class="form-group flex-1 mb-3">
-          <label class="form-label">{{ trans.targetOs }}</label>
-          <select :value="deleteTargetOs" class="form-select" @change="$emit('update:delete-target-os', $event.target.value)">
-            <option value="linux">Linux (systemd)</option>
-            <option value="unix">OpenWrt/Alpine/Synology DSM/FreeBSD</option>
-            <option value="mac">macOS</option>
-            <option value="windows">Windows</option>
-          </select>
+          <Label class="form-label">{{ trans.targetOs }}</Label>
+          <NativeSelect
+            :aria-label="trans.targetOs"
+            :model-value="deleteTargetOs"
+            class="form-select"
+            @change="$emit('update:delete-target-os', $event.target.value)"
+          >
+            <NativeSelectOption value="linux">Linux (systemd)</NativeSelectOption>
+            <NativeSelectOption value="unix">OpenWrt/Alpine/Synology DSM/FreeBSD</NativeSelectOption>
+            <NativeSelectOption value="mac">macOS</NativeSelectOption>
+            <NativeSelectOption value="windows">Windows</NativeSelectOption>
+          </NativeSelect>
         </div>
 
         <div class="form-group flex-1 mb-3">
-          <label class="form-label">{{ trans.agentVersionSelect }}</label>
-          <select :value="deleteVersion" class="form-select" @change="$emit('update:delete-version', $event.target.value)">
-            <option value="go">{{ trans.agentVersionGo }}</option>
-            <option value="shell">{{ trans.agentVersionShell }}</option>
-          </select>
+          <Label class="form-label">{{ trans.agentVersionSelect }}</Label>
+          <NativeSelect
+            :aria-label="trans.agentVersionSelect"
+            :model-value="deleteVersion"
+            class="form-select"
+            @change="$emit('update:delete-version', $event.target.value)"
+          >
+            <NativeSelectOption value="go">{{ trans.agentVersionGo }}</NativeSelectOption>
+            <NativeSelectOption value="shell">{{ trans.agentVersionShell }}</NativeSelectOption>
+          </NativeSelect>
         </div>
       </div>
 
       <div v-if="deleteVersion === 'go'" class="form-row">
         <div v-if="deleteTargetOs === 'linux' && deleteVersion === 'go'" class="form-group flex-1 mb-3">
-          <label class="form-label">
+          <Label class="form-label">
             {{ trans.uninstallMode }}
-          </label>
-          <select :value="deleteInstallMode" class="form-select" @change="$emit('update:delete-install-mode', $event.target.value)">
-            <option value="current-user">{{ trans.uninstallModeCurrentUser }}</option>
-            <option value="cfsm-user">{{ trans.uninstallModeCfsmUser }}</option>
-          </select>
+          </Label>
+          <NativeSelect
+            :aria-label="trans.uninstallMode"
+            :model-value="deleteInstallMode"
+            class="form-select"
+            @change="$emit('update:delete-install-mode', $event.target.value)"
+          >
+            <NativeSelectOption value="current-user">{{ trans.uninstallModeCurrentUser }}</NativeSelectOption>
+            <NativeSelectOption value="cfsm-user">{{ trans.uninstallModeCfsmUser }}</NativeSelectOption>
+          </NativeSelect>
         </div>
 
         <div class="form-group flex-1 mb-3">
-          <label class="form-label">
+          <Label class="form-label">
             {{ trans.ghProxy }}
             <HelpTooltip :text="trans.ghProxyTip" />
-          </label>
-          <select v-model="selectedGhProxy" class="form-select">
-            <option v-for="option in ghProxyOptions" :key="option.value" :value="option.value">{{ option.label }}</option>
-            <option :value="CUSTOM_GH_PROXY_VALUE">{{ trans.custom || 'Custom' }}</option>
-          </select>
-          <input
+          </Label>
+          <NativeSelect :aria-label="trans.ghProxy" v-model="selectedGhProxy" class="form-select">
+            <NativeSelectOption v-for="option in ghProxyOptions" :key="option.value" :value="option.value">{{
+              option.label
+            }}</NativeSelectOption>
+            <NativeSelectOption :value="CUSTOM_GH_PROXY_VALUE">{{ trans.custom || 'Custom' }}</NativeSelectOption>
+          </NativeSelect>
+          <Input
             v-if="showCustomGhProxy"
             type="text"
-            :value="deleteGhProxy"
+            :model-value="deleteGhProxy"
             class="form-input mt-2"
             :placeholder="trans.ghProxyPlaceholder"
             @input="$emit('update:delete-gh-proxy', $event.target.value)"
-          >
+          />
         </div>
       </div>
 
       <div class="cmd-input-wrapper mb-3" :class="{ copied: uninstallCopied }">
         <span class="cmd-prompt">{{ deleteTargetOs === 'windows' ? 'PS' : '$' }}</span>
-        <textarea
+        <Textarea
           v-if="deleteTargetOs === 'linux' && deleteVersion === 'go' && deleteInstallMode === 'cfsm-user'"
           readonly
-          :value="uninstallCommand"
+          :model-value="uninstallCommand"
           class="cmd-input flex-1"
           rows="8"
         />
-        <input v-else type="text" readonly :value="uninstallCommand" class="cmd-input flex-1">
-        <button @click="$emit('copy-uninstall')" class="btn btn-icon btn-green ml-2" :aria-label="trans.copy">{{ uninstallCopied ? '✅' : '📋' }}</button>
+        <Input v-else type="text" readonly :model-value="uninstallCommand" class="cmd-input flex-1" />
+        <Button
+          @click="$emit('copy-uninstall')"
+          :aria-label="trans.copy"
+          class="ml-2"
+          type="button"
+          variant="outline"
+          size="sm"
+          >{{ uninstallCopied ? '✅' : '📋' }}</Button
+        >
       </div>
 
-      <div class="modal-footer flex-justify-between">
-        <button @click="$emit('confirm-delete')" class="btn btn-red">{{ trans.confirmDelete }}</button>
-        <button @click="$emit('close')" class="btn">{{ trans.cancelAction }}</button>
-      </div>
-    </div>
-  </div>
+      <DialogFooter class="flex-wrap">
+        <Button @click="$emit('confirm-delete')" type="button" variant="destructive" size="sm">{{
+          trans.confirmDelete
+        }}</Button>
+        <Button @click="$emit('close')" type="button" variant="outline" size="sm">{{ trans.cancelAction }}</Button>
+      </DialogFooter>
+    </DialogContent>
+  </Dialog>
 </template>
 
 <script setup>
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select'
+import { Textarea } from '@/components/ui/textarea'
 import { computed, ref, watch } from 'vue'
 import HelpTooltip from '../../../components/HelpTooltip.vue'
 

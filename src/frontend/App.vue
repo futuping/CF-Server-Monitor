@@ -1,10 +1,11 @@
 <template>
-  <div>
+  <TooltipProvider :delay-duration="200">
     <router-view />
-  </div>
+  </TooltipProvider>
 </template>
 
 <script setup>
+import { TooltipProvider } from '@/components/ui/tooltip'
 import { useTheme } from './composables/useTheme'
 
 const { initTheme } = useTheme()

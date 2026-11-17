@@ -1,7 +1,5 @@
 # Product
 
-<!-- impeccable:product-schema 1 -->
-
 ## Platform
 
 web
@@ -16,7 +14,7 @@ Show current server health, resource consumption, network traffic, latency, and 
 
 ## Operating Context
 
-The site is deployed at status.academic.ac on Cloudflare Workers, D1, and Durable Objects. Six Linux agents report live data. Riven-JP-1 and DMIT-JP-1 are intentionally excluded from deployment.
+The site is deployed at status.academic.ac on Cloudflare Workers, D1, and Durable Objects. The dashboard respects the configured site and server visibility.
 
 ## Capabilities and Constraints
 
@@ -24,11 +22,11 @@ Preserve the existing Vue application, monitoring API, WebSocket updates, four d
 
 ## Brand Commitments
 
-The owner explicitly requested Claude-inspired styling using the impeccable skill. Reference Claude's warm neutral surfaces, calm controls and serif heading character; do not imply affiliation or replace the project's identity with Claude branding.
+The Vue interface uses the shadcn-vue registry components and neutral light and dark themes. Monitoring-specific colours distinguish server states and metric thresholds.
 
 ## Evidence on Hand
 
-The deployed six-server fleet supplies live data for verification. Source and behavior are documented in README.md and API.md. No commercial claims are required.
+Use local fixtures to test administration without changing live data. Source and behavior are documented in README.md and API.md. No commercial claims are required.
 
 ## Product Principles
 

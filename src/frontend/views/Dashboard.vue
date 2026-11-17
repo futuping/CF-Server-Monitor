@@ -1,13 +1,13 @@
 <template>
   <div class="container dashboard-container" :class="{ 'mikus-dashboard': isMikusTheme }">
     <TerminalHeader :title="sysConfig.site_title || DEFAULT_SITE_TITLE" />
-    
+
     <div v-if="isLoading" class="loading-state" :class="{ 'mikus-loading-state': isMikusTheme }">
       <template v-if="isMikusTheme">
         <div class="mikus-loading-inner">
-          <img class="mikus-loading-gif" :src="mikusAsset('loli.gif')" alt="Loading">
+          <img class="mikus-loading-gif" :src="mikusAsset('loli.gif')" alt="Loading" />
           <div class="mikus-loading-brand">
-            <img class="mikus-loading-logo" :src="mikusAsset('miku.png')" alt="">
+            <img class="mikus-loading-logo" :src="mikusAsset('miku.png')" alt="" />
             <span>{{ sysConfig.site_title || 'Komari' }}</span>
           </div>
           <div class="mikus-loading-progress" aria-hidden="true">
@@ -17,308 +17,440 @@
         </div>
       </template>
       <template v-else>
-        <div class="overview-skeleton" role="status" :aria-label="trans.loading"><div class="skeleton-line"></div><div class="skeleton-line"></div><div class="skeleton-grid" aria-hidden="true"><div v-for="n in 3" :key="n" class="skeleton-card"></div></div></div>
+        <div class="overview-skeleton" role="status" :aria-label="trans.loading">
+          <Skeleton class="mb-3 h-5 w-1/3"></Skeleton><Skeleton class="mb-3 h-5 w-1/3"></Skeleton>
+          <div class="skeleton-grid" aria-hidden="true"><Skeleton v-for="n in 3" :key="n" class="h-40"></Skeleton></div>
+        </div>
       </template>
     </div>
 
     <template v-else>
-    <div class="nav-area">
-      <div class="header-row">
-        <div class="overview-heading"><h1 class="site-title">{{ trans.overview }}</h1><p class="overview-description">{{ trans.overviewDescription }}</p></div>
-        <div class="controls-group">
-          <div class="view-toggle">
-            <button
-              class="toggle-btn"
-              :class="{ active: currentView === 'bar' }"
-              :aria-pressed="currentView === 'bar'"
-              @click="switchView('bar')"
-            ><UiIcon name="bar" />{{ trans.barChart }}</button>
-            <button
-              class="toggle-btn"
-              :class="{ active: currentView === 'ring' }"
-              :aria-pressed="currentView === 'ring'"
-              @click="switchView('ring')"
-            ><UiIcon name="ring" />{{ trans.ringChart }}</button>
-            <button
-              class="toggle-btn"
-              :class="{ active: currentView === 'table' }"
-              :aria-pressed="currentView === 'table'"
-              @click="switchView('table')"
-            ><UiIcon name="table" />{{ trans.table }}</button>
-            <button
-              class="toggle-btn"
-              :class="{ active: currentView === 'map' }"
-              :aria-pressed="currentView === 'map'"
-              @click="switchView('map')"
-            ><UiIcon name="map" />{{ trans.map }}</button>
+      <div class="nav-area">
+        <div class="header-row">
+          <div class="overview-heading">
+            <h1 class="site-title">{{ trans.overview }}</h1>
+            <p class="overview-description">{{ trans.overviewDescription }}</p>
           </div>
-        </div>
-      </div>
-      <div class="filter-wrap" ref="filterWrap">
-        <div class="filter-bar" id="ajax-filters">
-          <button
-            v-for="item in visibleFilterOptions"
-            :key="item.code"
-            type="button"
-            class="filter-tag"
-            :class="{ active: currentFilter === item.code, 'filter-tag-unknown': item.code === 'unknown' }"
-            :data-filter="item.code"
-            @click="setFilter(item.code)"
-          >
-            <span v-if="item.code === 'unknown'" class="filter-tag-icon">🏳️</span>
-            <img v-else-if="item.flagCode" :src="getPublicAssetUrl('flags/' + item.flagCode + '.svg')" :alt="item.code">
-            <span class="filter-tag-label">{{ item.label }}</span>
-            <span class="filter-tag-count">{{ item.count }}</span>
-          </button>
-          <div v-if="overflowFilterOptions.length > 0" class="filter-more" :class="{ active: isOverflowFilterActive }">
-            <button
-              type="button"
-              class="filter-tag filter-more-btn"
-              :class="{ active: isOverflowFilterActive }"
-              @click.stop="toggleFilterMore"
-            >
-              <span class="filter-tag-label">{{ filterMoreLabel }}</span>
-              <span class="filter-tag-count">{{ overflowFilterOptions.length }}</span>
-            </button>
-            <div v-if="filterMoreOpen" class="filter-more-menu">
-              <button
-                v-for="item in overflowFilterOptions"
-                :key="item.code"
+          <div class="controls-group">
+            <div class="view-toggle">
+              <Button
+                :class="{ active: currentView === 'bar' }"
+                :aria-pressed="currentView === 'bar'"
+                @click="switchView('bar')"
                 type="button"
-                class="filter-tag filter-more-item"
-                :class="{ active: currentFilter === item.code, 'filter-tag-unknown': item.code === 'unknown' }"
-                :data-filter="item.code"
-                @click="setFilter(item.code)"
+                :variant="currentView === 'bar' ? 'secondary' : 'ghost'"
+                size="sm"
+                ><UiIcon name="bar" />{{ trans.barChart }}</Button
               >
-                <span v-if="item.code === 'unknown'" class="filter-tag-icon">🏳️</span>
-                <img v-else-if="item.flagCode" :src="getPublicAssetUrl('flags/' + item.flagCode + '.svg')" :alt="item.code">
-                <span class="filter-tag-label">{{ item.label }}</span>
-                <span class="filter-tag-count">{{ item.count }}</span>
-              </button>
+              <Button
+                :class="{ active: currentView === 'ring' }"
+                :aria-pressed="currentView === 'ring'"
+                @click="switchView('ring')"
+                type="button"
+                :variant="currentView === 'ring' ? 'secondary' : 'ghost'"
+                size="sm"
+                ><UiIcon name="ring" />{{ trans.ringChart }}</Button
+              >
+              <Button
+                :class="{ active: currentView === 'table' }"
+                :aria-pressed="currentView === 'table'"
+                @click="switchView('table')"
+                type="button"
+                :variant="currentView === 'table' ? 'secondary' : 'ghost'"
+                size="sm"
+                ><UiIcon name="table" />{{ trans.table }}</Button
+              >
+              <Button
+                :class="{ active: currentView === 'map' }"
+                :aria-pressed="currentView === 'map'"
+                @click="switchView('map')"
+                type="button"
+                :variant="currentView === 'map' ? 'secondary' : 'ghost'"
+                size="sm"
+                ><UiIcon name="map" />{{ trans.map }}</Button
+              >
             </div>
           </div>
         </div>
-        <div ref="filterMeasure" class="filter-measure" aria-hidden="true">
-          <button
-            v-for="item in filterOptionEntries"
-            :key="item.code"
-            type="button"
-            class="filter-tag filter-measure-tag"
-          >
-            <span v-if="item.code === 'unknown'" class="filter-tag-icon">🏳️</span>
-            <img v-else-if="item.flagCode" :src="getPublicAssetUrl('flags/' + item.flagCode + '.svg')" :alt="item.code">
-            <span class="filter-tag-label">{{ item.label }}</span>
-            <span class="filter-tag-count">{{ item.count }}</span>
-          </button>
-          <button ref="filterMoreMeasure" type="button" class="filter-tag filter-more-btn">
-            <span class="filter-tag-label">{{ filterMoreLabel }}</span>
-            <span class="filter-tag-count">{{ filterOptionEntries.length }}</span>
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <div class="global-stats" :class="{ 'mikus-global-stats': isMikusTheme }">
-      <div v-if="isMikusTheme" class="mikus-stats-mascot" aria-hidden="true">
-        <img class="mikus-stats-mascot-img" :src="mikusAsset('QWQ.webp')" alt="">
-      </div>
-      <div class="stat-item">
-        <div class="stat-label">{{ trans.servers }}</div>
-        <div class="stat-main-value stat-main-value-sm stat-sub-info">
-          <span class="stat-online-color">{{ trans.online }}:{{ stats.online }}</span> |
-          <span class="stat-offline-color">{{ trans.offline }}:{{ stats.offline }}</span>
-        </div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-label">{{ trans.totalTraffic }}</div>
-        <div class="stat-main-value stat-main-value-sm">{{ formatBytes(stats.globalNetRx) }} ↓ | ↑ {{ formatBytes(stats.globalNetTx) }}</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-label">{{ trans.realtimeSpeed }}</div>
-        <div class="stat-main-value stat-main-value-sm">
-          <span class="stat-net-down-color">↓ {{ formatBytes(stats.globalSpeedIn) }}/s</span> |
-          <span class="stat-net-up-color">↑ {{ formatBytes(stats.globalSpeedOut) }}/s</span>
-        </div>
-      </div>
-      <div
-        v-if="sysConfig.show_price"
-        class="stat-item stat-action-item"
-        @click="financeModalOpen = true"
-      >
-        <div class="stat-label">{{ trans.remainingValue }}</div>
-        <div class="stat-main-value stat-main-value-sm">
-          {{ formattedRemainingValue.symbol }}{{ formattedRemainingValue.value }}
-          <span class="finance-currency-code">{{ formattedRemainingValue.currency }}</span>
-        </div>
-      </div>
-    </div>
-
-    <div id="view-card" class="view-panel" :class="{ active: isCardView, 'high-density': filteredServers.length > 12 }">
-      <div v-if="groupedServers.length === 0" class="empty-state">
-        [!] {{ trans.noServer }}，请在 <a href="/admin#admin" class="admin-link-color">{{ trans.backToAdmin }}</a> 中添加
-      </div>
-      <div v-else>
-        <div v-for="group in groupedServers" :key="group.name" class="group-section">
-          <div class="group-header" :data-group="group.name">
-            {{ group.name }} <span class="group-count">{{ group.servers.length }}</span>
-          </div>
-          <div class="servers-grid">
-            <component
-              :is="currentCardComponent"
-              v-for="server in group.servers"
-              :key="server.id + '-' + currentView"
-              :server="server"
-              :sys-config="sysConfig"
-              :to="getServerLink(server)"
-            />
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div id="view-table" class="view-panel" :class="{ active: currentView === 'table' }">
-      <div class="table-container">
-        <table class="terminal-table">
-          <thead>
-            <tr>
-              <th></th>
-              <th>{{ trans.hostname }}</th>
-              <th>{{ trans.region }}</th>
-              <th>{{ trans.osArch }}</th>
-              <th>{{ trans.cpu }}</th>
-              <th>{{ trans.ram }}</th>
-              <th>{{ trans.disk }}</th>
-              <th>{{ trans.use }}</th>
-              <th class="table-col-conn">TCP/UDP</th>
-              <th width="95">{{ trans.dl }}</th>
-              <th width="95">{{ trans.ul }}</th>
-              <th width="70">{{ trans.update }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-if="isLoading">
-              <td class="table-empty-state" colspan="12">
-                <div class="loading-spinner-small"></div>
-                <span>$ {{ trans.loading }}</span>
-              </td>
-            </tr>
-            <tr v-else-if="filteredServers.length === 0">
-              <td class="table-empty-state" colspan="12">[*] {{ trans.noData }}</td>
-            </tr>
-            <tr 
-              v-for="server in filteredServers" 
-              :key="server.id"
-              @click="goToServer(server)"
-              class="table-cursor-pointer"
-              :data-region="(server.region || 'xx').toLowerCase()"
+        <div class="filter-wrap" ref="filterWrap">
+          <div class="filter-bar" id="ajax-filters">
+            <Button
+              v-for="item in visibleFilterOptions"
+              :key="item.code"
+              type="button"
+              :class="{ active: currentFilter === item.code, 'filter-tag-unknown': item.code === 'unknown' }"
+              :aria-pressed="currentFilter === item.code"
+              :data-filter="item.code"
+              @click="setFilter(item.code)"
+              class="filter-tag"
+              :variant="currentFilter === item.code ? 'secondary' : 'outline'"
+              size="sm"
             >
-              <td class="table-center-cell">
-                <div class="status-indicator table-status-indicator-inline" :style="{ background: getStatusColor(server) }"></div>
-              </td>
-              <td><b class="table-server-name">{{ server.name }}</b></td>
-              <td>
-                <span v-if="server.region && server.region !== 'xx'" class="country-os-icons">
-                  <img :src="getPublicAssetUrl('flags/' + getFlagRegionCode(server.region) + '.svg')" :alt="server.region" class="flag-img">
-                </span>
-                <span v-else class="country-os-icons">
-                  <span class="flag-fallback">🏳️</span>
-                </span>
-                {{ (server.region || 'XX').toUpperCase() }}
-              </td>
-              <td>
-                <span class="table-system-info">
-                  <OsIcon :os="server.os" />
-                  <span class="os-label">{{ formatSystemOs(server.os) }} / {{ server.arch || 'N/A' }} </span>
-                </span>
-              </td>
-              <td>
-                <div class="table-stat">
-                  <div class="stat-bar-container stat-bar-small table-usage-bar">
-                  <div class="stat-bar-fill" :style="{ width: (parseFloat(server.cpu) || 0) + '%', background: getUsageColor(parseFloat(server.cpu) || 0) }"></div>
-                </div>
-                  <span>{{ (parseFloat(server.cpu) || 0).toFixed(1) }}%</span>
-                </div>
-              </td>
-              <td>
-                <div class="table-stat">
-                  <div class="stat-bar-container table-usage-bar">
-                    <div class="stat-bar-fill" :style="{ width: (server.ram_total > 0 ? ((server.ram_used / server.ram_total) * 100).toFixed(2) : 0) + '%', background: getUsageColor(server.ram_total > 0 ? ((server.ram_used / server.ram_total) * 100) : 0) }"></div>
-                  </div>
-                  <span>{{ server.ram_total > 0 ? ((server.ram_used / server.ram_total) * 100).toFixed(2) : '0.00' }}%</span>
-                </div>
-              </td>
-              <td>
-                <div class="table-stat">
-                  <div class="stat-bar-container table-usage-bar">
-                    <div class="stat-bar-fill" :style="{ width: (server.disk_total > 0 ? ((server.disk_used / server.disk_total) * 100).toFixed(2) : 0) + '%', background: getUsageColor(server.disk_total > 0 ? ((server.disk_used / server.disk_total) * 100) : 0) }"></div>
-                  </div>
-                  <span>{{ server.disk_total > 0 ? ((server.disk_used / server.disk_total) * 100).toFixed(2) : '0.00' }}%</span>
-                </div>
-              </td>
-              <td v-if="sysConfig.show_tf && server.traffic_limit">
-                <div class="table-stat">
-                    <div class="stat-bar-container stat-bar-small table-usage-bar">
-                    <div class="stat-bar-fill" :style="{ width: Math.min(100, calcTrafficUsagePercent(server)) + '%', background: getUsageColor(calcTrafficUsagePercent(server)) }"></div>
-                  </div>
-                  <span>{{ calcTrafficUsagePercent(server).toFixed(1) }}%</span>
-                </div>
-              </td>
-              <td v-else>-</td>
-              <td class="table-conn-cell">
-                <span class="conn-pair">{{ formatConnPair(server) }}</span>
-              </td>
-              <td>{{ formatBytes(server.net_in_speed) }}/s</td>
-              <td>{{ formatBytes(server.net_out_speed) }}/s</td>
-              <td class="update-time label-small">{{ getUpdateTime(server.last_updated) }}</td>
-            </tr>
-          </tbody>
-        </table>
+              <span v-if="item.code === 'unknown'" class="filter-tag-icon">🏳️</span>
+              <img
+                v-else-if="item.flagCode"
+                :src="getPublicAssetUrl('flags/' + item.flagCode + '.svg')"
+                :alt="item.code"
+              />
+              <span class="filter-tag-label">{{ item.label }}</span>
+              <Badge class="filter-tag-count" variant="secondary">{{ item.count }}</Badge>
+            </Button>
+            <Popover v-if="overflowFilterOptions.length > 0" v-model:open="filterMoreOpen"
+              ><PopoverTrigger as-child>
+                <Button
+                  type="button"
+                  :class="{ active: isOverflowFilterActive }"
+                  class="filter-tag filter-more-btn"
+                  :variant="isOverflowFilterActive ? 'secondary' : 'outline'"
+                  size="sm"
+                >
+                  <span class="filter-tag-label">{{ filterMoreLabel }}</span>
+                  <Badge class="filter-tag-count" variant="secondary">{{ overflowFilterOptions.length }}</Badge>
+                </Button></PopoverTrigger
+              >
+              <PopoverContent align="start" class="grid max-h-72 w-56 gap-1 overflow-y-auto p-2">
+                <Button
+                  v-for="item in overflowFilterOptions"
+                  :key="item.code"
+                  type="button"
+                  :class="{ active: currentFilter === item.code, 'filter-tag-unknown': item.code === 'unknown' }"
+                  :aria-pressed="currentFilter === item.code"
+                  :data-filter="item.code"
+                  @click="setFilter(item.code)"
+                  class="filter-tag filter-more-item"
+                  :variant="currentFilter === item.code ? 'secondary' : 'outline'"
+                  size="sm"
+                >
+                  <span v-if="item.code === 'unknown'" class="filter-tag-icon">🏳️</span>
+                  <img
+                    v-else-if="item.flagCode"
+                    :src="getPublicAssetUrl('flags/' + item.flagCode + '.svg')"
+                    :alt="item.code"
+                  />
+                  <span class="filter-tag-label">{{ item.label }}</span>
+                  <Badge class="filter-tag-count" variant="secondary">{{ item.count }}</Badge>
+                </Button>
+              </PopoverContent>
+            </Popover>
+          </div>
+          <div ref="filterMeasure" class="filter-measure" aria-hidden="true" inert>
+            <Button
+              v-for="item in filterOptionEntries"
+              :key="item.code"
+              type="button"
+              class="filter-tag filter-measure-tag"
+              variant="outline"
+              size="sm"
+            >
+              <span v-if="item.code === 'unknown'" class="filter-tag-icon">🏳️</span>
+              <img
+                v-else-if="item.flagCode"
+                :src="getPublicAssetUrl('flags/' + item.flagCode + '.svg')"
+                :alt="item.code"
+              />
+              <span class="filter-tag-label">{{ item.label }}</span>
+              <Badge class="filter-tag-count" variant="secondary">{{ item.count }}</Badge>
+            </Button>
+            <Button
+              ref="filterMoreMeasure"
+              type="button"
+              class="filter-tag filter-more-btn"
+              variant="outline"
+              size="sm"
+            >
+              <span class="filter-tag-label">{{ filterMoreLabel }}</span>
+              <Badge class="filter-tag-count" variant="secondary">{{ filterOptionEntries.length }}</Badge>
+            </Button>
+          </div>
+        </div>
       </div>
-    </div>
 
-    <div id="view-map" class="view-panel" :class="{ active: currentView === 'map' }">
-      <div class="map-wrapper">
-        <div ref="mapContainer" id="map-container"></div>
+      <div class="global-stats" :class="{ 'mikus-global-stats': isMikusTheme }">
+        <div v-if="isMikusTheme" class="mikus-stats-mascot" aria-hidden="true">
+          <img class="mikus-stats-mascot-img" :src="mikusAsset('QWQ.webp')" alt="" />
+        </div>
+        <Card class="stat-item min-w-0 gap-1 p-4">
+          <CardDescription class="stat-label">{{ trans.servers }}</CardDescription>
+          <div class="stat-main-value stat-main-value-sm stat-sub-info">
+            <span class="stat-online-color">{{ trans.online }}:{{ stats.online }}</span> |
+            <span class="stat-offline-color">{{ trans.offline }}:{{ stats.offline }}</span>
+          </div>
+        </Card>
+        <Card class="stat-item min-w-0 gap-1 p-4">
+          <CardDescription class="stat-label">{{ trans.totalTraffic }}</CardDescription>
+          <div class="stat-main-value stat-main-value-sm">
+            {{ formatBytes(stats.globalNetRx) }} ↓ | ↑ {{ formatBytes(stats.globalNetTx) }}
+          </div>
+        </Card>
+        <Card class="stat-item min-w-0 gap-1 p-4">
+          <CardDescription class="stat-label">{{ trans.realtimeSpeed }}</CardDescription>
+          <div class="stat-main-value stat-main-value-sm">
+            <span class="stat-net-down-color">↓ {{ formatBytes(stats.globalSpeedIn) }}/s</span> |
+            <span class="stat-net-up-color">↑ {{ formatBytes(stats.globalSpeedOut) }}/s</span>
+          </div>
+        </Card>
+        <Card
+          v-if="sysConfig.show_price"
+          @click="financeModalOpen = true"
+          class="stat-item stat-action-item min-w-0 gap-1 p-4"
+          role="button"
+          tabindex="0"
+          @keydown.enter="financeModalOpen = true"
+          @keydown.space.prevent="financeModalOpen = true"
+        >
+          <CardDescription class="stat-label">{{ trans.remainingValue }}</CardDescription>
+          <div class="stat-main-value stat-main-value-sm">
+            {{ formattedRemainingValue.symbol }}{{ formattedRemainingValue.value }}
+            <span class="finance-currency-code">{{ formattedRemainingValue.currency }}</span>
+          </div>
+        </Card>
       </div>
-    </div>
+
+      <div
+        id="view-card"
+        class="view-panel"
+        :class="{ active: isCardView, 'high-density': filteredServers.length > 12 }"
+      >
+        <Empty v-if="groupedServers.length === 0" class="empty-state">
+          <p>{{ trans.noServers }}</p>
+          <Button as="a" href="/admin#/admin" variant="outline" size="sm">{{ trans.backToAdmin }}</Button>
+        </Empty>
+        <div v-else>
+          <div v-for="group in groupedServers" :key="group.name" class="group-section">
+            <div class="group-header" :data-group="group.name">
+              {{ group.name }} <Badge class="group-count" variant="secondary">{{ group.servers.length }}</Badge>
+            </div>
+            <div class="servers-grid">
+              <component
+                :is="currentCardComponent"
+                v-for="server in group.servers"
+                :key="server.id + '-' + currentView"
+                :server="server"
+                :sys-config="sysConfig"
+                :to="getServerLink(server)"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="view-table" class="view-panel" :class="{ active: currentView === 'table' }">
+        <div class="table-container">
+          <Table class="terminal-table">
+            <TableHeader>
+              <TableRow>
+                <TableHead></TableHead>
+                <TableHead>{{ trans.hostname }}</TableHead>
+                <TableHead>{{ trans.region }}</TableHead>
+                <TableHead>{{ trans.osArch }}</TableHead>
+                <TableHead>{{ trans.cpu }}</TableHead>
+                <TableHead>{{ trans.ram }}</TableHead>
+                <TableHead>{{ trans.disk }}</TableHead>
+                <TableHead>{{ trans.use }}</TableHead>
+                <TableHead class="table-col-conn">TCP/UDP</TableHead>
+                <TableHead width="95">{{ trans.dl }}</TableHead>
+                <TableHead width="95">{{ trans.ul }}</TableHead>
+                <TableHead width="70">{{ trans.update }}</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              <TableRow v-if="isLoading">
+                <TableCell class="table-empty-state" colspan="12">
+                  <Spinner class="mx-auto size-5"></Spinner>
+                  <span>$ {{ trans.loading }}</span>
+                </TableCell>
+              </TableRow>
+              <TableRow v-else-if="filteredServers.length === 0">
+                <TableCell class="table-empty-state" colspan="12">{{ trans.noData }}</TableCell>
+              </TableRow>
+              <TableRow
+                v-for="server in filteredServers"
+                :key="server.id"
+                @click="goToServer(server)"
+                class="table-cursor-pointer"
+                :data-region="(server.region || 'xx').toLowerCase()"
+              >
+                <TableCell class="table-center-cell">
+                  <div
+                    class="status-indicator table-status-indicator-inline"
+                    :style="{ background: getStatusColor(server) }"
+                  ></div>
+                </TableCell>
+                <TableCell
+                  ><b class="table-server-name">{{ server.name }}</b></TableCell
+                >
+                <TableCell>
+                  <span v-if="server.region && server.region !== 'xx'" class="country-os-icons">
+                    <img
+                      :src="getPublicAssetUrl('flags/' + getFlagRegionCode(server.region) + '.svg')"
+                      :alt="server.region"
+                      class="flag-img"
+                    />
+                  </span>
+                  <span v-else class="country-os-icons">
+                    <span class="flag-fallback">🏳️</span>
+                  </span>
+                  {{ (server.region || 'XX').toUpperCase() }}
+                </TableCell>
+                <TableCell>
+                  <span class="table-system-info">
+                    <OsIcon :os="server.os" />
+                    <span class="os-label">{{ formatSystemOs(server.os) }} / {{ server.arch || 'N/A' }} </span>
+                  </span>
+                </TableCell>
+                <TableCell>
+                  <div class="table-stat">
+                    <Progress
+                      :model-value="Number(parseFloat(server.cpu) || 0)"
+                      :style="{ '--meter-color': getUsageColor(parseFloat(server.cpu) || 0) }"
+                      class="usage-meter h-1.5 stat-bar-small table-usage-bar"
+                    />
+                    <span>{{ (parseFloat(server.cpu) || 0).toFixed(1) }}%</span>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <div class="table-stat">
+                    <Progress
+                      :model-value="
+                        Number(server.ram_total > 0 ? ((server.ram_used / server.ram_total) * 100).toFixed(2) : 0)
+                      "
+                      :style="{
+                        '--meter-color': getUsageColor(
+                          server.ram_total > 0 ? (server.ram_used / server.ram_total) * 100 : 0,
+                        ),
+                      }"
+                      class="usage-meter h-1.5 table-usage-bar"
+                    />
+                    <span
+                      >{{
+                        server.ram_total > 0 ? ((server.ram_used / server.ram_total) * 100).toFixed(2) : '0.00'
+                      }}%</span
+                    >
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <div class="table-stat">
+                    <Progress
+                      :model-value="
+                        Number(server.disk_total > 0 ? ((server.disk_used / server.disk_total) * 100).toFixed(2) : 0)
+                      "
+                      :style="{
+                        '--meter-color': getUsageColor(
+                          server.disk_total > 0 ? (server.disk_used / server.disk_total) * 100 : 0,
+                        ),
+                      }"
+                      class="usage-meter h-1.5 table-usage-bar"
+                    />
+                    <span
+                      >{{
+                        server.disk_total > 0 ? ((server.disk_used / server.disk_total) * 100).toFixed(2) : '0.00'
+                      }}%</span
+                    >
+                  </div>
+                </TableCell>
+                <TableCell v-if="sysConfig.show_tf && server.traffic_limit">
+                  <div class="table-stat">
+                    <Progress
+                      :model-value="Number(Math.min(100, calcTrafficUsagePercent(server)))"
+                      :style="{ '--meter-color': getUsageColor(calcTrafficUsagePercent(server)) }"
+                      class="usage-meter h-1.5 stat-bar-small table-usage-bar"
+                    />
+                    <span>{{ calcTrafficUsagePercent(server).toFixed(1) }}%</span>
+                  </div>
+                </TableCell>
+                <TableCell v-else>-</TableCell>
+                <TableCell class="table-conn-cell">
+                  <span class="conn-pair">{{ formatConnPair(server) }}</span>
+                </TableCell>
+                <TableCell>{{ formatBytes(server.net_in_speed) }}/s</TableCell>
+                <TableCell>{{ formatBytes(server.net_out_speed) }}/s</TableCell>
+                <TableCell class="update-time label-small">{{ getUpdateTime(server.last_updated) }}</TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </div>
+      </div>
+
+      <div id="view-map" class="view-panel" :class="{ active: currentView === 'map' }">
+        <div class="map-wrapper">
+          <div ref="mapContainer" id="map-container"></div>
+        </div>
+      </div>
     </template>
 
     <div v-if="!isLoading && sitesRemaining > 0" class="loading-more">
-      <div class="loading-spinner-small"></div>
+      <Spinner class="mx-auto size-5"></Spinner>
       <span>Loading remaining sites... ({{ sitesRemaining }})</span>
     </div>
 
-    <div v-if="hasCorsError" class="modal-overlay active">
-      <div class="modal-dialog">
-        <div class="modal-header">
-          <div class="modal-title">$ cors --error</div>
-          <button class="modal-close" @click="hasCorsError = null">✕</button>
-        </div>
-        <div v-for="site in hasCorsError" :key="site" class="danger-box mb-4">
+    <Dialog
+      v-if="hasCorsError"
+      :open="Boolean(hasCorsError)"
+      @update:open="
+        (open) => {
+          if (!open) hasCorsError = null
+        }
+      "
+    >
+      <DialogContent class="max-h-[85dvh] overflow-y-auto" :show-close-button="false" :aria-describedby="undefined">
+        <DialogHeader class="pr-8">
+          <DialogTitle>{{ trans.connectionError }}</DialogTitle>
+          <Button
+            @click="hasCorsError = null"
+            class="absolute right-3 top-3"
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            :aria-label="trans.close"
+            >✕</Button
+          >
+        </DialogHeader>
+        <Alert v-for="site in hasCorsError" :key="site" class="block" variant="destructive">
           <div class="flex-center-gap-sm">
             <span class="danger-label">❌ {{ site }} {{ trans.corsBlocked }}</span>
           </div>
-        </div>
-        <div class="modal-footer flex-justify-end">
-          <button @click="hasCorsError = null" class="btn">OK</button>
-        </div>
-      </div>
-    </div>
+        </Alert>
+        <DialogFooter class="flex-wrap">
+          <Button @click="hasCorsError = null" type="button" variant="outline" size="sm">OK</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
 
-    <div v-if="financeModalOpen" class="modal-overlay active" @click.self="financeModalOpen = false">
-      <div class="modal-dialog finance-modal-dialog">
-        <div class="modal-header">
-          <div class="modal-title">$ finance --summary</div>
-          <button class="modal-close" @click="financeModalOpen = false">✕</button>
-        </div>
+    <Dialog
+      v-if="financeModalOpen"
+      :open="Boolean(financeModalOpen)"
+      @update:open="
+        (open) => {
+          if (!open) financeModalOpen = false
+        }
+      "
+    >
+      <DialogContent
+        class="max-h-[85dvh] overflow-y-auto sm:max-w-3xl"
+        :show-close-button="false"
+        :aria-describedby="undefined"
+      >
+        <DialogHeader class="pr-8">
+          <DialogTitle>{{ trans.remainingValue }}</DialogTitle>
+          <Button
+            @click="financeModalOpen = false"
+            class="absolute right-3 top-3"
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            :aria-label="trans.close"
+            >✕</Button
+          >
+        </DialogHeader>
 
         <div class="finance-summary-grid">
-          <div v-for="item in financeSummaryItems" :key="item.label" class="finance-summary-card">
+          <Card v-for="item in financeSummaryItems" :key="item.label" class="finance-summary-card min-w-0 gap-4 p-5">
             <div class="finance-summary-label">{{ item.label }}</div>
             <div class="finance-summary-value">
-              <span class="finance-summary-symbol">{{ item.symbol }}</span>{{ item.value }}
+              <span class="finance-summary-symbol">{{ item.symbol }}</span
+              >{{ item.value }}
             </div>
-          </div>
+          </Card>
         </div>
 
         <div class="finance-rate-toolbar">
@@ -326,14 +458,14 @@
             <div class="finance-section-label">{{ trans.todayExchangeRates }}</div>
             <div class="finance-source-text">{{ trans.exchangeRateSource }}: {{ financeRateSourceText }}</div>
           </div>
-          <label class="finance-currency-picker">
+          <Label class="finance-currency-picker">
             <span>{{ trans.exchangeRateBase }}</span>
-            <select :value="financeCurrency" class="form-select" @change="setFinanceCurrency">
-              <option v-for="currency in financeRateCurrencies" :key="currency" :value="currency">
+            <NativeSelect :model-value="financeCurrency" class="form-select" @change="setFinanceCurrency">
+              <NativeSelectOption v-for="currency in financeRateCurrencies" :key="currency" :value="currency">
                 {{ currency }}
-              </option>
-            </select>
-          </label>
+              </NativeSelectOption>
+            </NativeSelect>
+          </Label>
         </div>
 
         <div class="finance-rate-grid">
@@ -349,11 +481,11 @@
           <span>{{ trans.financeMissingExpire }}: {{ financeSummary.missingExpireCount }}</span>
         </div>
 
-        <div class="modal-footer flex-justify-end">
-          <button @click="financeModalOpen = false" class="btn">OK</button>
-        </div>
-      </div>
-    </div>
+        <DialogFooter class="flex-wrap">
+          <Button @click="financeModalOpen = false" type="button" variant="outline" size="sm">OK</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
 
     <LiveConnectionTimeoutModal
       :show="showLiveTimeoutModal"
@@ -367,6 +499,19 @@
 </template>
 
 <script setup>
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { Progress } from '@/components/ui/progress'
+import { Skeleton } from '@/components/ui/skeleton'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Card, CardDescription } from '@/components/ui/card'
+import { Empty } from '@/components/ui/empty'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Spinner } from '@/components/ui/spinner'
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Alert } from '@/components/ui/alert'
+import { Label } from '@/components/ui/label'
+import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select'
 import UiIcon from '../components/UiIcon.vue'
 import { ref, computed, inject, nextTick, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
@@ -598,7 +743,7 @@ const updateFilterVisibleCount = () => {
     return
   }
 
-  const moreWidth = filterMoreMeasure.value?.offsetWidth || 70
+  const moreWidth = filterMoreMeasure.value?.$el?.offsetWidth || 70
   let visibleCount = 0
 
   for (let index = 0; index < itemWidths.length; index += 1) {
@@ -620,13 +765,6 @@ const scheduleFilterMeasurement = () => {
   }, 0)
 }
 
-const toggleFilterMore = () => {
-  filterMoreOpen.value = !filterMoreOpen.value
-}
-
-const closeFilterMoreOnOutsideClick = (event) => {
-  if (!filterWrap.value?.contains(event.target)) filterMoreOpen.value = false
-}
 
 watch(
   () => filterOptionEntries.value.map(item => `${item.code}:${item.count}:${item.label}`).join('|'),
@@ -1234,8 +1372,8 @@ const getThemeColors = () => {
     bgPrimary: token('--bg-primary'),
     bgSecondary: token('--bg-secondary'),
     borderColor: token('--border-active'),
-    accentGreen: token('--accent'),
-    colorBlack: token('--accent-ink'),
+    accentGreen: token('--map-active'),
+    colorBlack: token('--map-ink'),
     colorWhite: token('--text-primary')
   }
 }
@@ -1290,10 +1428,10 @@ const drawMarkers = () => {
 const getServerLink = (server) => {
   const bases = getApiBases()
   if (bases.length === 0) return `/server/${server.id}`
-  
+
   const apiIndex = bases.indexOf(server.source)
   if (apiIndex === -1 || apiIndex === 0) return `/server/${server.id}`
-  
+
   return `/server/${server.id}?apiIndex=${apiIndex}`
 }
 
@@ -1321,7 +1459,7 @@ onMounted(async () => {
   } else {
     window.addEventListener('resize', scheduleFilterMeasurement)
   }
-  document.addEventListener('click', closeFilterMoreOnOutsideClick)
+
   startLiveSocket()
   document.addEventListener('visibilitychange', handleVisibility)
 
@@ -1346,7 +1484,7 @@ onMounted(async () => {
 
 onUnmounted(() => {
   document.removeEventListener('visibilitychange', handleVisibility)
-  document.removeEventListener('click', closeFilterMoreOnOutsideClick)
+
   window.removeEventListener('resize', scheduleFilterMeasurement)
   if (filterMeasureTimer) clearTimeout(filterMeasureTimer)
   if (filterResizeObserver) filterResizeObserver.disconnect()
