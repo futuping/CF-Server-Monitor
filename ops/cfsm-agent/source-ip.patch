@@ -1,0 +1,206 @@
+diff --git a/internal/cfprobe/probe.go b/internal/cfprobe/probe.go
+index c3b0973..98bca87 100644
+--- a/internal/cfprobe/probe.go
++++ b/internal/cfprobe/probe.go
+@@ -118,7 +118,7 @@ func tcpPing(target string, defaultPort int, timeout time.Duration) (int, error)
+ 	}
+ 	addr := net.JoinHostPort(ip, strconv.Itoa(port))
+ 	start := time.Now()
+-	conn, err := net.DialTimeout("tcp", addr, timeout)
++	conn, err := dialProbeTCP(ctx, addr, timeout)
+ 	if err != nil {
+ 		return -1, err
+ 	}
+@@ -172,7 +172,7 @@ func httpPing(target string, timeout time.Duration) (int, error) {
+ 				}
+ 				ip = resolved
+ 			}
+-			return net.DialTimeout(network, net.JoinHostPort(ip, port), timeout)
++			return dialProbeTCP(ctx, net.JoinHostPort(ip, port), timeout)
+ 		},
+ 	}
+ 	defer transport.CloseIdleConnections()
+@@ -212,6 +212,13 @@ func icmpPing(target string, timeout time.Duration) (int, error) {
+ 	if err != nil {
+ 		return -1, err
+ 	}
++	source, err := probeSourceIP()
++	if err != nil {
++		return -1, err
++	}
++	if source != nil {
++		pinger.Source = source.String()
++	}
+ 	pinger.Count = 1
+ 	pinger.Timeout = timeout
+ 	pinger.SetPrivileged(true)
+diff --git a/internal/cfprobe/agent.go b/internal/cfprobe/agent.go
+index 49902eb..dd5390f 100644
+--- a/internal/cfprobe/agent.go
++++ b/internal/cfprobe/agent.go
+@@ -151,6 +151,10 @@ func (h rollingProbeHistory) snapshot(now time.Time) ProbeResult {
+ }
+ 
+ func Run(configFile string, debug bool, version string) error {
++	sourceIP, sourceErr := probeSourceIP()
++	if sourceErr != nil {
++		return sourceErr
++	}
+ 	paths := defaultPaths()
+ 	if configFile != "" {
+ 		paths.ConfigFile = configFile
+@@ -191,6 +195,9 @@ func Run(configFile string, debug bool, version string) error {
+ 	a.basicAt = time.Now()
+ 
+ 	a.log.info("CF-Server-Monitor Go Probe started version=%s platform=%s config=%s", version, platformName(), paths.ConfigFile)
++	if sourceIP != nil {
++		a.log.info("network probes bound to source_ip=%s", sourceIP.String())
++	}
+ 	a.log.debugf("config id=%s url=%s report_interval=%ds collect_interval=%ds reset_day=%d connection_mode=%s ping_mode=%s interface=%s auto_update=%v",
+ 		cfg.ServerID, cfg.WorkerURL, cfg.ReportInterval, cfg.CollectInterval, cfg.ResetDay, cfg.ConnectionMode, cfg.PingMode, firstNonEmpty(cfg.Interface, "auto"), cfg.AutoUpdate)
+ 
+diff --git a/internal/cfprobe/probe_source.go b/internal/cfprobe/probe_source.go
+new file mode 100644
+index 0000000..a232b7e
+--- /dev/null
++++ b/internal/cfprobe/probe_source.go
+@@ -0,0 +1,37 @@
++package cfprobe
++
++import (
++	"context"
++	"fmt"
++	"net"
++	"os"
++	"strings"
++	"time"
++)
++
++// CF_PROBE_PING_SOURCE_IP selects only network probe traffic. Reporting, IP
++// discovery and update transports continue to use their original routing.
++// An invalid/unavailable source must fail, never silently probe another path.
++func probeSourceIP() (net.IP, error) {
++	raw := strings.TrimSpace(os.Getenv("CF_PROBE_PING_SOURCE_IP"))
++	if raw == "" {
++		return nil, nil
++	}
++	ip := net.ParseIP(raw)
++	if ip == nil || ip.IsUnspecified() || ip.IsMulticast() {
++		return nil, fmt.Errorf("invalid CF_PROBE_PING_SOURCE_IP: %q", raw)
++	}
++	return ip, nil
++}
++
++func dialProbeTCP(ctx context.Context, addr string, timeout time.Duration) (net.Conn, error) {
++	source, err := probeSourceIP()
++	if err != nil {
++		return nil, err
++	}
++	dialer := net.Dialer{Timeout: timeout}
++	if source != nil {
++		dialer.LocalAddr = &net.TCPAddr{IP: source}
++	}
++	return dialer.DialContext(ctx, "tcp", addr)
++}
+diff --git a/internal/cfprobe/probe_source_test.go b/internal/cfprobe/probe_source_test.go
+new file mode 100644
+index 0000000..15cbd2a
+--- /dev/null
++++ b/internal/cfprobe/probe_source_test.go
+@@ -0,0 +1,96 @@
++package cfprobe
++
++import (
++	"net"
++	"net/http"
++	"net/http/httptest"
++	"testing"
++	"time"
++)
++
++func TestProbeSourceValidation(t *testing.T) {
++	for _, source := range []string{"bad", "localhost", "127.0.0.1:80", "0.0.0.0", "::", "224.0.0.1"} {
++		t.Run(source, func(t *testing.T) {
++			t.Setenv("CF_PROBE_PING_SOURCE_IP", source)
++			if _, err := probeSourceIP(); err == nil {
++				t.Fatal("invalid source accepted")
++			}
++		})
++	}
++	for _, source := range []string{"", " 127.0.0.1 ", "::1", "128.108.221.182"} {
++		t.Run(source, func(t *testing.T) {
++			t.Setenv("CF_PROBE_PING_SOURCE_IP", source)
++			if _, err := probeSourceIP(); err != nil {
++				t.Fatal(err)
++			}
++		})
++	}
++}
++
++func TestTCPProbeSourceBinding(t *testing.T) {
++	listener, err := net.Listen("tcp4", "127.0.0.1:0")
++	if err != nil {
++		t.Fatal(err)
++	}
++	defer listener.Close()
++	peers := make(chan string, 10)
++	go func() {
++		for {
++			c, err := listener.Accept()
++			if err != nil {
++				return
++			}
++			peers <- c.RemoteAddr().(*net.TCPAddr).IP.String()
++			c.Close()
++		}
++	}()
++	for _, source := range []string{"", "127.0.0.1"} {
++		t.Setenv("CF_PROBE_PING_SOURCE_IP", source)
++		if _, err := tcpPing(listener.Addr().String(), 80, time.Second); err != nil {
++			t.Fatal(err)
++		}
++		select {
++		case peer := <-peers:
++			if peer != "127.0.0.1" {
++				t.Fatalf("unexpected peer %s", peer)
++			}
++		case <-time.After(time.Second):
++			t.Fatal("no connection")
++		}
++	}
++	for _, source := range []string{"bad", "192.0.2.254", "::1"} {
++		t.Setenv("CF_PROBE_PING_SOURCE_IP", source)
++		if _, err := tcpPing(listener.Addr().String(), 80, time.Second); err == nil {
++			t.Fatalf("source %s silently fell back", source)
++		}
++	}
++	select {
++	case peer := <-peers:
++		t.Fatalf("unexpected fallback connection from %s", peer)
++	default:
++	}
++}
++
++func TestHTTPProbeSourceDoesNotChangeOtherTransports(t *testing.T) {
++	listener, err := net.Listen("tcp4", "127.0.0.1:0")
++	if err != nil {
++		t.Fatal(err)
++	}
++	server := httptest.NewUnstartedServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { w.WriteHeader(http.StatusNoContent) }))
++	server.Listener = listener
++	server.Start()
++	defer server.Close()
++	t.Setenv("CF_PROBE_PING_SOURCE_IP", "127.0.0.1")
++	if _, err := httpPing(server.URL, time.Second); err != nil {
++		t.Fatal(err)
++	}
++	t.Setenv("CF_PROBE_PING_SOURCE_IP", "192.0.2.254")
++	if _, err := httpPing(server.URL, time.Second); err == nil {
++		t.Fatal("HTTP probe silently fell back")
++	}
++	response, err := http.Get(server.URL)
++	if err != nil {
++		t.Fatalf("unrelated HTTP transport affected: %v", err)
++	}
++	response.Body.Close()
++}

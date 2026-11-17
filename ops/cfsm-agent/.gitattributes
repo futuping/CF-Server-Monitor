@@ -1,0 +1,2 @@
+# Unified diff context uses a leading space before Go tabs and on blank lines.
+*.patch -whitespace
